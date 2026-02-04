@@ -1,0 +1,552 @@
+{
+  "MUI": {
+    "textToken": {
+      "overline": {
+        "textDecoration": {
+          "$type": "text",
+          "$value": "uppercase"
+        },
+        "fontWeight": {
+          "$type": "text",
+          "$value": "{Nexus.typography.fontWeight.regular}"
+        },
+        "fontSize": {
+          "$type": "dimension",
+          "$value": "{Nexus.sizing.75}"
+        },
+        "letterSpacing": {
+          "$type": "dimension",
+          "$value": "0.08px"
+        },
+        "lineHeight": {
+          "$type": "dimension",
+          "$value": "1px"
+        }
+      }
+    }
+  },
+  "Nexus": {
+    "textToken": {
+      "h1": {
+        "fontWeight": {
+          "$type": "text",
+          "$value": "{Nexus.typography.fontWeight.semibold}"
+        },
+        "fontSize": {
+          "$type": "dimension",
+          "$value": "{Nexus.sizing.300}"
+        },
+        "lineHeight": {
+          "$type": "dimension",
+          "$value": "1.2px"
+        }
+      },
+      "h2": {
+        "fontWeight": {
+          "$type": "text",
+          "$value": "{Nexus.typography.fontWeight.semibold}"
+        },
+        "fontFamily": {
+          "$type": "text",
+          "$value": "{Nexus.textToken.fontFamily.primary}"
+        },
+        "fontSize": {
+          "$type": "dimension",
+          "$value": "{Nexus.sizing.250}"
+        },
+        "lineHeight": {
+          "$type": "dimension",
+          "$value": "1.2px"
+        }
+      },
+      "h3": {
+        "fontWeight": {
+          "$type": "text",
+          "$value": "{Nexus.typography.fontWeight.semibold}"
+        },
+        "fontSize": {
+          "$type": "dimension",
+          "$value": "{Nexus.sizing.200}"
+        },
+        "lineHeight": {
+          "$type": "dimension",
+          "$value": "1.2px"
+        }
+      },
+      "h4": {
+        "fontWeight": {
+          "$type": "text",
+          "$value": "{Nexus.typography.fontWeight.semibold}"
+        },
+        "fontSize": {
+          "$type": "dimension",
+          "$value": "{Nexus.sizing.175}"
+        },
+        "lineHeight": {
+          "$type": "dimension",
+          "$value": "1.2px"
+        }
+      },
+      "h5": {
+        "fontWeight": {
+          "$type": "text",
+          "$value": "{Nexus.typography.fontWeight.semibold}"
+        },
+        "fontSize": {
+          "$type": "dimension",
+          "$value": "{Nexus.sizing.150}"
+        },
+        "lineHeight": {
+          "$type": "dimension",
+          "$value": "1.2px"
+        }
+      },
+      "h6": {
+        "fontWeight": {
+          "$type": "text",
+          "$value": "{Nexus.typography.fontWeight.semibold}"
+        },
+        "fontSize": {
+          "$type": "dimension",
+          "$value": "{Nexus.sizing.125}"
+        },
+        "lineHeight": {
+          "$type": "dimension",
+          "$value": "1.2px"
+        }
+      },
+      "subtitle-lg": {
+        "fontWeight": {
+          "$type": "text",
+          "$value": "{Nexus.typography.fontWeight.medium}"
+        },
+        "fontSize": {
+          "$type": "dimension",
+          "$value": "{Nexus.sizing.100}"
+        },
+        "lineHeight": {
+          "$type": "dimension",
+          "$value": "1.2px"
+        }
+      },
+      "subtitle-sm": {
+        "fontWeight": {
+          "$type": "text",
+          "$value": "{Nexus.typography.fontWeight.medium}"
+        },
+        "fontSize": {
+          "$type": "dimension",
+          "$value": "{Nexus.sizing.88}"
+        },
+        "lineHeight": {
+          "$type": "dimension",
+          "$value": "1.2px"
+        }
+      },
+      "body-lg": {
+        "default": {
+          "fontWeight": {
+            "$type": "text",
+            "$value": "{Nexus.typography.fontWeight.regular}"
+          },
+          "fontSize": {
+            "$type": "dimension",
+            "$value": "{Nexus.sizing.100}"
+          },
+          "lineHeight": {
+            "$type": "dimension",
+            "$value": "1.6px"
+          }
+        },
+        "emphasized": {
+          "fontWeight": {
+            "$type": "text",
+            "$value": "{Nexus.typography.fontWeight.semibold}"
+          },
+          "fontSize": {
+            "$type": "dimension",
+            "$value": "{Nexus.sizing.100}"
+          },
+          "lineHeight": {
+            "$type": "dimension",
+            "$value": "1.6px"
+          }
+        },
+        "subtle": {
+          "fontWeight": {
+            "$type": "text",
+            "$value": "{Nexus.typography.fontWeight.light}"
+          },
+          "fontSize": {
+            "$type": "dimension",
+            "$value": "{Nexus.sizing.100}"
+          },
+          "lineHeight": {
+            "$type": "dimension",
+            "$value": "1.6px"
+          }
+        }
+      },
+      "body-md": {
+        "default": {
+          "fontWeight": {
+            "$type": "text",
+            "$value": "{Nexus.typography.fontWeight.regular}"
+          },
+          "fontSize": {
+            "$type": "dimension",
+            "$value": "{Nexus.sizing.88}"
+          },
+          "lineHeight": {
+            "$type": "dimension",
+            "$value": "1.6px"
+          }
+        },
+        "emphasized": {
+          "fontWeight": {
+            "$type": "text",
+            "$value": "{Nexus.typography.fontWeight.semibold}"
+          },
+          "fontSize": {
+            "$type": "dimension",
+            "$value": "{Nexus.sizing.88}"
+          },
+          "lineHeight": {
+            "$type": "dimension",
+            "$value": "1.6px"
+          }
+        },
+        "subtle": {
+          "fontWeight": {
+            "$type": "text",
+            "$value": "{Nexus.typography.fontWeight.light}"
+          },
+          "fontSize": {
+            "$type": "dimension",
+            "$value": "{Nexus.sizing.88}"
+          },
+          "lineHeight": {
+            "$type": "dimension",
+            "$value": "1.6px"
+          }
+        }
+      },
+      "label-lg": {
+        "fontWeight": {
+          "$type": "text",
+          "$value": "{Nexus.typography.fontWeight.medium}"
+        },
+        "fontSize": {
+          "$type": "dimension",
+          "$value": "{Nexus.sizing.100}"
+        },
+        "lineHeight": {
+          "$type": "dimension",
+          "$value": "1px"
+        }
+      },
+      "label-md": {
+        "fontWeight": {
+          "$type": "text",
+          "$value": "{Nexus.typography.fontWeight.medium}"
+        },
+        "fontSize": {
+          "$type": "dimension",
+          "$value": "{Nexus.sizing.88}"
+        },
+        "lineHeight": {
+          "$type": "dimension",
+          "$value": "1px"
+        }
+      },
+      "link-lg": {
+        "fontWeight": {
+          "$type": "text",
+          "$value": "{Nexus.typography.fontWeight.regular}"
+        },
+        "textDecoration": {
+          "$type": "text",
+          "$value": "underline"
+        },
+        "lineHeight": {
+          "$type": "dimension",
+          "$value": "1.6px"
+        },
+        "fontSize": {
+          "$type": "dimension",
+          "$value": "{Nexus.sizing.100}"
+        }
+      },
+      "link-md": {
+        "fontWeight": {
+          "$type": "text",
+          "$value": "{Nexus.typography.fontWeight.regular}"
+        },
+        "textDecoration": {
+          "$type": "text",
+          "$value": "underline"
+        },
+        "fontSize": {
+          "$type": "dimension",
+          "$value": "{Nexus.sizing.88}"
+        },
+        "lineHeight": {
+          "$type": "dimension",
+          "$value": "1.6px"
+        }
+      },
+      "caption-lg": {
+        "fontWeight": {
+          "$type": "text",
+          "$value": "{Nexus.typography.fontWeight.regular}"
+        },
+        "fontSize": {
+          "$type": "dimension",
+          "$value": "{Nexus.sizing.88}"
+        },
+        "lineHeight": {
+          "$type": "dimension",
+          "$value": "1.6px"
+        }
+      },
+      "caption-sm": {
+        "fontWeight": {
+          "$type": "text",
+          "$value": "{Nexus.typography.fontWeight.regular}"
+        },
+        "fontSize": {
+          "$type": "dimension",
+          "$value": "{Nexus.sizing.75}"
+        },
+        "lineHeight": {
+          "$type": "dimension",
+          "$value": "1.6px"
+        }
+      },
+      "link-sm": {
+        "fontWeight": {
+          "$type": "text",
+          "$value": "{Nexus.typography.fontWeight.regular}"
+        },
+        "textDecoration": {
+          "$type": "text",
+          "$value": "underline"
+        },
+        "fontSize": {
+          "$type": "dimension",
+          "$value": "{Nexus.sizing.75}"
+        },
+        "lineHeight": {
+          "$type": "dimension",
+          "$value": "1.6px"
+        }
+      },
+      "body-sm": {
+        "default": {
+          "fontWeight": {
+            "$type": "text",
+            "$value": "{Nexus.typography.fontWeight.regular}"
+          },
+          "fontSize": {
+            "$type": "dimension",
+            "$value": "{Nexus.sizing.75}"
+          },
+          "lineHeight": {
+            "$type": "dimension",
+            "$value": "1.6px"
+          }
+        },
+        "emphasized": {
+          "fontWeight": {
+            "$type": "text",
+            "$value": "{Nexus.typography.fontWeight.semibold}"
+          },
+          "fontSize": {
+            "$type": "dimension",
+            "$value": "{Nexus.sizing.75}"
+          },
+          "lineHeight": {
+            "$type": "dimension",
+            "$value": "1.6px"
+          }
+        },
+        "subtle": {
+          "fontWeight": {
+            "$type": "text",
+            "$value": "{Nexus.typography.fontWeight.light}"
+          },
+          "fontSize": {
+            "$type": "dimension",
+            "$value": "{Nexus.sizing.75}"
+          },
+          "lineHeight": {
+            "$type": "dimension",
+            "$value": "1.6px"
+          }
+        }
+      },
+      "label-sm": {
+        "fontWeight": {
+          "$type": "text",
+          "$value": "{Nexus.typography.fontWeight.medium}"
+        },
+        "fontSize": {
+          "$type": "dimension",
+          "$value": "{Nexus.sizing.75}"
+        },
+        "lineHeight": {
+          "$type": "dimension",
+          "$value": "1px"
+        }
+      }
+    },
+    "spacing": {
+      "content": {
+        "gap": {
+          "sm": {
+            "$type": "dimension",
+            "$value": "{Nexus.sizing.100}"
+          },
+          "md": {
+            "$type": "dimension",
+            "$value": "{Nexus.sizing.150}"
+          },
+          "lg": {
+            "$type": "dimension",
+            "$value": "{Nexus.sizing.175}"
+          },
+          "xs": {
+            "$type": "dimension",
+            "$value": "{Nexus.sizing.50}"
+          },
+          "xl": {
+            "$type": "dimension",
+            "$value": "{Nexus.sizing.250}"
+          },
+          "none": {
+            "$type": "dimension",
+            "$value": "{Nexus.sizing.00}"
+          },
+          "xxl": {
+            "$type": "dimension",
+            "$value": "{Nexus.sizing.300}"
+          }
+        }
+      }
+    }
+  },
+  "IOS": {
+    "textToken": {
+      "largeTitle": {
+        "fontWeight": {
+          "$type": "text",
+          "$value": "{Nexus.typography.fontWeight.regular}"
+        },
+        "lineHeight": {
+          "$type": "dimension",
+          "$value": "1.2px"
+        },
+        "fontSize": {
+          "$type": "dimension",
+          "$value": "{Nexus.sizing.225}"
+        }
+      },
+      "title1": {
+        "fontWeight": {
+          "$type": "text",
+          "$value": "{Nexus.typography.fontWeight.regular}"
+        },
+        "lineHeight": {
+          "$type": "dimension",
+          "$value": "1.2px"
+        },
+        "fontSize": {
+          "$type": "dimension",
+          "$value": "{Nexus.sizing.200}"
+        }
+      },
+      "title2": {
+        "fontWeight": {
+          "$type": "text",
+          "$value": "{Nexus.typography.fontWeight.regular}"
+        },
+        "lineHeight": {
+          "$type": "dimension",
+          "$value": "1.2px"
+        },
+        "fontSize": {
+          "$type": "dimension",
+          "$value": "{Nexus.sizing.150}"
+        }
+      },
+      "title3": {
+        "fontWeight": {
+          "$type": "text",
+          "$value": "{Nexus.typography.fontWeight.regular}"
+        },
+        "lineHeight": {
+          "$type": "dimension",
+          "$value": "1.2px"
+        },
+        "fontSize": {
+          "$type": "dimension",
+          "$value": "{Nexus.sizing.125}"
+        }
+      },
+      "headline": {
+        "fontWeight": {
+          "$type": "text",
+          "$value": "{Nexus.typography.fontWeight.regular}"
+        },
+        "lineHeight": {
+          "$type": "dimension",
+          "$value": "1.6px"
+        },
+        "fontSize": {
+          "$type": "dimension",
+          "$value": "{Nexus.sizing.125}"
+        },
+        "letterSpacing": {
+          "$type": "dimension",
+          "$value": "-0.02px"
+        }
+      },
+      "callout": {
+        "fontWeight": {
+          "$type": "text",
+          "$value": "{Nexus.typography.fontWeight.regular}"
+        },
+        "lineHeight": {
+          "$type": "dimension",
+          "$value": "1.6px"
+        },
+        "fontSize": {
+          "$type": "dimension",
+          "$value": "{Nexus.sizing.112}"
+        },
+        "letterSpacing": {
+          "$type": "dimension",
+          "$value": "-0.02px"
+        }
+      },
+      "footnote": {
+        "fontWeight": {
+          "$type": "text",
+          "$value": "{Nexus.typography.fontWeight.regular}"
+        },
+        "lineHeight": {
+          "$type": "dimension",
+          "$value": "1.6px"
+        },
+        "letterSpacing": {
+          "$type": "dimension",
+          "$value": "-0.02px"
+        },
+        "fontSize": {
+          "$type": "dimension",
+          "$value": "{Nexus.sizing.100}"
+        }
+      }
+    }
+  }
+}

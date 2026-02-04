@@ -1,0 +1,865 @@
+{
+  "Nexus": {
+    "color": {
+      "content": {
+        "primary": {
+          "$type": "color",
+          "$value": "{Nexus.color.system.content.200}"
+        },
+        "secondary": {
+          "$type": "color",
+          "$value": "{Nexus.color.system.content.500}"
+        },
+        "onColor": {
+          "$type": "color",
+          "$value": "{Nexus.color.system.content.1000}"
+        },
+        "disabled": {
+          "$type": "color",
+          "$value": "#e4e8f280"
+        },
+        "link": {
+          "$type": "color",
+          "$value": "{Nexus.color.system.primary.400}"
+        },
+        "tertiary": {
+          "$type": "color",
+          "$value": "{Nexus.color.system.content.600}"
+        }
+      },
+      "background": {
+        "surface": {
+          "primary": {
+            "$type": "color",
+            "$value": "{Nexus.color.slate.800}"
+          },
+          "secondary": {
+            "$type": "color",
+            "$value": "{Nexus.color.slate.900}"
+          },
+          "tertiary": {
+            "$type": "color",
+            "$value": "{Nexus.color.neutral.1000}"
+          },
+          "subtle": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.content.1000}"
+          },
+          "inverse": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.content.000}"
+          },
+          "inverseDark": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.content.100}"
+          },
+          "disabledBg": {
+            "$type": "color",
+            "$value": "#e4e8f21f"
+          },
+          "mediaBg": {
+            "$type": "color",
+            "$value": "#17191ca6"
+          },
+          "midtone": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.content.700}"
+          }
+        },
+        "primary": {
+          "surface": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.primary.500}"
+          },
+          "actionLighter": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.primary.300}"
+          },
+          "actionLight": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.primary.400}"
+          },
+          "actionDark": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.primary.600}"
+          },
+          "actionDarker": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.primary.700}"
+          },
+          "subtle": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.primary.1000}"
+          }
+        },
+        "error": {
+          "actionLighter": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.error.300}"
+          },
+          "actionLight": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.error.400}"
+          },
+          "surface": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.error.500}"
+          },
+          "actionDark": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.error.600}"
+          },
+          "actionDarker": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.error.700}"
+          },
+          "subtle": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.error.1000}"
+          }
+        },
+        "success": {
+          "actionLighter": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.success.300}"
+          },
+          "actionLight": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.success.400}"
+          },
+          "surface": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.success.500}"
+          },
+          "actionDark": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.success.600}"
+          },
+          "actionDarker": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.success.700}"
+          },
+          "subtle": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.success.1000}"
+          }
+        },
+        "info": {
+          "actionLighter": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.info.300}"
+          },
+          "actionLight": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.info.400}"
+          },
+          "surface": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.info.500}"
+          },
+          "actionDark": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.info.600}"
+          },
+          "actionDarker": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.info.700}"
+          },
+          "subtle": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.info.1000}"
+          }
+        },
+        "warning": {
+          "actionLighter": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.warning.300}"
+          },
+          "actionLight": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.warning.400}"
+          },
+          "surface": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.warning.500}"
+          },
+          "actionDark": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.warning.600}"
+          },
+          "actionDarker": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.warning.700}"
+          },
+          "subtle": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.warning.1000}"
+          }
+        },
+        "danger": {
+          "actionLighter": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.danger.300}"
+          },
+          "actionLight": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.danger.400}"
+          },
+          "default": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.danger.500}"
+          },
+          "actionDark": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.danger.600}"
+          },
+          "actionDarker": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.danger.700}"
+          },
+          "subtle": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.danger.1000}"
+          }
+        },
+        "neutral": {
+          "actionLighter": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.content.300}"
+          },
+          "actionLight": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.content.400}"
+          },
+          "surface": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.content.500}"
+          },
+          "actionDark": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.content.600}"
+          },
+          "actionDarker": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.content.700}"
+          }
+        },
+        "secondary": {
+          "subtle": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.accent.1000}"
+          },
+          "actionLighter": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.accent.300}"
+          },
+          "actionLight": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.accent.400}"
+          },
+          "surface": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.accent.500}"
+          },
+          "actionDark": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.accent.600}"
+          },
+          "actionDarker": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.accent.700}"
+          }
+        }
+      },
+      "foreground": {
+        "primary": {
+          "onColor": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.content.000}"
+          },
+          "onSubtle": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.primary.200}"
+          },
+          "text": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.primary.400}"
+          }
+        },
+        "error": {
+          "onColor": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.content.900}"
+          },
+          "onSubtle": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.error.200}"
+          },
+          "text": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.error.400}"
+          }
+        },
+        "success": {
+          "onColor": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.content.900}"
+          },
+          "onSubtle": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.success.200}"
+          },
+          "text": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.success.500}"
+          }
+        },
+        "info": {
+          "onColor": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.content.900}"
+          },
+          "onSubtle": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.info.200}"
+          },
+          "text": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.info.500}"
+          }
+        },
+        "warning": {
+          "onColor": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.content.900}"
+          },
+          "onSubtle": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.warning.200}"
+          },
+          "text": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.warning.500}"
+          }
+        },
+        "danger": {
+          "onColor": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.content.900}"
+          },
+          "onSubtle": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.danger.200}"
+          },
+          "text": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.danger.400}"
+          }
+        },
+        "neutral": {
+          "onColor": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.content.900}"
+          },
+          "text": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.content.200}"
+          },
+          "onSubtle": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.content.200}"
+          }
+        },
+        "accent": {
+          "onColor": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.content.900}"
+          },
+          "onSubtle": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.accent.200}"
+          },
+          "text": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.accent.500}"
+          }
+        }
+      },
+      "border": {
+        "divider": {
+          "$type": "color",
+          "$value": "#e4e8f23d"
+        },
+        "contrast": {
+          "$type": "color",
+          "$value": "{Nexus.color.system.content.300}"
+        },
+        "emphasized": {
+          "$type": "color",
+          "$value": "{Nexus.color.system.content.500}"
+        },
+        "default": {
+          "$type": "color",
+          "$value": "{Nexus.color.system.content.700}"
+        },
+        "muted": {
+          "$type": "color",
+          "$value": "{Nexus.color.system.content.900}"
+        },
+        "disabled": {
+          "$type": "color",
+          "$value": "#e4e8f21f"
+        },
+        "focused": {
+          "$type": "color",
+          "$value": "{Nexus.color.system.primary.400}"
+        },
+        "error": {
+          "$type": "color",
+          "$value": "{Nexus.color.system.error.500}"
+        },
+        "active": {
+          "$type": "color",
+          "$value": "{Nexus.color.system.primary.500}"
+        }
+      },
+      "Brand": {
+        "myQ": {
+          "dusk": {
+            "$type": "color",
+            "$value": "{Nexus.color.brand.dusk.500}"
+          },
+          "midBlue": {
+            "$type": "color",
+            "$value": "{Nexus.color.brand.midBlue.500}"
+          },
+          "newSky": {
+            "$type": "color",
+            "$value": "{Nexus.color.brand.newSky.500}"
+          },
+          "midGreen": {
+            "$type": "color",
+            "$value": "{Nexus.color.brand.midGreen.500}"
+          },
+          "dayGlow": {
+            "$type": "color",
+            "$value": "{Nexus.color.brand.dayGlow.500}"
+          },
+          "sunrise": {
+            "$type": "color",
+            "$value": "{Nexus.color.brand.sunrise.500}"
+          }
+        }
+      }
+    }
+  },
+  "MUI": {
+    "color": {
+      "paper-overlay": {
+        "elevation-0": {
+          "$type": "color",
+          "$value": "#ffffff00"
+        },
+        "elevation-1": {
+          "$type": "color",
+          "$value": "#ffffff03"
+        },
+        "elevation-2": {
+          "$type": "color",
+          "$value": "#ffffff05"
+        },
+        "elevation-3": {
+          "$type": "color",
+          "$value": "#ffffff08"
+        },
+        "elevation-4": {
+          "$type": "color",
+          "$value": "#ffffff0a"
+        },
+        "elevation-6": {
+          "$type": "color",
+          "$value": "#ffffff0d"
+        },
+        "elevation-8": {
+          "$type": "color",
+          "$value": "#ffffff0f"
+        },
+        "elevation-10": {
+          "$type": "color",
+          "$value": "#ffffff12"
+        },
+        "elevation-12": {
+          "$type": "color",
+          "$value": "#ffffff14"
+        },
+        "elevation-16": {
+          "$type": "color",
+          "$value": "#ffffff17"
+        },
+        "elevation-24": {
+          "$type": "color",
+          "$value": "#ffffff1a"
+        }
+      },
+      "action": {
+        "$type": "color",
+        "$value": "{Nexus.color.system.content.100}"
+      },
+      "elevation": {
+        "outlined": {
+          "$type": "color",
+          "$value": "{Nexus.color.system.content.700}"
+        },
+        "bg": {
+          "$type": "color",
+          "$value": "{Nexus.color.background.surface.primary}"
+        }
+      }
+    }
+  },
+  "IOS": {
+    "color": {
+      "material": {
+        "ultraThin": {
+          "bg1": {
+            "$type": "color",
+            "$value": "#00000005"
+          },
+          "bg2": {
+            "$type": "color",
+            "$value": "#00000000"
+          }
+        },
+        "thin": {
+          "bg1": {
+            "$type": "color",
+            "$value": "#00000042"
+          },
+          "bg2": {
+            "$type": "color",
+            "$value": "#00000000"
+          }
+        },
+        "regular": {
+          "bg1": {
+            "$type": "color",
+            "$value": "#00000069"
+          },
+          "bg2": {
+            "$type": "color",
+            "$value": "#00000000"
+          }
+        },
+        "thick": {
+          "bg1": {
+            "$type": "color",
+            "$value": "#00000099"
+          },
+          "bg2": {
+            "$type": "color",
+            "$value": "#00000000"
+          }
+        }
+      },
+      "background": {
+        "default": {
+          "primary": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.black}"
+          },
+          "primary-elevated": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.black}"
+          },
+          "tertiary": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.black}"
+          },
+          "tertiary-elevated": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.black}"
+          },
+          "secondary": {
+            "$type": "color",
+            "$value": "{IOS.color.grey.800}"
+          },
+          "secondary-elevated": {
+            "$type": "color",
+            "$value": "{IOS.color.grey.800}"
+          }
+        },
+        "grouped": {
+          "secondary": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.black}"
+          },
+          "primary": {
+            "$type": "color",
+            "$value": "{IOS.color.grey.800}"
+          },
+          "tertiary-elevated": {
+            "$type": "color",
+            "$value": "{IOS.color.grey.800}"
+          },
+          "tertiary": {
+            "$type": "color",
+            "$value": "{IOS.color.grey.800}"
+          },
+          "secondary-elevated": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.black}"
+          },
+          "primary-elevated": {
+            "$type": "color",
+            "$value": "{IOS.color.grey.800}"
+          }
+        },
+        "fills": {
+          "quaternary": {
+            "$type": "color",
+            "$value": "{IOS.color.grey.200}"
+          },
+          "tertiary": {
+            "$type": "color",
+            "$value": "{IOS.color.grey.200}"
+          },
+          "secondary": {
+            "$type": "color",
+            "$value": "{IOS.color.grey.200}"
+          },
+          "primary": {
+            "$type": "color",
+            "$value": "{IOS.color.grey.200}"
+          }
+        },
+        "fillsVibrant": {
+          "tertiary": {
+            "$type": "color",
+            "$value": "{IOS.color.neutral-grey.1300}",
+            "$description": "Use 'plus lighter/darker' blend mode"
+          },
+          "secondary": {
+            "$type": "color",
+            "$value": "{IOS.color.neutral-grey.1200}",
+            "$description": "Use 'plus lighter/darker' blend mode"
+          },
+          "primary": {
+            "$type": "color",
+            "$value": "{IOS.color.neutral-grey.1100}",
+            "$description": "Use 'plus lighter/darker' blend mode"
+          }
+        }
+      },
+      "foreground": {
+        "labels": {
+          "tertiary": {
+            "$type": "color",
+            "$value": "{IOS.color.grey.200}"
+          },
+          "quaternary": {
+            "$type": "color",
+            "$value": "{IOS.color.grey.200}"
+          },
+          "secondary": {
+            "$type": "color",
+            "$value": "{IOS.color.grey.200}"
+          },
+          "primary": {
+            "$type": "color",
+            "$value": "{Nexus.color.system.white}"
+          }
+        },
+        "labelsVibrant": {
+          "quaternary": {
+            "$type": "color",
+            "$value": "{IOS.color.neutral-grey.1300}",
+            "$description": "Use 'plus lighter/darker' blend mode"
+          },
+          "tertiary": {
+            "$type": "color",
+            "$value": "{IOS.color.neutral-grey.900}",
+            "$description": "Use 'plus lighter/darker' blend mode"
+          },
+          "secondary": {
+            "$type": "color",
+            "$value": "{IOS.color.neutral-grey.600}",
+            "$description": "Use 'plus lighter/darker' blend mode"
+          },
+          "primary": {
+            "$type": "color",
+            "$value": "{IOS.color.neutral-grey.100}",
+            "$description": "Use 'plus lighter/darker' blend mode"
+          }
+        },
+        "labelsVibrantControls": {
+          "secondary": {
+            "$type": "color",
+            "$value": "{IOS.color.neutral-grey.500}"
+          },
+          "tertiary": {
+            "$type": "color",
+            "$value": "{IOS.color.neutral-grey.1100}"
+          },
+          "primary": {
+            "$type": "color",
+            "$value": "{IOS.color.neutral-grey.400}"
+          }
+        }
+      },
+      "separators": {
+        "vibrant": {
+          "$type": "color",
+          "$value": "{IOS.color.neutral-grey.1300}"
+        },
+        "non-opaque": {
+          "$type": "color",
+          "$value": "{Nexus.color.system.white}"
+        },
+        "opaque": {
+          "$type": "color",
+          "$value": "{IOS.color.neutral-grey.900}"
+        }
+      },
+      "buttons": {
+        "bgDestructive": {
+          "$type": "color",
+          "$value": "{Nexus.color.system.error.500}"
+        },
+        "bgDestructiveProminent": {
+          "$type": "color",
+          "$value": "{Nexus.color.system.error.500}"
+        },
+        "labelDestructiveDisabled": {
+          "$type": "color",
+          "$value": "{Nexus.color.system.error.500}"
+        }
+      },
+      "keyboards": {
+        "keys": {
+          "$type": "color",
+          "$value": "{IOS.color.neutral-grey.100}"
+        },
+        "glyphsSecondary": {
+          "$type": "color",
+          "$value": "{IOS.color.neutral-grey.700}"
+        },
+        "glyphsPrimary": {
+          "$type": "color",
+          "$value": "{IOS.color.neutral-grey.400}"
+        },
+        "emojiMic": {
+          "$type": "color",
+          "$value": "#222b59a1"
+        }
+      },
+      "sidebar": {
+        "shadowDragOver": {
+          "$type": "color",
+          "$value": "#ffffff33"
+        },
+        "textSelected": {
+          "$type": "color",
+          "$value": "{IOS.color.accent.blue}"
+        },
+        "fillSelected": {
+          "$type": "color",
+          "$value": "{Nexus.color.system.black}"
+        }
+      },
+      "windowControls": {
+        "bgInactive": {
+          "$type": "color",
+          "$value": "{Nexus.color.system.white}"
+        },
+        "buttonInactive": {
+          "$type": "color",
+          "$value": "{IOS.color.foreground.labels.secondary}"
+        },
+        "maximize": {
+          "$type": "color",
+          "$value": "{IOS.color.accent.green}"
+        },
+        "minimize": {
+          "$type": "color",
+          "$value": "{IOS.color.accent.yellow}"
+        },
+        "close": {
+          "$type": "color",
+          "$value": "{IOS.color.accent.red}"
+        }
+      },
+      "toggle": {
+        "axLabelOff": {
+          "$type": "color",
+          "$value": "{IOS.color.neutral-grey.600}"
+        }
+      },
+      "liquidGlass": {
+        "default": {
+          "smallUI": {
+            "bg1": {
+              "$type": "color",
+              "$value": "#ffffff0a"
+            },
+            "bg2": {
+              "$type": "color",
+              "$value": "#00000066"
+            },
+            "shadow": {
+              "$type": "color",
+              "$value": "#ffffff0a"
+            }
+          },
+          "mediumUI": {
+            "bg1": {
+              "$type": "color",
+              "$value": "#ffffff0a"
+            },
+            "bg2": {
+              "$type": "color",
+              "$value": "#00000066"
+            },
+            "shadow": {
+              "$type": "color",
+              "$value": "#ffffff0f"
+            }
+          },
+          "largeUI": {
+            "bg1": {
+              "$type": "color",
+              "$value": "#ffffff0a"
+            },
+            "bg2": {
+              "$type": "color",
+              "$value": "#00000078"
+            },
+            "shadow": {
+              "$type": "color",
+              "$value": "#ffffff14"
+            }
+          }
+        },
+        "primary": {
+          "smallUI": {
+            "bg2": {
+              "$type": "color",
+              "$value": "{Nexus.color.neutral.500}"
+            },
+            "shadow": {
+              "$type": "color",
+              "$value": "#ffffff0a"
+            },
+            "bg3": {
+              "$type": "color",
+              "$value": "{Nexus.color.system.white}"
+            },
+            "bg4": {
+              "$type": "color",
+              "$value": "#ffffff80"
+            }
+          }
+        }
+      }
+    }
+  }
+}
