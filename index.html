@@ -1109,12 +1109,12 @@
                 if (name.includes('-opacity-')) return 'opacity';
                 if (name.includes('-spacing-')) return 'spacing';
                 if (name.includes('-sizing-')) return 'sizing';
-                if (name.includes('-font-weight-')) return 'font-weight';
-                if (name.includes('-font-size-')) return 'font-size';
-                if (name.includes('-font-family-')) return 'font-family';
+                if (name.includes('-font-weight-') || name.includes('-fontweight-')) return 'font-weight';
+                if (name.includes('-font-size-') || name.includes('-fontsize-')) return 'font-size';
+                if (name.includes('-font-family-') || name.includes('-fontfamily-')) return 'font-family';
                 if (name.includes('-typography-') || name.includes('-text-token-')) return 'typography';
-                if (name.includes('-shape-') || name.includes('-radius-') || name.includes('-border-radius-')) return 'border-radius';
-                if (name.includes('-border-width-')) return 'border-width';
+                if (name.includes('-border-width-') || name.includes('-borderwidth-')) return 'border-width';
+                if (name.includes('-shape-') || name.includes('-radius-') || name.includes('-border-radius-') || name.includes('-borderradius-')) return 'border-radius';
                 if (name.includes('-shadow-') || name.includes('-effect-')) return 'shadow';
                 return 'other';
             }
@@ -1211,11 +1211,14 @@
                         break;
                     
                     case 'border-radius':
-                        previewContent = `<div class="preview-radius" style="border-radius: ${token.value};"></div>`;
+                        // Ensure the value has units (px if it's a number)
+                        const radiusValue = typeof token.value === 'number' ? `${token.value}px` : token.value;
+                        previewContent = `<div class="preview-radius" style="border-radius: ${radiusValue};"></div>`;
                         break;
                     
                     case 'border-width':
-                        previewContent = `<div class="preview-border-width" style="border-width: ${token.value};"></div>`;
+                        const borderWidthValue = typeof token.value === 'number' ? `${token.value}px` : token.value;
+                        previewContent = `<div class="preview-border-width" style="border-width: ${borderWidthValue};"></div>`;
                         break;
                     
                     case 'font-weight':
@@ -1223,7 +1226,8 @@
                         break;
                     
                     case 'font-size':
-                        previewContent = `<div class="preview-font-size" style="font-size: ${token.value};">Ag</div>`;
+                        const fontSizeValue = typeof token.value === 'number' ? `${token.value}px` : token.value;
+                        previewContent = `<div class="preview-font-size" style="font-size: ${fontSizeValue};">Ag</div>`;
                         break;
                     
                     case 'font-family':
