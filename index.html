@@ -239,20 +239,19 @@
 
         .filter-chip {
             padding: 0.375rem 0.75rem;
-            border: 1px solid transparent;
-            background: var(--nexus-color-background-surface-tertiary, #d1d7e3);
+            border: 1px solid var(--nexus-color-background-surface-tertiary, #d1d7e3);
+            background: transparent;
             border-radius: 20px;
             cursor: pointer;
             font-size: 0.8125rem;
             transition: all 0.15s ease;
             font-weight: var(--nexus-typography-font-weight-medium, 500);
-            color: var(--nexus-color-content-primary, #17191c);
+            color: var(--nexus-color-content-secondary, #575d69);
             user-select: none;
         }
 
         .filter-chip:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            opacity: 0.8;
         }
 
         .filter-chip:active {
@@ -260,67 +259,92 @@
         }
 
         .filter-chip.active {
-            border-color: currentColor;
+            border-color: transparent;
             font-weight: var(--nexus-typography-font-weight-semibold, 600);
         }
 
         .filter-chip[data-category="all"] {
-            background: var(--nexus-color-content-secondary, #575d69);
-            color: var(--nexus-color-system-white, #ffffff);
+            border-color: var(--nexus-color-content-secondary, #575d69);
+            color: var(--nexus-color-content-secondary, #575d69);
+        }
+
+        .filter-chip[data-category="all"]:hover {
+            background: rgba(87, 93, 105, 0.08);
         }
 
         .filter-chip[data-category="all"].active {
             background: var(--nexus-color-content-primary, #17191c);
+            color: var(--nexus-color-system-white, #ffffff);
         }
 
         .filter-chip[data-category="color"] {
-            background: #e0ebff;
+            border-color: #c8dcff;
             color: #17289c;
         }
 
+        .filter-chip[data-category="color"]:hover {
+            background: rgba(23, 40, 156, 0.08);
+        }
+
         .filter-chip[data-category="color"].active {
-            background: #c8dcff;
-            border-color: #17289c;
+            background: #17289c;
+            color: var(--nexus-color-system-white, #ffffff);
         }
 
         .filter-chip[data-category="opacity"] {
-            background: #e0fff2;
+            border-color: #c4f5e0;
             color: #13ae5c;
         }
 
+        .filter-chip[data-category="opacity"]:hover {
+            background: rgba(19, 174, 92, 0.08);
+        }
+
         .filter-chip[data-category="opacity"].active {
-            background: #c4f5e0;
-            border-color: #13ae5c;
+            background: #13ae5c;
+            color: var(--nexus-color-system-white, #ffffff);
         }
 
         .filter-chip[data-category="spacing"] {
-            background: #ffeedb;
+            border-color: #ffe2c2;
             color: #d78207;
         }
 
+        .filter-chip[data-category="spacing"]:hover {
+            background: rgba(215, 130, 7, 0.08);
+        }
+
         .filter-chip[data-category="spacing"].active {
-            background: #ffe2c2;
-            border-color: #d78207;
+            background: #d78207;
+            color: var(--nexus-color-system-white, #ffffff);
         }
 
         .filter-chip[data-category="sizing"] {
-            background: #ffe9e8;
+            border-color: #ffd5d3;
             color: #c61735;
         }
 
+        .filter-chip[data-category="sizing"]:hover {
+            background: rgba(198, 23, 53, 0.08);
+        }
+
         .filter-chip[data-category="sizing"].active {
-            background: #ffd5d3;
-            border-color: #c61735;
+            background: #c61735;
+            color: var(--nexus-color-system-white, #ffffff);
         }
 
         .filter-chip[data-category="typography"] {
-            background: #e0eeff;
+            border-color: #c8deff;
             color: #05549e;
         }
 
+        .filter-chip[data-category="typography"]:hover {
+            background: rgba(5, 84, 158, 0.08);
+        }
+
         .filter-chip[data-category="typography"].active {
-            background: #c8deff;
-            border-color: #05549e;
+            background: #05549e;
+            color: var(--nexus-color-system-white, #ffffff);
         }
 
         .filter-actions {
@@ -350,10 +374,15 @@
             background: var(--nexus-color-background-surface-secondary, #f2f5fa);
         }
 
-        .search-input {
+        .search-wrapper {
+            position: relative;
             flex: 1;
             min-width: 200px;
-            padding: 0.5rem 1rem;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.5rem 2.5rem 0.5rem 1rem;
             border: 1px solid var(--nexus-color-background-surface-tertiary, #d1d7e3);
             border-radius: 6px;
             font-size: 0.875rem;
@@ -362,6 +391,30 @@
         .search-input:focus {
             outline: none;
             border-color: var(--nexus-color-system-primary-500, #3660d0);
+        }
+
+        .search-clear {
+            position: absolute;
+            right: 0.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--nexus-color-content-tertiary, #8a909e);
+            cursor: pointer;
+            padding: 0.25rem;
+            display: none;
+            font-size: 1.125rem;
+            line-height: 1;
+            transition: color 0.15s ease;
+        }
+
+        .search-clear:hover {
+            color: var(--nexus-color-content-primary, #17191c);
+        }
+
+        .search-clear.visible {
+            display: block;
         }
 
         .badge {
@@ -467,10 +520,22 @@
             gap: 0.5rem;
         }
 
-        /* Responsive: single column on smaller screens */
+        /* Responsive grid: 1 -> 2 -> 3 -> 4 columns */
         @media (max-width: 768px) {
             .tree-children.expanded {
                 grid-template-columns: 1fr;
+            }
+        }
+
+        @media (min-width: 1200px) {
+            .tree-children.expanded {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (min-width: 1600px) {
+            .tree-children.expanded {
+                grid-template-columns: repeat(4, 1fr);
             }
         }
 
@@ -686,7 +751,10 @@
             </div>
             <div class="filter-bar">
                 <div class="filter-top-row">
-                    <input type="text" class="search-input" id="search" placeholder="Search tokens...">
+                    <div class="search-wrapper">
+                        <input type="text" class="search-input" id="search" placeholder="Search tokens...">
+                        <button class="search-clear" id="search-clear" title="Clear search">×</button>
+                    </div>
                     <div class="filter-actions">
                         <button class="filter-btn" id="expand-all">Expand All</button>
                         <button class="filter-btn" id="collapse-all">Collapse All</button>
@@ -1215,8 +1283,23 @@
             
             // Search functionality
             const searchInput = document.getElementById('search');
+            const searchClear = document.getElementById('search-clear');
+            
             searchInput.addEventListener('input', () => {
+                // Show/hide clear button based on input
+                if (searchInput.value) {
+                    searchClear.classList.add('visible');
+                } else {
+                    searchClear.classList.remove('visible');
+                }
                 applyFilters();
+            });
+            
+            searchClear.addEventListener('click', () => {
+                searchInput.value = '';
+                searchClear.classList.remove('visible');
+                applyFilters();
+                searchInput.focus();
             });
             
             // Combined filter function
@@ -1252,7 +1335,10 @@
                         
                         if (hasVisibleDescendants) {
                             node.style.display = 'block';
-                            // Keep the current expanded/collapsed state - don't force expansion
+                            // Auto-expand parent trees that have matching results
+                            if (searchTerm) {
+                                childrenContainer.classList.add('expanded');
+                            }
                         } else {
                             node.style.display = 'none';
                         }
@@ -1261,10 +1347,14 @@
                     }
                 });
                 
-                // If no filters active, show everything
+                // If no filters active, show everything and collapse all
                 if (!searchTerm && activeCategory === 'all') {
                     document.querySelectorAll('.tree-node').forEach(node => {
                         node.style.display = 'block';
+                    });
+                    // Collapse all when clearing search
+                    document.querySelectorAll('.tree-children').forEach(container => {
+                        container.classList.remove('expanded');
                     });
                 }
             }
