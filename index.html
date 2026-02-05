@@ -1174,18 +1174,31 @@
                     
                     const styleStr = styles.join('; ');
                     
-                    const displayText = token.name.includes('-h1') ? 'Heading 1' :
-                                       token.name.includes('-h2') ? 'Heading 2' :
-                                       token.name.includes('-h3') ? 'Heading 3' :
-                                       token.name.includes('-h4') ? 'Heading 4' :
-                                       token.name.includes('-h5') ? 'Heading 5' :
-                                       token.name.includes('-h6') ? 'Heading 6' :
-                                       token.name.includes('-subtitle') ? 'Subtitle text' :
-                                       token.name.includes('-button') ? 'Button text' :
-                                       token.name.includes('-caption') ? 'Caption text' :
-                                       token.name.includes('-label') ? 'Label text' :
-                                       token.name.includes('-link') ? 'Link text' :
-                                       'Body text sample';
+                    // Check if line height is >= 160% to use longer text for wrapping
+                    const lineHeight = props.lineHeight;
+                    const useWrapText = lineHeight && (
+                        (typeof lineHeight === 'string' && parseFloat(lineHeight) >= 160) ||
+                        (typeof lineHeight === 'number' && lineHeight >= 1.6)
+                    );
+                    
+                    let displayText;
+                    if (useWrapText) {
+                        // Use longer lorem ipsum for tokens with high line height
+                        displayText = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.';
+                    } else {
+                        displayText = token.name.includes('-h1') ? 'Heading 1' :
+                                     token.name.includes('-h2') ? 'Heading 2' :
+                                     token.name.includes('-h3') ? 'Heading 3' :
+                                     token.name.includes('-h4') ? 'Heading 4' :
+                                     token.name.includes('-h5') ? 'Heading 5' :
+                                     token.name.includes('-h6') ? 'Heading 6' :
+                                     token.name.includes('-subtitle') ? 'Subtitle text' :
+                                     token.name.includes('-button') ? 'Button text' :
+                                     token.name.includes('-caption') ? 'Caption text' :
+                                     token.name.includes('-label') ? 'Label text' :
+                                     token.name.includes('-link') ? 'Link text' :
+                                     'Body text sample';
+                    }
                     
                     const previewContent = `<div class="preview-typography" style="${styleStr}">${displayText}</div>`;
                     return `<div class="token-leaf-preview">${previewContent}</div>`;
