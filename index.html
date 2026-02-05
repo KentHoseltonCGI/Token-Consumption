@@ -12,17 +12,25 @@
             box-sizing: border-box;
         }
 
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             background: var(--nexus-color-background-surface-secondary, #f2f5fa);
             color: var(--nexus-color-content-primary, #17191c);
-            padding: 2rem;
+            padding: 1rem;
             line-height: 1.6;
         }
 
         .container {
             max-width: 1400px;
             margin: 0 auto;
+            height: calc(100% - 2rem);
+            display: flex;
+            flex-direction: column;
         }
 
         header {
@@ -76,8 +84,12 @@
             background: var(--nexus-color-system-white, #ffffff);
             padding: 2rem;
             border-radius: 12px;
-            margin-bottom: 2rem;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            flex: 1;
+            margin: 0;
         }
 
         .section-header {
@@ -87,6 +99,7 @@
             margin-bottom: 1.5rem;
             padding-bottom: 1rem;
             border-bottom: 2px solid var(--nexus-color-background-surface-tertiary, #d1d7e3);
+            flex-shrink: 0;
         }
 
         h2 {
@@ -101,6 +114,27 @@
             border-radius: 20px;
             font-size: 0.875rem;
             font-weight: var(--nexus-typography-font-weight-medium, 500);
+        }
+
+        .filter-bar {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .token-tree-container {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            min-height: 0;
+        }
+
+        .token-tree {
+            list-style: none;
+            padding: 0;
+            margin: 0;
         }
 
         .token-grid {
@@ -346,12 +380,6 @@
         .badge-typography { background: #e0eeff; color: #05549e; }
 
         /* Tree View Styles */
-        .token-tree {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
         .tree-node {
             margin: 0;
             position: relative;
@@ -433,14 +461,28 @@
         }
 
         .tree-children.expanded {
-            display: block;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+        }
+
+        /* Responsive: single column on smaller screens */
+        @media (max-width: 1024px) {
+            .tree-children.expanded {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Branch nodes should span full width in the grid */
+        .tree-node:has(.tree-header) {
+            grid-column: 1 / -1;
         }
 
         .token-leaf {
             display: flex;
             align-items: center;
             padding: 0.625rem 0.75rem;
-            margin: 2px 0;
+            margin: 0;
             border: 1px solid var(--nexus-color-background-surface-tertiary, #d1d7e3);
             border-radius: 6px;
             background: var(--nexus-color-system-white, #ffffff);
@@ -460,8 +502,10 @@
         }
 
         .token-leaf-info {
-            flex: 1;
             min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
         }
 
         .token-leaf-name {
@@ -520,42 +564,75 @@
         }
 
         .preview-swatch {
-            width: 40px;
-            height: 40px;
-            border-radius: 6px;
+            width: 64px;
+            height: 64px;
+            border-radius: 8px;
             border: 1px solid var(--nexus-color-background-surface-tertiary, #d1d7e3);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
         }
 
         .preview-opacity {
-            width: 60px;
-            height: 20px;
-            background: linear-gradient(90deg, 
-                var(--nexus-color-system-primary-600, #172dbd) 0%, 
-                transparent 100%);
-            border-radius: 4px;
+            width: 64px;
+            height: 64px;
+            border-radius: 8px;
             border: 1px solid var(--nexus-color-background-surface-tertiary, #d1d7e3);
             position: relative;
+            background-image: 
+                linear-gradient(45deg, #e4e8f2 25%, transparent 25%),
+                linear-gradient(-45deg, #e4e8f2 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, #e4e8f2 75%),
+                linear-gradient(-45deg, transparent 75%, #e4e8f2 75%);
+            background-size: 8px 8px;
+            background-position: 0 0, 0 4px, 4px -4px, -4px 0px;
         }
 
-        .preview-opacity-marker {
+        .preview-opacity-overlay {
             position: absolute;
-            height: 100%;
-            width: 2px;
-            background: var(--nexus-color-system-error-600, #f32245);
-            top: 0;
+            inset: 0;
+            background: var(--nexus-color-system-primary-600, #172dbd);
+            border-radius: 7px;
         }
 
         .preview-spacing {
-            background: var(--nexus-color-system-primary-100, #e0ebff);
+            width: 64px;
+            height: 64px;
             border-radius: 4px;
+            border: 2px dashed var(--nexus-color-system-primary-400, #6c90e5);
+            background: var(--nexus-color-system-primary-100, #e0ebff);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.625rem;
-            color: var(--nexus-color-system-primary-700, #17289c);
-            font-weight: var(--nexus-typography-font-weight-medium, 500);
-            min-width: 40px;
-            min-height: 20px;
+            position: relative;
+        }
+
+        .preview-spacing-box {
+            background: var(--nexus-color-system-primary-600, #172dbd);
+            border-radius: 2px;
+        }
+
+        .preview-radius {
+            width: 64px;
+            height: 64px;
+            background: var(--nexus-color-system-primary-600, #172dbd);
+            border: 1px solid var(--nexus-color-background-surface-tertiary, #d1d7e3);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+        }
+
+        .preview-border-width {
+            width: 64px;
+            height: 64px;
+            background: var(--nexus-color-background-surface-primary, #ffffff);
+            border: solid var(--nexus-color-system-primary-600, #172dbd);
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+        }
+
+        .preview-shadow {
+            width: 64px;
+            height: 64px;
+            background: var(--nexus-color-background-surface-primary, #ffffff);
+            border-radius: 8px;
+            border: 1px solid var(--nexus-color-background-surface-tertiary, #d1d7e3);
         }
 
         .preview-weight {
@@ -589,7 +666,9 @@
                     <button class="filter-chip" data-category="typography">Typography</button>
                 </div>
             </div>
-            <ul class="token-tree" id="token-tree"></ul>
+            <div class="token-tree-container">
+                <ul class="token-tree" id="token-tree"></ul>
+            </div>
         </div>
     </div>
 
@@ -600,10 +679,18 @@
         
         // Fetch both CSS and metadata JSON
         Promise.all([
-            fetch('dist/css/tokens.css').then(r => r.text()),
-            fetch('dist/json/tokens-metadata.json').then(r => r.json())
+            fetch('dist/css/tokens.css').then(r => {
+                if (!r.ok) throw new Error('Failed to load CSS');
+                return r.text();
+            }),
+            fetch('dist/json/tokens-metadata.json').then(r => {
+                if (!r.ok) throw new Error('Failed to load metadata');
+                return r.json();
+            })
         ])
             .then(([css, metadata]) => {
+                console.log('Loaded CSS and metadata successfully');
+                
                 // Parse CSS custom properties with regex
                 const tokenRegex = /--([^:]+):\s*([^;]+);/g;
                 let match;
@@ -618,21 +705,33 @@
                     });
                 }
                 
+                console.log(`Parsed ${tokens.length} tokens from CSS`);
+                
                 // Build metadata map for quick lookup
                 function buildMetadataMap(obj, map) {
-                    if (obj && typeof obj === 'object') {
-                        if (obj.name && obj.$value !== undefined) {
-                            // Store both original and resolved values
-                            map[`--${obj.name}`] = {
-                                original: obj.original?.$value || obj.$value,
-                                resolved: obj.value
-                            };
+                    try {
+                        if (obj && typeof obj === 'object') {
+                            if (obj.name && obj.original && obj.original.$value !== undefined) {
+                                // Store both original and resolved values
+                                map[`--${obj.name}`] = {
+                                    original: obj.original.$value,
+                                    resolved: obj.value
+                                };
+                            }
+                            // Recurse through nested objects
+                            Object.values(obj).forEach(val => {
+                                if (typeof val === 'object') {
+                                    buildMetadataMap(val, map);
+                                }
+                            });
                         }
-                        // Recurse through nested objects
-                        Object.values(obj).forEach(val => buildMetadataMap(val, map));
+                    } catch (e) {
+                        console.error('Error building metadata map:', e);
                     }
                 }
                 buildMetadataMap(metadata, tokenMetadata);
+                
+                console.log(`Built metadata for ${Object.keys(tokenMetadata).length} tokens`);
                 
                 // Initialize the UI after tokens are loaded
                 initializeUI();
@@ -640,17 +739,103 @@
             .catch(error => {
                 console.error('Error loading tokens:', error);
                 document.getElementById('token-tree').innerHTML = 
-                    '<p style="text-align: center; color: #f32245; padding: 2rem;">Error loading tokens. Make sure to run <code>npm run build</code> first and serve this page via a local server.</p>';
+                    `<p style="text-align: center; color: #f32245; padding: 2rem;">Error loading tokens: ${error.message}<br>Make sure to run <code>npm run build</code> first and serve this page via a local server.</p>`;
             });
         
         function initializeUI() {
-            // Build hierarchical tree structure from flat token list
+            // Build hierarchical tree structure from flat token list with architectural layers
             function buildTree(tokens) {
                 const tree = {};
                 
+                // Merge compound names before splitting
+                function normalizeTokenName(tokenName) {
+                    // Remove -- prefix
+                    let name = tokenName.replace(/^--/, '');
+                    
+                    // Compound color names that should be treated as single units
+                    const compoundNames = {
+                        'deep-blue': 'deepBlue',
+                        'deep-green': 'deepGreen',
+                        'bright-yellow': 'brightYellow',
+                        'on-color': 'onColor',
+                        'on-subtle': 'onSubtle',
+                        'mid-blue': 'midBlue',
+                        'mid-green': 'midGreen',
+                        'new-sky': 'newSky',
+                        'day-glow': 'dayGlow'
+                    };
+                    
+                    // Replace compound names with single tokens
+                    for (const [compound, replacement] of Object.entries(compoundNames)) {
+                        name = name.replace(compound, replacement);
+                    }
+                    
+                    return name;
+                }
+                
+                // Layer classification based on actual token architecture
+                function categorizeToken(pathParts, topLevel) {
+                    const category = pathParts[1]; // e.g., 'color', 'sizing', 'spacing', 'opacity'
+                    const subcategory = pathParts[2]; // e.g., 'neutral', 'system', 'content', 'background'
+                    
+                    // Layer 01 - Primitives: Raw color ramps (neutral, slate, red, etc.) and base scales
+                    const primitiveColorRamps = ['neutral', 'slate', 'deepBlue', 'blue', 'teal', 'green', 
+                                                  'lime', 'brightYellow', 'orange', 'red', 'pink', 'purple', 
+                                                  'violet', 'deepGreen', 'amber', 'yellow'];
+                    
+                    if (category === 'color' && primitiveColorRamps.includes(subcategory)) {
+                        // Layer 01: Raw color ramps - flatten the structure
+                        return ['primitives', 'color-ramps', subcategory, ...pathParts.slice(3)];
+                    } else if (category === 'sizing' || category === 'spacing') {
+                        // Layer 01: Base scales (rem-based) - flatten numeric values
+                        return ['primitives', 'scales', category, ...pathParts.slice(2)];
+                    } else if (category === 'color' && subcategory === 'brand') {
+                        // Layer 02: Brand colors belong in semantic system
+                        return ['semantic-system', 'brand', ...pathParts.slice(3)];
+                    } else if (category === 'color' && subcategory === 'system') {
+                        // Check if it's system.content which is actually Layer 03
+                        const thirdLevel = pathParts[3];
+                        if (thirdLevel === 'content') {
+                            // Layer 03: system.content is UI-level
+                            return ['component-ui', 'color', 'system-content', ...pathParts.slice(4)];
+                        }
+                        // Layer 02: Semantic system colors (system.error, system.success, etc.)
+                        return ['semantic-system', 'color', ...pathParts.slice(3)];
+                    } else if (category === 'color' && (subcategory === 'content' || subcategory === 'background' || subcategory === 'border' || subcategory === 'foreground')) {
+                        // Layer 03: UI/Component tokens - keep structure but flatten where needed
+                        return ['component-ui', 'color', subcategory, ...pathParts.slice(3)];
+                    } else if (category === 'opacity' || category === 'shape') {
+                        // Layer 03: UI properties
+                        return ['component-ui', category, ...pathParts.slice(2)];
+                    } else if (category === 'text' || category === 'typography' || category === 'surface' || category === 'effect') {
+                        // Layer 03: Component-specific tokens
+                        return ['component-ui', category, ...pathParts.slice(2)];
+                    } else {
+                        // Default: keep original structure
+                        return pathParts.slice(1);
+                    }
+                }
+                
                 tokens.forEach(token => {
-                    // Remove -- prefix and split by hyphen to get path parts
-                    const path = token.name.replace(/^--/, '').split('-');
+                    // Normalize compound names first
+                    const normalizedName = normalizeTokenName(token.name);
+                    
+                    // Split by hyphen to get path parts
+                    let path = normalizedName.split('-');
+                    const topLevel = path[0].toLowerCase();
+                    
+                    // Handle mui and ios as separate top-level categories (no layer restructuring)
+                    if (topLevel === 'mui' || topLevel === 'ios') {
+                        // Keep mui/ios as-is
+                    } else if (topLevel === 'nexus') {
+                        // Apply layer categorization to nexus tokens
+                        const layeredPath = categorizeToken(path, topLevel);
+                        path = ['nexus', ...layeredPath];
+                    } else {
+                        // All other tokens go under nexus with layer categorization
+                        path = ['nexus', ...categorizeToken(['nexus', path[0], ...path.slice(1)], 'nexus')];
+                    }
+                    
                     let current = tree;
                     
                     // Navigate/create tree structure
@@ -685,8 +870,9 @@
                 if (name.includes('-spacing-')) return 'spacing';
                 if (name.includes('-sizing-')) return 'sizing';
                 if (name.includes('-font-weight-')) return 'font-weight';
-                if (name.includes('-border-radius-')) return 'border-radius';
+                if (name.includes('-shape-') || name.includes('-radius-') || name.includes('-border-radius-')) return 'border-radius';
                 if (name.includes('-border-width-')) return 'border-width';
+                if (name.includes('-shadow-') || name.includes('-effect-')) return 'shadow';
                 return 'other';
             }
             
@@ -697,14 +883,28 @@
                 switch (category) {
                     case 'color':
                         return `<div class="token-leaf-preview"><div class="preview-swatch" style="background-color: ${token.value};"></div></div>`;
+                    
                     case 'opacity':
-                        const opacityPercent = parseFloat(token.value) * 100;
-                        return `<div class="token-leaf-preview"><div class="preview-opacity"><div class="preview-opacity-marker" style="left: ${opacityPercent}%;"></div></div></div>`;
+                        return `<div class="token-leaf-preview"><div class="preview-opacity"><div class="preview-opacity-overlay" style="opacity: ${token.value};"></div></div></div>`;
+                    
                     case 'spacing':
                     case 'sizing':
-                        return `<div class="token-leaf-preview"><div class="preview-spacing" style="width: ${token.value}; height: ${token.value};"></div></div>`;
+                        // Show a box with the actual dimension
+                        const size = token.value;
+                        return `<div class="token-leaf-preview"><div class="preview-spacing"><div class="preview-spacing-box" style="width: ${size}; height: ${size};"></div></div></div>`;
+                    
+                    case 'border-radius':
+                        return `<div class="token-leaf-preview"><div class="preview-radius" style="border-radius: ${token.value};"></div></div>`;
+                    
+                    case 'border-width':
+                        return `<div class="token-leaf-preview"><div class="preview-border-width" style="border-width: ${token.value};"></div></div>`;
+                    
                     case 'font-weight':
-                        return `<div class="token-leaf-preview"><div class="preview-weight" style="font-weight: ${token.value};">Ag</div></div>`;
+                        return `<div class="token-leaf-preview"><div class="preview-weight" style="font-weight: ${token.value};">Aa</div></div>`;
+                    
+                    case 'shadow':
+                        return `<div class="token-leaf-preview"><div class="preview-shadow" style="box-shadow: ${token.value};"></div></div>`;
+                    
                     default:
                         return '';
                 }
@@ -730,7 +930,17 @@
                     
                     const label = document.createElement('span');
                     label.className = 'tree-label';
-                    label.textContent = key;
+                    
+                    // Friendly names for architectural layers
+                    const layerNames = {
+                        'primitives': 'Primitives',
+                        'color-ramps': 'Color Ramps',
+                        'scales': 'Base Scales',
+                        'semantic-system': 'Alias',
+                        'component-ui': 'Mapped'
+                    };
+                    
+                    label.textContent = layerNames[key.toLowerCase()] || key;
                     
                     const count = document.createElement('span');
                     count.className = 'tree-count';
@@ -744,11 +954,29 @@
                     const childrenUl = document.createElement('ul');
                     childrenUl.className = 'tree-children';
                     
+                    // Custom sort order for architectural layers within nexus
+                    const layerSortOrder = ['primitives', 'semantic-system', 'component-ui'];
+                    const childKeys = Object.keys(node).filter(k => k !== '_tokens');
+                    
+                    const sortedChildKeys = childKeys.sort((a, b) => {
+                        const aLower = a.toLowerCase();
+                        const bLower = b.toLowerCase();
+                        const aIndex = layerSortOrder.indexOf(aLower);
+                        const bIndex = layerSortOrder.indexOf(bLower);
+                        
+                        // If both are layers, sort by their position
+                        if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
+                        // If only a is a layer, it comes first
+                        if (aIndex !== -1) return -1;
+                        // If only b is a layer, it comes first
+                        if (bIndex !== -1) return 1;
+                        // Otherwise, alphabetical sort
+                        return aLower.localeCompare(bLower);
+                    });
+                    
                     // Render child branches
-                    Object.keys(node).sort().forEach(childKey => {
-                        if (childKey !== '_tokens') {
-                            childrenUl.appendChild(renderTreeNode(childKey, node[childKey], depth + 1));
-                        }
+                    sortedChildKeys.forEach(childKey => {
+                        childrenUl.appendChild(renderTreeNode(childKey, node[childKey], depth + 1));
                     });
                     
                     // Render leaf tokens
@@ -759,8 +987,8 @@
                             
                             // Check if we have metadata for this token
                             const metadata = tokenMetadata[token.name];
-                            const displayValue = metadata?.original || token.value;
-                            const resolvedValue = token.value;
+                            const displayValue = String(metadata?.original || token.value);
+                            const resolvedValue = String(token.value);
                             
                             // Only show tooltip if the original is a reference (contains curly braces)
                             const isReference = displayValue.includes('{') && displayValue.includes('}');
