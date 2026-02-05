@@ -820,7 +820,7 @@
             })
         ])
             .then(([css, preservedTokens]) => {
-                console.log('Loaded CSS and preserved tokens successfully');fully');
+                console.log('Loaded CSS and preserved tokens successfully');
                 
                 // Parse CSS custom properties for reference
                 const tokenRegex = /--([^:]+):\s*([^;]+);/g;
@@ -884,7 +884,7 @@
                 console.log(`Processed ${tokens.length} tokens from preserved JSON`);
                 
                 // Build metadata map for reference tooltips
-                function buildMetadataMap(obj, map) {ath = []) {
+                function buildMetadataMap(obj, map, path = []) {
                     try {
                         if (obj && typeof obj === 'object') {
                             for (const key in obj) {

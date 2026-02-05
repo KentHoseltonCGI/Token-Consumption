@@ -115,6 +115,9 @@ StyleDictionary.registerFormat({
     // Get the raw tokens object
     const tokens = dictionary.tokens;
     
+    // List of typography composite token groups to reorganize
+    const typeStyleGroups = ['Headings', 'Subtitle', 'Body', 'label', 'link', 'caption', 'Button'];
+    
     // Recursively process and resolve references
     function processTokens(obj) {
       const result = {};
@@ -151,6 +154,42 @@ StyleDictionary.registerFormat({
     }
     
     const processed = processTokens(tokens);
+    
+    // Reorganize: Move typography composite tokens under "Type Styles"
+    if (processed.Nexus) {
+      const typeStyles = {};
+      
+      // Collect all type style groups from Nexus
+      typeStyleGroups.forEach(groupName => {
+        if (processed.Nexus[groupName]) {
+          typeStyles[groupName] = processed.Nexus[groupName];
+          delete processed.Nexus[groupName];
+        }
+      });
+      
+      // Move textToken under typography as well
+      let textToken = null;
+      if (processed.Nexus.textToken) {
+        textToken = processed.Nexus.textToken;
+        delete processed.Nexus.textToken;
+      }
+      
+      // Ensure typography object exists
+      if (!processed.Nexus.typography) {
+        processed.Nexus.typography = {};
+      }
+      
+      // Add Type Styles folder under typography if we have any
+      if (Object.keys(typeStyles).length > 0) {
+        processed.Nexus.typography['Type Styles'] = typeStyles;
+      }
+      
+      // Add textToken under typography after Type Styles
+      if (textToken) {
+        processed.Nexus.typography['textToken'] = textToken;
+      }
+    }
+    
     return JSON.stringify(processed, null, 2);
   }
 });
