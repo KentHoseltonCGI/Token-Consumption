@@ -458,6 +458,7 @@
             margin-left: 0.5rem;
             margin-top: 0.25rem;
             margin-bottom: 0.25rem;
+            box-sizing: border-box;
         }
 
         .tree-children.expanded {
@@ -467,7 +468,7 @@
         }
 
         /* Responsive: single column on smaller screens */
-        @media (max-width: 1024px) {
+        @media (max-width: 768px) {
             .tree-children.expanded {
                 grid-template-columns: 1fr;
             }
@@ -489,6 +490,7 @@
             transition: all 0.2s ease;
             cursor: pointer;
             overflow: hidden;
+            min-width: 0;
         }
 
         .token-leaf:hover {
@@ -509,38 +511,34 @@
             flex-direction: column;
             gap: 0.5rem;
             flex: 1;
+            min-width: 0;
         }
 
         .token-leaf-name {
             font-family: 'Monaco', 'Courier New', monospace;
-            font-size: 0.6875rem;
-            color: var(--nexus-color-content-tertiary, #8a909e);
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            order: 3;
+            font-size: 0.8125rem;
+            color: var(--nexus-color-content-primary, #17191c);
+            font-weight: var(--nexus-typography-font-weight-semibold, 600);
+            word-break: break-word;
+            order: 1;
         }
 
         .token-leaf-reference {
             font-family: 'Monaco', 'Courier New', monospace;
-            font-size: 0.8125rem;
+            font-size: 0.75rem;
             color: var(--nexus-color-system-primary-700, #17289c);
-            font-weight: var(--nexus-typography-font-weight-semibold, 600);
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            order: 1;
+            font-weight: var(--nexus-typography-font-weight-medium, 500);
+            word-break: break-word;
+            order: 2;
         }
 
         .token-leaf-value {
             font-family: 'Monaco', 'Courier New', monospace;
-            font-size: 0.75rem;
-            color: var(--nexus-color-content-secondary, #575d69);
+            font-size: 0.6875rem;
+            color: var(--nexus-color-content-tertiary, #8a909e);
             font-weight: var(--nexus-typography-font-weight-regular, 400);
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            order: 2;
+            word-break: break-word;
+            order: 3;
         }
 
         .token-leaf-label {
@@ -799,7 +797,11 @@
                         'mid-blue': 'midBlue',
                         'mid-green': 'midGreen',
                         'new-sky': 'newSky',
-                        'day-glow': 'dayGlow'
+                        'day-glow': 'dayGlow',
+                        'action-lighter': 'actionLighter',
+                        'action-light': 'actionLight',
+                        'action-dark': 'actionDark',
+                        'action-darker': 'actionDarker'
                     };
                     
                     // Replace compound names with single tokens
@@ -826,6 +828,12 @@
                     } else if (category === 'sizing' || category === 'spacing') {
                         // Layer 01: Base scales (rem-based) - flatten numeric values
                         return ['primitives', 'scales', category, ...pathParts.slice(2)];
+                    } else if (category === 'opacity') {
+                        // Layer 03: Opacity tokens - flatten completely, no subfolders
+                        return ['component-ui', 'opacity', pathParts.slice(2).join('-')];
+                    } else if (category === 'gradient') {
+                        // Layer 03: Gradient tokens - UI-level tokens
+                        return ['component-ui', 'gradient', ...pathParts.slice(2)];
                     } else if (category === 'color' && subcategory === 'brand') {
                         // Layer 02: Brand colors belong in semantic system
                         return ['semantic-system', 'brand', ...pathParts.slice(3)];
@@ -898,6 +906,38 @@
                 });
                 
                 return tree;
+            }
+            
+            // Collapse folders that only contain a single child folder (no tokens)
+            function collapseSingleChildFolders(node) {
+                // Get all keys except _tokens
+                const keys = Object.keys(node).filter(k => k !== '_tokens');
+                
+                // If this node has exactly one child and no tokens of its own
+                if (keys.length === 1 && (!node._tokens || node._tokens.length === 0)) {
+                    const childKey = keys[0];
+                    const child = node[childKey];
+                    
+                    // Recursively collapse the child first
+                    collapseSingleChildFolders(child);
+                    
+                    // Merge the child's contents into this node
+                    Object.keys(child).forEach(key => {
+                        node[key] = child[key];
+                    });
+                    
+                    // Remove the now-redundant child folder
+                    delete node[childKey];
+                } else {
+                    // Recursively process all children
+                    keys.forEach(key => {
+                        if (typeof node[key] === 'object') {
+                            collapseSingleChildFolders(node[key]);
+                        }
+                    });
+                }
+                
+                return node;
             }
             
             // Get token category for visual preview
@@ -1040,21 +1080,21 @@
                             // Check if this token references another token
                             const isReference = String(originalValue).includes('{') && String(originalValue).includes('}');
                             
-                            // Build the card: 1) VISUAL PREVIEW (hero), 2) REFERENCE PATH (if exists), 3) RESOLVED VALUE
+                            // Build the card: 1) VISUAL PREVIEW (hero), 2) TOKEN NAME, 3) REFERENCE (if exists), 4) RESOLVED VALUE
                             let infoHTML = '';
                             
                             if (isReference) {
-                                // Show reference path prominently
+                                // Show token name, then reference, then resolved value
                                 infoHTML = `
+                                    <div class="token-leaf-name">${token.name}</div>
                                     <div class="token-leaf-reference">${originalValue}</div>
                                     <div class="token-leaf-value">→ ${resolvedValue}</div>
-                                    <div class="token-leaf-name">${token.name}</div>
                                 `;
                             } else {
-                                // Show value directly
+                                // Show token name, then value directly
                                 infoHTML = `
-                                    <div class="token-leaf-reference">${resolvedValue}</div>
                                     <div class="token-leaf-name">${token.name}</div>
+                                    <div class="token-leaf-value">${resolvedValue}</div>
                                 `;
                             }
                             
@@ -1103,6 +1143,12 @@
             
             // Build and render the tree
             const tree = buildTree(tokens);
+            
+            // Collapse any folders that only contain a single child folder
+            Object.keys(tree).forEach(key => {
+                collapseSingleChildFolders(tree[key]);
+            });
+            
             const treeContainer = document.getElementById('token-tree');
             
             // Custom sort order for top-level categories
