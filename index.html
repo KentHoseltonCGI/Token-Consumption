@@ -1200,7 +1200,17 @@
                         break;
                     
                     case 'opacity':
-                        previewContent = `<div class="preview-opacity"><div class="preview-opacity-overlay" style="opacity: ${token.value};"></div></div>`;
+                        // Normalize opacity values: numbers (32, 24) -> 0.32, 0.24; strings ("56px") -> 0.56
+                        let opacityValue = token.value;
+                        if (typeof opacityValue === 'string') {
+                            // Remove "px" and convert to number
+                            opacityValue = parseFloat(opacityValue.replace('px', ''));
+                        }
+                        if (typeof opacityValue === 'number' && opacityValue > 1) {
+                            // Convert from 0-100 range to 0-1 range
+                            opacityValue = opacityValue / 100;
+                        }
+                        previewContent = `<div class="preview-opacity"><div class="preview-opacity-overlay" style="opacity: ${opacityValue};"></div></div>`;
                         break;
                     
                     case 'spacing':
