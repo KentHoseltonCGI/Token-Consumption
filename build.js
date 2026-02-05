@@ -5,36 +5,6 @@ import { register } from '@tokens-studio/sd-transforms';
 // This adds support for DTCG format and token references
 register(StyleDictionary);
 
-// Custom preprocessor to exclude typography composite tokens for MVP
-StyleDictionary.registerPreprocessor({
-  name: 'exclude-typography-composites',
-  preprocessor: (dictionary) => {
-    // Recursively filter out typography type tokens
-    function filterTypography(obj) {
-      if (!obj || typeof obj !== 'object') return obj;
-      
-      const filtered = {};
-      for (const [key, value] of Object.entries(obj)) {
-        // Skip if this token is of type typography
-        if (value?.$type === 'typography') {
-          console.log(`[MVP] Excluding typography composite: ${key}`);
-          continue;
-        }
-        
-        // Recurse for nested objects
-        if (typeof value === 'object' && value !== null && !value.$value) {
-          filtered[key] = filterTypography(value);
-        } else {
-          filtered[key] = value;
-        }
-      }
-      return filtered;
-    }
-    
-    return filterTypography(dictionary);
-  }
-});
-
 // Custom transform for opacity normalization
 // Handles both "56px" → 0.56 and scale references like 32 → 0.32
 StyleDictionary.registerTransform({
@@ -147,9 +117,10 @@ const sd = new StyleDictionary({
     'Nexus-Source-Tokens/tokens/01 rem ✅/Mode 1.json',
     'Nexus-Source-Tokens/tokens/02 Alias ✅/myQ.json',
     'Nexus-Source-Tokens/tokens/03 Palette ✅/light.json',
+    'Nexus-Source-Tokens/tokens/03 Responsive ✅/Larger Breakpoint.json',
     'Nexus-Source-Tokens/tokens/03 Mapped ✅/Mode 1.json'
   ],
-  preprocessors: ['exclude-typography-composites', 'tokens-studio'],
+  preprocessors: ['tokens-studio'],
   log: {
     warnings: 'warn', // Show warnings but don't fail
     verbosity: 'default'
