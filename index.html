@@ -814,97 +814,103 @@
                 if (!r.ok) throw new Error('Failed to load CSS');
                 return r.text();
             }),
-            fetch('dist/json/tokens-metadata.json').then(r => {
-                if (!r.ok) throw new Error('Failed to load metadata');
+            fetch('dist/json/tokens-preserved.json').then(r => {
+                if (!r.ok) throw new Error('Failed to load preserved tokens');
                 return r.json();
             })
         ])
-            .then(([css, metadata]) => {
-                console.log('Loaded CSS and metadata successfully');
+            .then(([css, preservedTokens]) => {
+                console.log('Loaded CSS and preserved tokens successfully');fully');
                 
-                // Parse CSS custom properties with regex
+                // Parse CSS custom properties for reference
                 const tokenRegex = /--([^:]+):\s*([^;]+);/g;
+                const cssTokens = new Map();
                 let match;
                 
                 while ((match = tokenRegex.exec(css)) !== null) {
                     const tokenName = `--${match[1].trim()}`;
                     const resolvedValue = match[2].trim();
-                    
-                    tokens.push({
-                        name: tokenName,
-                        value: resolvedValue
-                    });
+                    cssTokens.set(tokenName, resolvedValue);
                 }
                 
-                console.log(`Parsed ${tokens.length} tokens from CSS`);
+                console.log(`Parsed ${cssTokens.size} tokens from CSS`);
                 
-                // Group typography tokens (h1, h2, body-lg, etc.)
-                const typographyGroups = {};
-                const typographyTokensToRemove = new Set();
-                
-                tokens.forEach(token => {
-                    const name = token.name;
-                    // Match text-token patterns like: --nexus-text-token-h1-font-size
-                    const match = name.match(/^--nexus-text-token-([a-z0-9-]+)-(font-weight|font-size|line-height|font-family)$/);
-                    if (match) {
-                        const typeName = match[1]; // e.g., "h1", "body-lg-emphasized"
-                        const property = match[2]; // e.g., "font-size"
+                // Process preserved tokens recursively
+                function processPreservedTokens(obj, path = []) {
+                    for (const key in obj) {
+                        if (key.startsWith('$')) continue; // Skip metadata at this level
                         
-                        if (!typographyGroups[typeName]) {
-                            typographyGroups[typeName] = {
-                                name: `--nexus-text-token-${typeName}`,
-                                properties: {}
-                            };
+                        const value = obj[key];
+                        const currentPath = [...path, key];
+                        
+                        if (value && typeof value === 'object') {
+                            // Check if this is a composite token with $type
+                            if (value.$type && value.$value) {
+                                // Create kebab-case token name from path
+                                const tokenName = `--${currentPath.join('-').toLowerCase()}`;
+                                
+                                tokens.push({
+                                    name: tokenName,
+                                    value: value.$value,
+                                    type: value.$type,
+                                    isComposite: true,
+                                    // For typography, store properties for rendering
+                                    ...(value.$type === 'typography' && {
+                                        typographyProps: value.$value
+                                    })
+                                });
+                            } else {
+                                // Not a token, recurse into nested group
+                                processPreservedTokens(value, currentPath);
+                            }
+                        } else if (value !== undefined && value !== null) {
+                            // Regular token (no $type wrapper)
+                            const tokenName = `--${currentPath.join('-').toLowerCase()}`;
+                            
+                            // Get resolved value from CSS if available
+                            const resolvedValue = cssTokens.get(tokenName) || value;
+                            
+                            tokens.push({
+                                name: tokenName,
+                                value: resolvedValue,
+                                original: value
+                            });
                         }
-                        
-                        typographyGroups[typeName].properties[property] = token.value;
-                        typographyTokensToRemove.add(name);
                     }
-                });
+                }
                 
-                // Remove individual typography property tokens and add grouped ones
-                const filteredTokens = tokens.filter(t => !typographyTokensToRemove.has(t.name));
+                processPreservedTokens(preservedTokens);
                 
-                // Add composite typography tokens
-                Object.entries(typographyGroups).forEach(([typeName, group]) => {
-                    const props = group.properties;
-                    // Create a composite value object that we can use for rendering
-                    filteredTokens.push({
-                        name: group.name,
-                        value: JSON.stringify(props), // Store as JSON for now
-                        isCompositeTypography: true,
-                        typographyProps: props
-                    });
-                });
+                console.log(`Processed ${tokens.length} tokens from preserved JSON`);
                 
-                tokens.length = 0;
-                tokens.push(...filteredTokens);
-                
-                console.log(`Grouped typography tokens. Now have ${tokens.length} total tokens`);
-                
-                // Build metadata map for quick lookup
-                function buildMetadataMap(obj, map) {
+                // Build metadata map for reference tooltips
+                function buildMetadataMap(obj, map) {ath = []) {
                     try {
                         if (obj && typeof obj === 'object') {
-                            if (obj.name && obj.original && obj.original.$value !== undefined) {
-                                // Store both original and resolved values
-                                map[`--${obj.name}`] = {
-                                    original: obj.original.$value,
-                                    resolved: obj.value
-                                };
-                            }
-                            // Recurse through nested objects
-                            Object.values(obj).forEach(val => {
-                                if (typeof val === 'object') {
-                                    buildMetadataMap(val, map);
+                            for (const key in obj) {
+                                if (key.startsWith('$')) continue;
+                                
+                                const value = obj[key];
+                                const currentPath = [...path, key];
+                                
+                                if (value && typeof value === 'object') {
+                                    if (value.$value !== undefined) {
+                                        const tokenName = `--${currentPath.join('-').toLowerCase()}`;
+                                        map[tokenName] = {
+                                            original: value.$value,
+                                            type: value.$type
+                                        };
+                                    } else {
+                                        buildMetadataMap(value, map, currentPath);
+                                    }
                                 }
-                            });
+                            }
                         }
                     } catch (e) {
                         console.error('Error building metadata map:', e);
                     }
                 }
-                buildMetadataMap(metadata, tokenMetadata);
+                buildMetadataMap(preservedTokens, tokenMetadata);
                 
                 console.log(`Built metadata for ${Object.keys(tokenMetadata).length} tokens`);
                 
@@ -1098,15 +1104,16 @@
             
             // Render preview based on token category
             function renderPreview(token) {
-                // Check if this is a composite typography token
-                if (token.isCompositeTypography && token.typographyProps) {
+                // Check if this is a composite token with type metadata
+                if (token.isComposite && token.type === 'typography' && token.typographyProps) {
                     const props = token.typographyProps;
                     const styles = [];
                     
-                    if (props['font-family']) styles.push(`font-family: ${props['font-family']}`);
-                    if (props['font-size']) styles.push(`font-size: ${props['font-size']}`);
-                    if (props['font-weight']) styles.push(`font-weight: ${props['font-weight']}`);
-                    if (props['line-height']) styles.push(`line-height: ${props['line-height']}`);
+                    if (props.fontFamily) styles.push(`font-family: ${props.fontFamily}`);
+                    if (props.fontSize) styles.push(`font-size: ${props.fontSize}px`);
+                    if (props.fontWeight) styles.push(`font-weight: ${props.fontWeight}`);
+                    if (props.lineHeight) styles.push(`line-height: ${props.lineHeight}`);
+                    if (props.letterSpacing) styles.push(`letter-spacing: ${props.letterSpacing}`);
                     
                     const styleStr = styles.join('; ');
                     const displayText = token.name.includes('-h1') ? 'Heading 1' :
