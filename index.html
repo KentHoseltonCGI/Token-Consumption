@@ -838,6 +838,50 @@
                 
                 console.log(`Parsed ${tokens.length} tokens from CSS`);
                 
+                // Group typography tokens (h1, h2, body-lg, etc.)
+                const typographyGroups = {};
+                const typographyTokensToRemove = new Set();
+                
+                tokens.forEach(token => {
+                    const name = token.name;
+                    // Match text-token patterns like: --nexus-text-token-h1-font-size
+                    const match = name.match(/^--nexus-text-token-([a-z0-9-]+)-(font-weight|font-size|line-height|font-family)$/);
+                    if (match) {
+                        const typeName = match[1]; // e.g., "h1", "body-lg-emphasized"
+                        const property = match[2]; // e.g., "font-size"
+                        
+                        if (!typographyGroups[typeName]) {
+                            typographyGroups[typeName] = {
+                                name: `--nexus-text-token-${typeName}`,
+                                properties: {}
+                            };
+                        }
+                        
+                        typographyGroups[typeName].properties[property] = token.value;
+                        typographyTokensToRemove.add(name);
+                    }
+                });
+                
+                // Remove individual typography property tokens and add grouped ones
+                const filteredTokens = tokens.filter(t => !typographyTokensToRemove.has(t.name));
+                
+                // Add composite typography tokens
+                Object.entries(typographyGroups).forEach(([typeName, group]) => {
+                    const props = group.properties;
+                    // Create a composite value object that we can use for rendering
+                    filteredTokens.push({
+                        name: group.name,
+                        value: JSON.stringify(props), // Store as JSON for now
+                        isCompositeTypography: true,
+                        typographyProps: props
+                    });
+                });
+                
+                tokens.length = 0;
+                tokens.push(...filteredTokens);
+                
+                console.log(`Grouped typography tokens. Now have ${tokens.length} total tokens`);
+                
                 // Build metadata map for quick lookup
                 function buildMetadataMap(obj, map) {
                     try {
@@ -1054,6 +1098,34 @@
             
             // Render preview based on token category
             function renderPreview(token) {
+                // Check if this is a composite typography token
+                if (token.isCompositeTypography && token.typographyProps) {
+                    const props = token.typographyProps;
+                    const styles = [];
+                    
+                    if (props['font-family']) styles.push(`font-family: ${props['font-family']}`);
+                    if (props['font-size']) styles.push(`font-size: ${props['font-size']}`);
+                    if (props['font-weight']) styles.push(`font-weight: ${props['font-weight']}`);
+                    if (props['line-height']) styles.push(`line-height: ${props['line-height']}`);
+                    
+                    const styleStr = styles.join('; ');
+                    const displayText = token.name.includes('-h1') ? 'Heading 1' :
+                                       token.name.includes('-h2') ? 'Heading 2' :
+                                       token.name.includes('-h3') ? 'Heading 3' :
+                                       token.name.includes('-h4') ? 'Heading 4' :
+                                       token.name.includes('-h5') ? 'Heading 5' :
+                                       token.name.includes('-h6') ? 'Heading 6' :
+                                       token.name.includes('-subtitle') ? 'Subtitle text' :
+                                       token.name.includes('-button') ? 'Button text' :
+                                       token.name.includes('-caption') ? 'Caption text' :
+                                       token.name.includes('-label') ? 'Label text' :
+                                       token.name.includes('-link') ? 'Link text' :
+                                       'Body text sample';
+                    
+                    const previewContent = `<div class="preview-typography" style="${styleStr}">${displayText}</div>`;
+                    return `<div class="token-leaf-preview">${previewContent}</div>`;
+                }
+                
                 const category = getTokenCategory(token.name);
                 let previewContent = '';
                 
@@ -1187,7 +1259,18 @@
                             // Check if we have metadata for this token
                             const metadata = tokenMetadata[token.name];
                             const originalValue = metadata?.original || token.value;
-                            const resolvedValue = token.value;
+                            let resolvedValue = token.value;
+                            
+                            // Special handling for composite typography tokens
+                            if (token.isCompositeTypography && token.typographyProps) {
+                                const props = token.typographyProps;
+                                const parts = [];
+                                if (props['font-family']) parts.push(`family: ${props['font-family']}`);
+                                if (props['font-size']) parts.push(`size: ${props['font-size']}`);
+                                if (props['font-weight']) parts.push(`weight: ${props['font-weight']}`);
+                                if (props['line-height']) parts.push(`line-height: ${props['line-height']}`);
+                                resolvedValue = parts.join(' • ');
+                            }
                             
                             // Check if this token references another token
                             const isReference = String(originalValue).includes('{') && String(originalValue).includes('}');
