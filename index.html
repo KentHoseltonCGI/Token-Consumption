@@ -741,6 +741,33 @@
             color: var(--nexus-color-content-primary, #17191c);
             line-height: 1;
         }
+
+        .preview-font-size {
+            color: var(--nexus-color-content-primary, #17191c);
+            line-height: 1.2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 60px;
+        }
+
+        .preview-font-family {
+            font-size: 2rem;
+            color: var(--nexus-color-content-primary, #17191c);
+            line-height: 1.2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 60px;
+        }
+
+        .preview-typography {
+            color: var(--nexus-color-content-primary, #17191c);
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            min-height: 60px;
+        }
     </style>
 </head>
 <body>
@@ -1016,6 +1043,9 @@
                 if (name.includes('-spacing-')) return 'spacing';
                 if (name.includes('-sizing-')) return 'sizing';
                 if (name.includes('-font-weight-')) return 'font-weight';
+                if (name.includes('-font-size-')) return 'font-size';
+                if (name.includes('-font-family-')) return 'font-family';
+                if (name.includes('-typography-') || name.includes('-text-token-')) return 'typography';
                 if (name.includes('-shape-') || name.includes('-radius-') || name.includes('-border-radius-')) return 'border-radius';
                 if (name.includes('-border-width-')) return 'border-width';
                 if (name.includes('-shadow-') || name.includes('-effect-')) return 'shadow';
@@ -1053,6 +1083,19 @@
                     
                     case 'font-weight':
                         previewContent = `<div class="preview-weight" style="font-weight: ${token.value};">Ag</div>`;
+                        break;
+                    
+                    case 'font-size':
+                        previewContent = `<div class="preview-font-size" style="font-size: ${token.value};">Ag</div>`;
+                        break;
+                    
+                    case 'font-family':
+                        previewContent = `<div class="preview-font-family" style="font-family: ${token.value};">Ag</div>`;
+                        break;
+                    
+                    case 'typography':
+                        // For composite typography tokens, show text with combined styles
+                        previewContent = `<div class="preview-typography" style="font: ${token.value};">The quick brown fox</div>`;
                         break;
                     
                     case 'shadow':
