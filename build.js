@@ -155,7 +155,9 @@ StyleDictionary.registerFormat({
     
     const processed = processTokens(tokens);
     
-    // Reorganize: Move typography composite tokens under "Type Styles"
+    // Reorganize: Move typography-related tokens into organized folders
+    
+    // 1. Move typography composite tokens under "Type Styles"
     if (processed.Nexus) {
       const typeStyles = {};
       
@@ -187,6 +189,47 @@ StyleDictionary.registerFormat({
       // Add textToken under typography after Type Styles
       if (textToken) {
         processed.Nexus.typography['textToken'] = textToken;
+      }
+    }
+    
+    // 2. Move typography primitives (fontSize, lineHeights, etc.) under a primitives folder
+    const typographyPrimitives = {};
+    const primitiveGroups = ['fontSize', 'lineHeights', 'letterSpacing', 'paragraphSpacing', 'paragraphIndent', 'textCase', 'textDecoration'];
+    
+    primitiveGroups.forEach(groupName => {
+      if (processed[groupName]) {
+        typographyPrimitives[groupName] = processed[groupName];
+        delete processed[groupName];
+      }
+    });
+    
+    // Create primitives structure if we have any typography primitives
+    if (Object.keys(typographyPrimitives).length > 0) {
+      if (!processed.primitives) {
+        processed.primitives = {};
+      }
+      processed.primitives.typography = typographyPrimitives;
+    }
+    
+    // 3. Move color ramps under primitives['color ramps']
+    if (processed.Nexus && processed.Nexus.color) {
+      const colorRamps = {};
+      // Include all primitive color ramps (scales with numeric values like 50, 100, 200, etc.)
+      const rampGroups = ['neutral', 'slate', 'deepBlue', 'blue', 'teal', 'green', 'lime', 'brightYellow', 'Red', 'Orange', 'Yellow', 'deepGreen'];
+      
+      rampGroups.forEach(rampName => {
+        if (processed.Nexus.color[rampName]) {
+          colorRamps[rampName] = processed.Nexus.color[rampName];
+          delete processed.Nexus.color[rampName];
+        }
+      });
+      
+      // Add color ramps under primitives if we have any
+      if (Object.keys(colorRamps).length > 0) {
+        if (!processed.primitives) {
+          processed.primitives = {};
+        }
+        processed.primitives['color ramps'] = colorRamps;
       }
     }
     
