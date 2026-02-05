@@ -288,27 +288,36 @@
 
     <script>
         // Parse CSS custom properties
-        const tokens = [];
-        const styles = getComputedStyle(document.documentElement);
+        let tokens = [];
         
-        // Get all CSS custom properties
-        const sheet = document.styleSheets[0];
-        const rules = sheet.cssRules || sheet.rules;
-        
-        for (let rule of rules) {
-            if (rule.style) {
-                for (let i = 0; i < rule.style.length; i++) {
-                    const prop = rule.style[i];
-                    if (prop.startsWith('--')) {
-                        const value = rule.style.getPropertyValue(prop).trim();
-                        tokens.push({ name: prop, value: value });
-                    }
+        // Fetch and parse the CSS file to avoid CORS issues
+        fetch('dist/css/tokens.css')
+            .then(response => response.text())
+            .then(css => {
+                // Parse CSS custom properties with regex
+                const tokenRegex = /--([^:]+):\s*([^;]+);/g;
+                let match;
+                
+                while ((match = tokenRegex.exec(css)) !== null) {
+                    tokens.push({
+                        name: `--${match[1].trim()}`,
+                        value: match[2].trim()
+                    });
                 }
-            }
-        }
+                
+                // Initialize the UI after tokens are loaded
+                initializeUI();
+            })
+            .catch(error => {
+                console.error('Error loading tokens:', error);
+                document.getElementById('token-grid').innerHTML = 
+                    '<p style="grid-column: 1/-1; text-align: center; color: #f32245;">Error loading tokens. Make sure to run <code>npm run build</code> first and serve this page via a local server.</p>';
+            });
+        
+        function initializeUI() {
 
-        // Categorize tokens
-        function categorizeToken(name) {
+            // Categorize tokens
+            function categorizeToken(name) {
             if (name.includes('-color-')) return 'color';
             if (name.includes('-opacity-')) return 'opacity';
             if (name.includes('-spacing-')) return 'spacing';
@@ -320,8 +329,8 @@
             return 'other';
         }
 
-        // Render token card
-        function renderToken(token) {
+            // Render token card
+            function renderToken(token) {
             const category = categorizeToken(token.name);
             const card = document.createElement('div');
             card.className = 'token-card';
@@ -369,50 +378,51 @@
             return card;
         }
 
-        // Render all tokens
-        const grid = document.getElementById('token-grid');
-        tokens.forEach(token => {
-            grid.appendChild(renderToken(token));
-        });
-
-        // Update stats
-        const counts = {
-            color: tokens.filter(t => categorizeToken(t.name) === 'color').length,
-            opacity: tokens.filter(t => categorizeToken(t.name) === 'opacity').length,
-            spacing: tokens.filter(t => categorizeToken(t.name) === 'spacing').length,
-            typography: tokens.filter(t => ['font-weight', 'font-family'].includes(categorizeToken(t.name))).length,
-        };
-
-        document.getElementById('total-count').textContent = tokens.length;
-        document.getElementById('color-count').textContent = counts.color;
-        document.getElementById('opacity-count').textContent = counts.opacity;
-        document.getElementById('spacing-count').textContent = counts.spacing;
-        document.getElementById('typography-count').textContent = counts.typography;
-
-        // Filter functionality
-        const filterBtns = document.querySelectorAll('.filter-btn');
-        const searchInput = document.getElementById('search');
-
-        filterBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                filterBtns.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                filterTokens();
+            // Render all tokens
+            const grid = document.getElementById('token-grid');
+            tokens.forEach(token => {
+                grid.appendChild(renderToken(token));
             });
-        });
 
-        searchInput.addEventListener('input', filterTokens);
+            // Update stats
+            const counts = {
+                color: tokens.filter(t => categorizeToken(t.name) === 'color').length,
+                opacity: tokens.filter(t => categorizeToken(t.name) === 'opacity').length,
+                spacing: tokens.filter(t => categorizeToken(t.name) === 'spacing').length,
+                typography: tokens.filter(t => ['font-weight', 'font-family'].includes(categorizeToken(t.name))).length,
+            };
 
-        function filterTokens() {
-            const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
-            const searchTerm = searchInput.value.toLowerCase();
-            const cards = document.querySelectorAll('.token-card');
+            document.getElementById('total-count').textContent = tokens.length;
+            document.getElementById('color-count').textContent = counts.color;
+            document.getElementById('opacity-count').textContent = counts.opacity;
+            document.getElementById('spacing-count').textContent = counts.spacing;
+            document.getElementById('typography-count').textContent = counts.typography;
 
-            cards.forEach(card => {
-                const matchesFilter = activeFilter === 'all' || card.dataset.category === activeFilter;
-                const matchesSearch = card.dataset.name.toLowerCase().includes(searchTerm);
-                card.style.display = matchesFilter && matchesSearch ? 'block' : 'none';
+            // Filter functionality
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            const searchInput = document.getElementById('search');
+
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    filterTokens();
+                });
             });
+
+            searchInput.addEventListener('input', filterTokens);
+
+            function filterTokens() {
+                const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
+                const searchTerm = searchInput.value.toLowerCase();
+                const cards = document.querySelectorAll('.token-card');
+
+                cards.forEach(card => {
+                    const matchesFilter = activeFilter === 'all' || card.dataset.category === activeFilter;
+                    const matchesSearch = card.dataset.name.toLowerCase().includes(searchTerm);
+                    card.style.display = matchesFilter && matchesSearch ? 'block' : 'none';
+                });
+            }
         }
     </script>
 </body>
