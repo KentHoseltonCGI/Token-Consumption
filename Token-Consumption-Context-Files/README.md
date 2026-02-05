@@ -29,6 +29,7 @@ Design tokens created in Figma using Tokens Studio need to be:
    - Technology choices (locked for MVP)
    - Unit normalization policies (opacity, font weight)
    - Execution discipline for AI agents
+   - **Token Viewer Design Philosophy**: Visual-first presentation where each token card SHOWS WHAT THE TOKEN DOES as the primary information, followed by reference path (if applicable), then resolved value
    - **This document takes precedence over all others**
 
 Then review in order:
