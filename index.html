@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nexus Design Tokens - Token Viewer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="dist/css/tokens.css">
     <style>
         * {
@@ -804,6 +807,18 @@
     </div>
 
     <script>
+        /**
+         * Token data structure conforming to DTCG specification
+         * @typedef {Object} Token
+         * @property {string} name - Token CSS variable name (e.g., "--nexus-color-blue-500")
+         * @property {*} value - Token value (primitive for simple tokens, object for composite)
+         * @property {*} [original] - Original token value before resolution
+         * @property {string} [type] - DTCG token type (color, typography, dimension, shadow, etc.)
+         * @property {boolean} [isComposite] - Whether token has composite structure ($type with $value object)
+         * @property {Object} [typographyProps] - Typography composite properties (fontFamily, fontSize, fontWeight, lineHeight, letterSpacing)
+         * @property {string[]} [path] - Tree path for hierarchical navigation
+         */
+        
         // Parse CSS custom properties and metadata
         let tokens = [];
         let tokenMetadata = {};
@@ -847,7 +862,8 @@
                             // Check if this is a composite token with $type
                             if (value.$type && value.$value) {
                                 // Create kebab-case token name from path
-                                const tokenName = `--${currentPath.join('-').toLowerCase()}`;
+                                // Replace spaces with hyphens, then convert to lowercase
+                                const tokenName = `--${currentPath.map(p => p.replace(/\s+/g, '-')).join('-').toLowerCase()}`;
                                 
                                 tokens.push({
                                     name: tokenName,
@@ -865,7 +881,8 @@
                             }
                         } else if (value !== undefined && value !== null) {
                             // Regular token (no $type wrapper)
-                            const tokenName = `--${currentPath.join('-').toLowerCase()}`;
+                            // Replace spaces with hyphens in path segments
+                            const tokenName = `--${currentPath.map(p => p.replace(/\s+/g, '-')).join('-').toLowerCase()}`;
                             
                             // Get resolved value from CSS if available
                             const resolvedValue = cssTokens.get(tokenName) || value;
@@ -1035,11 +1052,11 @@
                         
                         if (i === path.length - 1) {
                             // Leaf node - store token data
+                            // Preserve all token properties for rendering (type, isComposite, typographyProps, etc.)
                             if (!current._tokens) current._tokens = [];
                             current._tokens.push({
-                                name: token.name,
-                                value: token.value,
-                                path: path
+                                ...token,  // Spread all properties to maintain data integrity
+                                path: path // Add tree-specific metadata
                             });
                         } else {
                             // Branch node
@@ -1109,13 +1126,54 @@
                     const props = token.typographyProps;
                     const styles = [];
                     
-                    if (props.fontFamily) styles.push(`font-family: ${props.fontFamily}`);
-                    if (props.fontSize) styles.push(`font-size: ${props.fontSize}px`);
-                    if (props.fontWeight) styles.push(`font-weight: ${props.fontWeight}`);
-                    if (props.lineHeight) styles.push(`line-height: ${props.lineHeight}`);
-                    if (props.letterSpacing) styles.push(`letter-spacing: ${props.letterSpacing}`);
+                    // Font family with fallback
+                    if (props.fontFamily) {
+                        const fontFamily = props.fontFamily === 'Inter' 
+                            ? "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+                            : props.fontFamily;
+                        styles.push(`font-family: ${fontFamily}`);
+                    }
+                    
+                    // Font size - ensure it has units
+                    if (props.fontSize) {
+                        const fontSize = typeof props.fontSize === 'number' 
+                            ? `${props.fontSize}px` 
+                            : props.fontSize;
+                        styles.push(`font-size: ${fontSize}`);
+                    }
+                    
+                    // Font weight - convert keywords to numbers
+                    if (props.fontWeight) {
+                        const fontWeightMap = {
+                            'thin': 100, 'hairline': 100,
+                            'extra light': 200, 'extralight': 200, 'ultra light': 200, 'ultralight': 200,
+                            'light': 300,
+                            'normal': 400, 'regular': 400,
+                            'medium': 500,
+                            'semi bold': 600, 'semibold': 600, 'demi bold': 600, 'demibold': 600,
+                            'bold': 700,
+                            'extra bold': 800, 'extrabold': 800, 'ultra bold': 800, 'ultrabold': 800,
+                            'black': 900, 'heavy': 900
+                        };
+                        const weight = typeof props.fontWeight === 'string' 
+                            ? (fontWeightMap[props.fontWeight.toLowerCase()] || props.fontWeight)
+                            : props.fontWeight;
+                        styles.push(`font-weight: ${weight}`);
+                    }
+                    
+                    // Line height
+                    if (props.lineHeight) {
+                        styles.push(`line-height: ${props.lineHeight}`);
+                    }
+                    
+                    // Letter spacing - convert 0% to 0
+                    if (props.letterSpacing) {
+                        const spacing = props.letterSpacing === '0%' ? '0' : props.letterSpacing;
+                        styles.push(`letter-spacing: ${spacing}`);
+                    }
                     
                     const styleStr = styles.join('; ');
+                    
                     const displayText = token.name.includes('-h1') ? 'Heading 1' :
                                        token.name.includes('-h2') ? 'Heading 2' :
                                        token.name.includes('-h3') ? 'Heading 3' :
@@ -1173,8 +1231,13 @@
                         break;
                     
                     case 'typography':
-                        // For composite typography tokens, show text with combined styles
-                        previewContent = `<div class="preview-typography" style="font: ${token.value};">The quick brown fox</div>`;
+                        // Fallback for typography tokens missing composite properties
+                        if (typeof token.value === 'object') {
+                            console.warn(`Typography token ${token.name} has object value but missing composite metadata`);
+                            previewContent = `<div style="font-size: 0.75rem; color: var(--nexus-color-content-tertiary, #8a909e);">Typography (metadata missing)</div>`;
+                        } else {
+                            previewContent = `<div class="preview-typography" style="font: ${token.value};">The quick brown fox</div>`;
+                        }
                         break;
                     
                     case 'shadow':
@@ -1269,13 +1332,13 @@
                             let resolvedValue = token.value;
                             
                             // Special handling for composite typography tokens
-                            if (token.isCompositeTypography && token.typographyProps) {
+                            if (token.isComposite && token.type === 'typography' && token.typographyProps) {
                                 const props = token.typographyProps;
                                 const parts = [];
-                                if (props['font-family']) parts.push(`family: ${props['font-family']}`);
-                                if (props['font-size']) parts.push(`size: ${props['font-size']}`);
-                                if (props['font-weight']) parts.push(`weight: ${props['font-weight']}`);
-                                if (props['line-height']) parts.push(`line-height: ${props['line-height']}`);
+                                if (props.fontFamily) parts.push(`family: ${props.fontFamily}`);
+                                if (props.fontSize) parts.push(`size: ${props.fontSize}px`);
+                                if (props.fontWeight) parts.push(`weight: ${props.fontWeight}`);
+                                if (props.lineHeight) parts.push(`line-height: ${props.lineHeight}`);
                                 resolvedValue = parts.join(' • ');
                             }
                             
