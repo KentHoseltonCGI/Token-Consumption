@@ -507,7 +507,8 @@
             padding: 0.875rem;
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;\n            flex: 1;
+            gap: 0.5rem;
+            flex: 1;
         }
 
         .token-leaf-name {
@@ -552,7 +553,8 @@
         }
 
         .token-leaf-preview {
-            width: 100%;\n            min-height: 120px;
+            width: 100%;
+            min-height: 120px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1039,7 +1041,8 @@
                             const isReference = String(originalValue).includes('{') && String(originalValue).includes('}');
                             
                             // Build the card: 1) VISUAL PREVIEW (hero), 2) REFERENCE PATH (if exists), 3) RESOLVED VALUE
-                            let infoHTML = '';\n                            
+                            let infoHTML = '';
+                            
                             if (isReference) {
                                 // Show reference path prominently
                                 infoHTML = `
