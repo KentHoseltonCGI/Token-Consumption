@@ -1367,6 +1367,7 @@
                             let resolvedValue = token.value;
                             
                             // Special handling for composite typography tokens
+                            let typographyDetails = null;
                             if (token.isComposite && token.type === 'typography' && token.typographyProps) {
                                 const props = token.typographyProps;
                                 const parts = [];
@@ -1374,7 +1375,19 @@
                                 if (props.fontSize) parts.push(`size: ${props.fontSize}px`);
                                 if (props.fontWeight) parts.push(`weight: ${props.fontWeight}`);
                                 if (props.lineHeight) parts.push(`line-height: ${props.lineHeight}`);
+                                if (props.textDecoration && props.textDecoration !== 'none') parts.push(`decoration: ${props.textDecoration}`);
                                 resolvedValue = parts.join(' • ');
+                                
+                                // Build detailed breakdown for typography tokens
+                                const detailParts = [];
+                                if (props.fontFamily) detailParts.push(`Font Family: ${props.fontFamily}`);
+                                if (props.fontSize) detailParts.push(`Font Size: ${props.fontSize}px`);
+                                if (props.fontWeight) detailParts.push(`Font Weight: ${props.fontWeight}`);
+                                if (props.lineHeight) detailParts.push(`Line Height: ${props.lineHeight}`);
+                                if (props.letterSpacing) detailParts.push(`Letter Spacing: ${props.letterSpacing}`);
+                                if (props.textDecoration && props.textDecoration !== 'none') detailParts.push(`Text Decoration: ${props.textDecoration}`);
+                                if (props.textCase && props.textCase !== 'none') detailParts.push(`Text Case: ${props.textCase}`);
+                                typographyDetails = detailParts.join(' | ');
                             }
                             
                             // Check if this token references another token
@@ -1383,7 +1396,13 @@
                             // Build the card: 1) VISUAL PREVIEW (hero), 2) TOKEN NAME, 3) REFERENCE (if exists), 4) RESOLVED VALUE
                             let infoHTML = '';
                             
-                            if (isReference) {
+                            if (typographyDetails) {
+                                // For typography tokens, show detailed breakdown
+                                infoHTML = `
+                                    <div class="token-leaf-name">${token.name}</div>
+                                    <div class="token-leaf-value">${typographyDetails}</div>
+                                `;
+                            } else if (isReference) {
                                 // Show token name, then reference, then resolved value
                                 infoHTML = `
                                     <div class="token-leaf-name">${token.name}</div>
