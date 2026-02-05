@@ -1,0 +1,27 @@
+{
+  "name": "token-consumption",
+  "version": "1.0.0",
+  "description": "Design Token Consumption Pipeline - Transform Tokens Studio exports to CSS variables",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "build": "node build.js",
+    "build:watch": "node build.js --watch",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KentHoseltonCGI/Token-Consumption.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/KentHoseltonCGI/Token-Consumption/issues"
+  },
+  "homepage": "https://github.com/KentHoseltonCGI/Token-Consumption#readme",
+  "devDependencies": {
+    "@tokens-studio/sd-transforms": "^2.0.3",
+    "style-dictionary": "^5.2.0"
+  }
+}
