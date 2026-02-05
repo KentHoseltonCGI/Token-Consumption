@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nexus Design Tokens - Token Viewer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="dist/css/tokens.css">
     <style>
         * {
@@ -741,6 +744,33 @@
             color: var(--nexus-color-content-primary, #17191c);
             line-height: 1;
         }
+
+        .preview-font-size {
+            color: var(--nexus-color-content-primary, #17191c);
+            line-height: 1.2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 60px;
+        }
+
+        .preview-font-family {
+            font-size: 2rem;
+            color: var(--nexus-color-content-primary, #17191c);
+            line-height: 1.2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 60px;
+        }
+
+        .preview-typography {
+            color: var(--nexus-color-content-primary, #17191c);
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            min-height: 60px;
+        }
     </style>
 </head>
 <body>
@@ -777,6 +807,18 @@
     </div>
 
     <script>
+        /**
+         * Token data structure conforming to DTCG specification
+         * @typedef {Object} Token
+         * @property {string} name - Token CSS variable name (e.g., "--nexus-color-blue-500")
+         * @property {*} value - Token value (primitive for simple tokens, object for composite)
+         * @property {*} [original] - Original token value before resolution
+         * @property {string} [type] - DTCG token type (color, typography, dimension, shadow, etc.)
+         * @property {boolean} [isComposite] - Whether token has composite structure ($type with $value object)
+         * @property {Object} [typographyProps] - Typography composite properties (fontFamily, fontSize, fontWeight, lineHeight, letterSpacing)
+         * @property {string[]} [path] - Tree path for hierarchical navigation
+         */
+        
         // Parse CSS custom properties and metadata
         let tokens = [];
         let tokenMetadata = {};
@@ -787,53 +829,105 @@
                 if (!r.ok) throw new Error('Failed to load CSS');
                 return r.text();
             }),
-            fetch('dist/json/tokens-metadata.json').then(r => {
-                if (!r.ok) throw new Error('Failed to load metadata');
+            fetch('dist/json/tokens-preserved.json').then(r => {
+                if (!r.ok) throw new Error('Failed to load preserved tokens');
                 return r.json();
             })
         ])
-            .then(([css, metadata]) => {
-                console.log('Loaded CSS and metadata successfully');
+            .then(([css, preservedTokens]) => {
+                console.log('Loaded CSS and preserved tokens successfully');
                 
-                // Parse CSS custom properties with regex
+                // Parse CSS custom properties for reference
                 const tokenRegex = /--([^:]+):\s*([^;]+);/g;
+                const cssTokens = new Map();
                 let match;
                 
                 while ((match = tokenRegex.exec(css)) !== null) {
                     const tokenName = `--${match[1].trim()}`;
                     const resolvedValue = match[2].trim();
-                    
-                    tokens.push({
-                        name: tokenName,
-                        value: resolvedValue
-                    });
+                    cssTokens.set(tokenName, resolvedValue);
                 }
                 
-                console.log(`Parsed ${tokens.length} tokens from CSS`);
+                console.log(`Parsed ${cssTokens.size} tokens from CSS`);
                 
-                // Build metadata map for quick lookup
-                function buildMetadataMap(obj, map) {
+                // Process preserved tokens recursively
+                function processPreservedTokens(obj, path = []) {
+                    for (const key in obj) {
+                        if (key.startsWith('$')) continue; // Skip metadata at this level
+                        
+                        const value = obj[key];
+                        const currentPath = [...path, key];
+                        
+                        if (value && typeof value === 'object') {
+                            // Check if this is a composite token with $type
+                            if (value.$type && value.$value) {
+                                // Create kebab-case token name from path
+                                // Replace spaces with hyphens, then convert to lowercase
+                                const tokenName = `--${currentPath.map(p => p.replace(/\s+/g, '-')).join('-').toLowerCase()}`;
+                                
+                                tokens.push({
+                                    name: tokenName,
+                                    value: value.$value,
+                                    type: value.$type,
+                                    isComposite: true,
+                                    // For typography, store properties for rendering
+                                    ...(value.$type === 'typography' && {
+                                        typographyProps: value.$value
+                                    })
+                                });
+                            } else {
+                                // Not a token, recurse into nested group
+                                processPreservedTokens(value, currentPath);
+                            }
+                        } else if (value !== undefined && value !== null) {
+                            // Regular token (no $type wrapper)
+                            // Replace spaces with hyphens in path segments
+                            const tokenName = `--${currentPath.map(p => p.replace(/\s+/g, '-')).join('-').toLowerCase()}`;
+                            
+                            // Get resolved value from CSS if available
+                            const resolvedValue = cssTokens.get(tokenName) || value;
+                            
+                            tokens.push({
+                                name: tokenName,
+                                value: resolvedValue,
+                                original: value
+                            });
+                        }
+                    }
+                }
+                
+                processPreservedTokens(preservedTokens);
+                
+                console.log(`Processed ${tokens.length} tokens from preserved JSON`);
+                
+                // Build metadata map for reference tooltips
+                function buildMetadataMap(obj, map, path = []) {
                     try {
                         if (obj && typeof obj === 'object') {
-                            if (obj.name && obj.original && obj.original.$value !== undefined) {
-                                // Store both original and resolved values
-                                map[`--${obj.name}`] = {
-                                    original: obj.original.$value,
-                                    resolved: obj.value
-                                };
-                            }
-                            // Recurse through nested objects
-                            Object.values(obj).forEach(val => {
-                                if (typeof val === 'object') {
-                                    buildMetadataMap(val, map);
+                            for (const key in obj) {
+                                if (key.startsWith('$')) continue;
+                                
+                                const value = obj[key];
+                                const currentPath = [...path, key];
+                                
+                                if (value && typeof value === 'object') {
+                                    if (value.$value !== undefined) {
+                                        const tokenName = `--${currentPath.join('-').toLowerCase()}`;
+                                        map[tokenName] = {
+                                            original: value.$value,
+                                            type: value.$type
+                                        };
+                                    } else {
+                                        buildMetadataMap(value, map, currentPath);
+                                    }
                                 }
-                            });
+                            }
                         }
                     } catch (e) {
                         console.error('Error building metadata map:', e);
                     }
                 }
-                buildMetadataMap(metadata, tokenMetadata);
+                buildMetadataMap(preservedTokens, tokenMetadata);
                 
                 console.log(`Built metadata for ${Object.keys(tokenMetadata).length} tokens`);
                 
@@ -958,11 +1052,11 @@
                         
                         if (i === path.length - 1) {
                             // Leaf node - store token data
+                            // Preserve all token properties for rendering (type, isComposite, typographyProps, etc.)
                             if (!current._tokens) current._tokens = [];
                             current._tokens.push({
-                                name: token.name,
-                                value: token.value,
-                                path: path
+                                ...token,  // Spread all properties to maintain data integrity
+                                path: path // Add tree-specific metadata
                             });
                         } else {
                             // Branch node
@@ -1016,6 +1110,9 @@
                 if (name.includes('-spacing-')) return 'spacing';
                 if (name.includes('-sizing-')) return 'sizing';
                 if (name.includes('-font-weight-')) return 'font-weight';
+                if (name.includes('-font-size-')) return 'font-size';
+                if (name.includes('-font-family-')) return 'font-family';
+                if (name.includes('-typography-') || name.includes('-text-token-')) return 'typography';
                 if (name.includes('-shape-') || name.includes('-radius-') || name.includes('-border-radius-')) return 'border-radius';
                 if (name.includes('-border-width-')) return 'border-width';
                 if (name.includes('-shadow-') || name.includes('-effect-')) return 'shadow';
@@ -1024,6 +1121,76 @@
             
             // Render preview based on token category
             function renderPreview(token) {
+                // Check if this is a composite token with type metadata
+                if (token.isComposite && token.type === 'typography' && token.typographyProps) {
+                    const props = token.typographyProps;
+                    const styles = [];
+                    
+                    // Font family with fallback
+                    if (props.fontFamily) {
+                        const fontFamily = props.fontFamily === 'Inter' 
+                            ? "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+                            : props.fontFamily;
+                        styles.push(`font-family: ${fontFamily}`);
+                    }
+                    
+                    // Font size - ensure it has units
+                    if (props.fontSize) {
+                        const fontSize = typeof props.fontSize === 'number' 
+                            ? `${props.fontSize}px` 
+                            : props.fontSize;
+                        styles.push(`font-size: ${fontSize}`);
+                    }
+                    
+                    // Font weight - convert keywords to numbers
+                    if (props.fontWeight) {
+                        const fontWeightMap = {
+                            'thin': 100, 'hairline': 100,
+                            'extra light': 200, 'extralight': 200, 'ultra light': 200, 'ultralight': 200,
+                            'light': 300,
+                            'normal': 400, 'regular': 400,
+                            'medium': 500,
+                            'semi bold': 600, 'semibold': 600, 'demi bold': 600, 'demibold': 600,
+                            'bold': 700,
+                            'extra bold': 800, 'extrabold': 800, 'ultra bold': 800, 'ultrabold': 800,
+                            'black': 900, 'heavy': 900
+                        };
+                        const weight = typeof props.fontWeight === 'string' 
+                            ? (fontWeightMap[props.fontWeight.toLowerCase()] || props.fontWeight)
+                            : props.fontWeight;
+                        styles.push(`font-weight: ${weight}`);
+                    }
+                    
+                    // Line height
+                    if (props.lineHeight) {
+                        styles.push(`line-height: ${props.lineHeight}`);
+                    }
+                    
+                    // Letter spacing - convert 0% to 0
+                    if (props.letterSpacing) {
+                        const spacing = props.letterSpacing === '0%' ? '0' : props.letterSpacing;
+                        styles.push(`letter-spacing: ${spacing}`);
+                    }
+                    
+                    const styleStr = styles.join('; ');
+                    
+                    const displayText = token.name.includes('-h1') ? 'Heading 1' :
+                                       token.name.includes('-h2') ? 'Heading 2' :
+                                       token.name.includes('-h3') ? 'Heading 3' :
+                                       token.name.includes('-h4') ? 'Heading 4' :
+                                       token.name.includes('-h5') ? 'Heading 5' :
+                                       token.name.includes('-h6') ? 'Heading 6' :
+                                       token.name.includes('-subtitle') ? 'Subtitle text' :
+                                       token.name.includes('-button') ? 'Button text' :
+                                       token.name.includes('-caption') ? 'Caption text' :
+                                       token.name.includes('-label') ? 'Label text' :
+                                       token.name.includes('-link') ? 'Link text' :
+                                       'Body text sample';
+                    
+                    const previewContent = `<div class="preview-typography" style="${styleStr}">${displayText}</div>`;
+                    return `<div class="token-leaf-preview">${previewContent}</div>`;
+                }
+                
                 const category = getTokenCategory(token.name);
                 let previewContent = '';
                 
@@ -1053,6 +1220,24 @@
                     
                     case 'font-weight':
                         previewContent = `<div class="preview-weight" style="font-weight: ${token.value};">Ag</div>`;
+                        break;
+                    
+                    case 'font-size':
+                        previewContent = `<div class="preview-font-size" style="font-size: ${token.value};">Ag</div>`;
+                        break;
+                    
+                    case 'font-family':
+                        previewContent = `<div class="preview-font-family" style="font-family: ${token.value};">Ag</div>`;
+                        break;
+                    
+                    case 'typography':
+                        // Fallback for typography tokens missing composite properties
+                        if (typeof token.value === 'object') {
+                            console.warn(`Typography token ${token.name} has object value but missing composite metadata`);
+                            previewContent = `<div style="font-size: 0.75rem; color: var(--nexus-color-content-tertiary, #8a909e);">Typography (metadata missing)</div>`;
+                        } else {
+                            previewContent = `<div class="preview-typography" style="font: ${token.value};">The quick brown fox</div>`;
+                        }
                         break;
                     
                     case 'shadow':
@@ -1144,7 +1329,18 @@
                             // Check if we have metadata for this token
                             const metadata = tokenMetadata[token.name];
                             const originalValue = metadata?.original || token.value;
-                            const resolvedValue = token.value;
+                            let resolvedValue = token.value;
+                            
+                            // Special handling for composite typography tokens
+                            if (token.isComposite && token.type === 'typography' && token.typographyProps) {
+                                const props = token.typographyProps;
+                                const parts = [];
+                                if (props.fontFamily) parts.push(`family: ${props.fontFamily}`);
+                                if (props.fontSize) parts.push(`size: ${props.fontSize}px`);
+                                if (props.fontWeight) parts.push(`weight: ${props.fontWeight}`);
+                                if (props.lineHeight) parts.push(`line-height: ${props.lineHeight}`);
+                                resolvedValue = parts.join(' • ');
+                            }
                             
                             // Check if this token references another token
                             const isReference = String(originalValue).includes('{') && String(originalValue).includes('}');

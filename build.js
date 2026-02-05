@@ -5,33 +5,35 @@ import { register } from '@tokens-studio/sd-transforms';
 // This adds support for DTCG format and token references
 register(StyleDictionary);
 
-// Custom preprocessor to exclude typography composite tokens for MVP
+// Custom preprocessor to preserve composite typography tokens
+// This prevents decomposition of tokens with $type: "typography"
 StyleDictionary.registerPreprocessor({
-  name: 'exclude-typography-composites',
+  name: 'preserve-typography-composites',
   preprocessor: (dictionary) => {
-    // Recursively filter out typography type tokens
-    function filterTypography(obj) {
-      if (!obj || typeof obj !== 'object') return obj;
+    // This preprocessor identifies and marks typography composite tokens
+    // so they remain grouped in the JSON output for the token viewer
+    
+    function processTokens(obj, path = []) {
+      if (!obj || typeof obj !== 'object') return;
       
-      const filtered = {};
-      for (const [key, value] of Object.entries(obj)) {
-        // Skip if this token is of type typography
-        if (value?.$type === 'typography') {
-          console.log(`[MVP] Excluding typography composite: ${key}`);
-          continue;
-        }
-        
-        // Recurse for nested objects
-        if (typeof value === 'object' && value !== null && !value.$value) {
-          filtered[key] = filterTypography(value);
-        } else {
-          filtered[key] = value;
+      // Check if this is a typography composite token
+      if (obj.$type === 'typography' && obj.$value && typeof obj.$value === 'object') {
+        // Mark it as a preserved composite for later identification
+        obj._isComposite = true;
+        obj._compositeType = 'typography';
+      }
+      
+      // Recurse through the token tree
+      for (const key in obj) {
+        if (key.startsWith('$') || key.startsWith('_')) continue; // Skip metadata
+        if (typeof obj[key] === 'object') {
+          processTokens(obj[key], [...path, key]);
         }
       }
-      return filtered;
     }
     
-    return filterTypography(dictionary);
+    processTokens(dictionary);
+    return dictionary;
   }
 });
 
@@ -69,6 +71,126 @@ StyleDictionary.registerTransform({
     // Fallback to original value if we can't parse
     console.warn(`[nexus/opacity/normalize] Could not normalize opacity for ${token.path.join('.')}: ${token.$value || token.value}`);
     return value;
+  }
+});
+
+// Custom format to preserve typography composite tokens with metadata
+StyleDictionary.registerFormat({
+  name: 'json/nested-with-types',
+  format: ({ dictionary }) => {
+    // Helper to resolve token references like {Nexus.color.blue.500}
+    function resolveReferences(value, tokens) {
+      if (typeof value === 'string' && value.startsWith('{') && value.endsWith('}')) {
+        const refPath = value.slice(1, -1).split('.');
+        let resolved = tokens;
+        
+        for (const key of refPath) {
+          if (resolved && resolved[key]) {
+            resolved = resolved[key];
+          } else {
+            return value; // Can't resolve, return original
+          }
+        }
+        
+        // If we found a token object, get its $value
+        if (resolved && typeof resolved === 'object' && resolved.$value) {
+          return resolveReferences(resolved.$value, tokens);
+        }
+        
+        return resolved;
+      }
+      
+      // Recursively resolve references in objects
+      if (typeof value === 'object' && value !== null) {
+        const resolved = {};
+        for (const key in value) {
+          resolved[key] = resolveReferences(value[key], tokens);
+        }
+        return resolved;
+      }
+      
+      return value;
+    }
+    
+    // Get the raw tokens object
+    const tokens = dictionary.tokens;
+    
+    // List of typography composite token groups to reorganize
+    const typeStyleGroups = ['Headings', 'Subtitle', 'Body', 'label', 'link', 'caption', 'Button'];
+    
+    // Recursively process and resolve references
+    function processTokens(obj) {
+      const result = {};
+      
+      for (const key in obj) {
+        if (key.startsWith('$')) {
+          // Keep metadata properties
+          result[key] = obj[key];
+          continue;
+        }
+        
+        const value = obj[key];
+        
+        if (value && typeof value === 'object') {
+          // Check if this is a token (has $type and $value)
+          if (value.$type && value.$value) {
+            result[key] = {
+              $type: value.$type,
+              $value: resolveReferences(value.$value, tokens)
+            };
+          } else if (value.$value !== undefined) {
+            // Token without $type
+            result[key] = resolveReferences(value.$value, tokens);
+          } else {
+            // Nested group - recurse
+            result[key] = processTokens(value);
+          }
+        } else {
+          result[key] = value;
+        }
+      }
+      
+      return result;
+    }
+    
+    const processed = processTokens(tokens);
+    
+    // Reorganize: Move typography composite tokens under "Type Styles"
+    if (processed.Nexus) {
+      const typeStyles = {};
+      
+      // Collect all type style groups from Nexus
+      typeStyleGroups.forEach(groupName => {
+        if (processed.Nexus[groupName]) {
+          typeStyles[groupName] = processed.Nexus[groupName];
+          delete processed.Nexus[groupName];
+        }
+      });
+      
+      // Move textToken under typography as well
+      let textToken = null;
+      if (processed.Nexus.textToken) {
+        textToken = processed.Nexus.textToken;
+        delete processed.Nexus.textToken;
+      }
+      
+      // Ensure typography object exists
+      if (!processed.Nexus.typography) {
+        processed.Nexus.typography = {};
+      }
+      
+      // Add Type Styles folder under typography if we have any
+      if (Object.keys(typeStyles).length > 0) {
+        processed.Nexus.typography['Type Styles'] = typeStyles;
+      }
+      
+      // Add textToken under typography after Type Styles
+      if (textToken) {
+        processed.Nexus.typography['textToken'] = textToken;
+      }
+    }
+    
+    return JSON.stringify(processed, null, 2);
   }
 });
 
@@ -140,18 +262,19 @@ StyleDictionary.registerTransform({
   }
 });
 
-// Build configuration
-const sd = new StyleDictionary({
+// Build configuration for CSS and decomposed JSON (uses tokens-studio preprocessor)
+const sdExpanded = new StyleDictionary({
   source: [
     'Nexus-Source-Tokens/tokens/01 Primitive ✅/Mode 1.json',
     'Nexus-Source-Tokens/tokens/01 rem ✅/Mode 1.json',
     'Nexus-Source-Tokens/tokens/02 Alias ✅/myQ.json',
     'Nexus-Source-Tokens/tokens/03 Palette ✅/light.json',
+    'Nexus-Source-Tokens/tokens/03 Responsive ✅/Larger Breakpoint.json',
     'Nexus-Source-Tokens/tokens/03 Mapped ✅/Mode 1.json'
   ],
-  preprocessors: ['exclude-typography-composites', 'tokens-studio'],
+  preprocessors: ['tokens-studio'],
   log: {
-    warnings: 'warn', // Show warnings but don't fail
+    warnings: 'warn',
     verbosity: 'default'
   },
   platforms: {
@@ -167,8 +290,8 @@ const sd = new StyleDictionary({
         'ts/color/css/hexrgba',
         'ts/color/modifiers',
         'name/kebab',
-        'nexus/opacity/normalize',    // Our custom opacity transform
-        'nexus/fontWeight/normalize'   // Our custom font weight transform
+        'nexus/opacity/normalize',
+        'nexus/fontWeight/normalize'
       ],
       buildPath: 'dist/css/',
       files: [
@@ -176,7 +299,7 @@ const sd = new StyleDictionary({
           destination: 'tokens.css',
           format: 'css/variables',
           options: {
-            outputReferences: false  // Resolve all references to final values
+            outputReferences: false
           }
         }
       ]
@@ -197,8 +320,41 @@ const sd = new StyleDictionary({
   }
 });
 
-// Clean and build
-await sd.cleanAllPlatforms();
-await sd.buildAllPlatforms();
+// Build configuration for preserved composite tokens (NO tokens-studio preprocessor)
+const sdPreserved = new StyleDictionary({
+  source: [
+    'Nexus-Source-Tokens/tokens/01 Primitive ✅/Mode 1.json',
+    'Nexus-Source-Tokens/tokens/01 rem ✅/Mode 1.json',
+    'Nexus-Source-Tokens/tokens/02 Alias ✅/myQ.json',
+    'Nexus-Source-Tokens/tokens/03 Palette ✅/light.json',
+    'Nexus-Source-Tokens/tokens/03 Responsive ✅/Larger Breakpoint.json',
+    'Nexus-Source-Tokens/tokens/03 Mapped ✅/Mode 1.json'
+  ],
+  log: {
+    warnings: 'warn',
+    verbosity: 'default'
+  },
+  platforms: {
+    'json-preserved': {
+      transforms: [
+        'name/kebab'
+      ],
+      buildPath: 'dist/json/',
+      files: [
+        {
+          destination: 'tokens-preserved.json',
+          format: 'json/nested-with-types'
+        }
+      ]
+    }
+  }
+});
 
-console.log('\n✅ Build complete! Check dist/css/tokens.css');
+// Clean and build both configurations
+await sdExpanded.cleanAllPlatforms();
+await sdExpanded.buildAllPlatforms();
+
+console.log('\n📦 Building preserved composite tokens...');
+await sdPreserved.buildAllPlatforms();
+
+console.log('\n✅ Build complete! Check dist/css/tokens.css and dist/json/tokens-preserved.json');
