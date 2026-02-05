@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Design Tokens - Token Viewer</title>
+    <link rel="stylesheet" href="dist/css/tokens.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--nexus-color-background-surface-secondary, #f2f5fa);
+            color: var(--nexus-color-content-primary, #17191c);
+            padding: 2rem;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: var(--nexus-color-system-white, #ffffff);
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: var(--nexus-typography-font-weight-semibold, 600);
+            color: var(--nexus-color-system-primary-600, #172dbd);
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: var(--nexus-color-content-secondary, #575d69);
+            font-size: 1.1rem;
+        }
+
+        .stats {
+            display: flex;
+            gap: 2rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            background: var(--nexus-color-background-primary-subtle, #e0ebff);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--nexus-color-content-secondary, #575d69);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: var(--nexus-typography-font-weight-semibold, 600);
+            color: var(--nexus-color-system-primary-700, #17289c);
+        }
+
+        .section {
+            background: var(--nexus-color-system-white, #ffffff);
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--nexus-color-background-surface-tertiary, #d1d7e3);
+        }
+
+        h2 {
+            font-size: 1.75rem;
+            font-weight: var(--nexus-typography-font-weight-semibold, 600);
+            color: var(--nexus-color-content-primary, #17191c);
+        }
+
+        .token-count {
+            background: var(--nexus-color-background-surface-tertiary, #d1d7e3);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: var(--nexus-typography-font-weight-medium, 500);
+        }
+
+        .token-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+
+        .token-card {
+            border: 1px solid var(--nexus-color-background-surface-tertiary, #d1d7e3);
+            padding: 1rem;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .token-card:hover {
+            border-color: var(--nexus-color-system-primary-500, #3660d0);
+            box-shadow: 0 2px 8px rgba(23, 45, 189, 0.1);
+        }
+
+        .token-name {
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.75rem;
+            color: var(--nexus-color-content-secondary, #575d69);
+            margin-bottom: 0.5rem;
+            word-break: break-all;
+        }
+
+        .token-value {
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.875rem;
+            font-weight: var(--nexus-typography-font-weight-semibold, 600);
+            color: var(--nexus-color-content-primary, #17191c);
+            margin-bottom: 0.75rem;
+        }
+
+        .color-swatch {
+            width: 100%;
+            height: 60px;
+            border-radius: 6px;
+            border: 1px solid var(--nexus-color-background-surface-tertiary, #d1d7e3);
+            margin-bottom: 0.5rem;
+        }
+
+        .opacity-bar {
+            width: 100%;
+            height: 40px;
+            background: linear-gradient(90deg, 
+                var(--nexus-color-system-primary-600, #172dbd) 0%, 
+                transparent 100%);
+            border-radius: 6px;
+            border: 1px solid var(--nexus-color-background-surface-tertiary, #d1d7e3);
+            position: relative;
+        }
+
+        .opacity-marker {
+            position: absolute;
+            height: 100%;
+            width: 2px;
+            background: var(--nexus-color-system-error-600, #f32245);
+            top: 0;
+        }
+
+        .spacing-box {
+            background: var(--nexus-color-system-primary-100, #e0ebff);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            color: var(--nexus-color-system-primary-700, #17289c);
+            font-weight: var(--nexus-typography-font-weight-medium, 500);
+        }
+
+        .font-weight-sample {
+            font-size: 1.5rem;
+            padding: 0.5rem;
+            text-align: center;
+            border: 1px solid var(--nexus-color-background-surface-tertiary, #d1d7e3);
+            border-radius: 6px;
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--nexus-color-background-surface-tertiary, #d1d7e3);
+            background: var(--nexus-color-system-white, #ffffff);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+            font-weight: var(--nexus-typography-font-weight-medium, 500);
+        }
+
+        .filter-btn:hover {
+            border-color: var(--nexus-color-system-primary-500, #3660d0);
+        }
+
+        .filter-btn.active {
+            background: var(--nexus-color-system-primary-600, #172dbd);
+            color: var(--nexus-color-system-white, #ffffff);
+            border-color: var(--nexus-color-system-primary-600, #172dbd);
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--nexus-color-background-surface-tertiary, #d1d7e3);
+            border-radius: 6px;
+            font-size: 0.875rem;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--nexus-color-system-primary-500, #3660d0);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.125rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: var(--nexus-typography-font-weight-medium, 500);
+            margin-bottom: 0.5rem;
+        }
+
+        .badge-color { background: #e0ebff; color: #17289c; }
+        .badge-opacity { background: #e0fff2; color: #13ae5c; }
+        .badge-spacing { background: #ffeedb; color: #d78207; }
+        .badge-sizing { background: #ffe9e8; color: #c61735; }
+        .badge-typography { background: #e0eeff; color: #05549e; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Nexus Design Tokens</h1>
+            <p class="subtitle">myQ Brand · Light Theme · Generated from Tokens Studio</p>
+            <div class="stats" id="stats">
+                <div class="stat">
+                    <div class="stat-label">Total Tokens</div>
+                    <div class="stat-value" id="total-count">-</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">Colors</div>
+                    <div class="stat-value" id="color-count">-</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">Opacity</div>
+                    <div class="stat-value" id="opacity-count">-</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">Spacing</div>
+                    <div class="stat-value" id="spacing-count">-</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">Typography</div>
+                    <div class="stat-value" id="typography-count">-</div>
+                </div>
+            </div>
+        </header>
+
+        <div class="section">
+            <div class="section-header">
+                <h2>Token Explorer</h2>
+            </div>
+            <div class="filter-bar">
+                <button class="filter-btn active" data-filter="all">All Tokens</button>
+                <button class="filter-btn" data-filter="color">Colors</button>
+                <button class="filter-btn" data-filter="opacity">Opacity</button>
+                <button class="filter-btn" data-filter="spacing">Spacing</button>
+                <button class="filter-btn" data-filter="sizing">Sizing</button>
+                <button class="filter-btn" data-filter="font-weight">Font Weights</button>
+                <input type="text" class="search-input" id="search" placeholder="Search tokens...">
+            </div>
+            <div class="token-grid" id="token-grid"></div>
+        </div>
+    </div>
+
+    <script>
+        // Parse CSS custom properties
+        const tokens = [];
+        const styles = getComputedStyle(document.documentElement);
+        
+        // Get all CSS custom properties
+        const sheet = document.styleSheets[0];
+        const rules = sheet.cssRules || sheet.rules;
+        
+        for (let rule of rules) {
+            if (rule.style) {
+                for (let i = 0; i < rule.style.length; i++) {
+                    const prop = rule.style[i];
+                    if (prop.startsWith('--')) {
+                        const value = rule.style.getPropertyValue(prop).trim();
+                        tokens.push({ name: prop, value: value });
+                    }
+                }
+            }
+        }
+
+        // Categorize tokens
+        function categorizeToken(name) {
+            if (name.includes('-color-')) return 'color';
+            if (name.includes('-opacity-')) return 'opacity';
+            if (name.includes('-spacing-')) return 'spacing';
+            if (name.includes('-sizing-')) return 'sizing';
+            if (name.includes('-font-weight-')) return 'font-weight';
+            if (name.includes('-font-family-')) return 'font-family';
+            if (name.includes('-border-radius-')) return 'border-radius';
+            if (name.includes('-border-width-')) return 'border-width';
+            return 'other';
+        }
+
+        // Render token card
+        function renderToken(token) {
+            const category = categorizeToken(token.name);
+            const card = document.createElement('div');
+            card.className = 'token-card';
+            card.dataset.category = category;
+            card.dataset.name = token.name;
+
+            let badge = '';
+            let preview = '';
+
+            switch (category) {
+                case 'color':
+                    badge = '<span class="badge badge-color">Color</span>';
+                    preview = `<div class="color-swatch" style="background-color: ${token.value};"></div>`;
+                    break;
+                case 'opacity':
+                    badge = '<span class="badge badge-opacity">Opacity</span>';
+                    const opacityPercent = parseFloat(token.value) * 100;
+                    preview = `
+                        <div class="opacity-bar">
+                            <div class="opacity-marker" style="left: ${opacityPercent}%;"></div>
+                        </div>
+                    `;
+                    break;
+                case 'spacing':
+                case 'sizing':
+                    badge = `<span class="badge badge-${category}">${category}</span>`;
+                    preview = `<div class="spacing-box" style="width: ${token.value}; height: ${token.value};">${token.value}</div>`;
+                    break;
+                case 'font-weight':
+                    badge = '<span class="badge badge-typography">Font Weight</span>';
+                    preview = `<div class="font-weight-sample" style="font-weight: ${token.value};">Ag</div>`;
+                    break;
+                default:
+                    badge = `<span class="badge">${category}</span>`;
+                    preview = '';
+            }
+
+            card.innerHTML = `
+                ${badge}
+                <div class="token-name">${token.name}</div>
+                <div class="token-value">${token.value}</div>
+                ${preview}
+            `;
+
+            return card;
+        }
+
+        // Render all tokens
+        const grid = document.getElementById('token-grid');
+        tokens.forEach(token => {
+            grid.appendChild(renderToken(token));
+        });
+
+        // Update stats
+        const counts = {
+            color: tokens.filter(t => categorizeToken(t.name) === 'color').length,
+            opacity: tokens.filter(t => categorizeToken(t.name) === 'opacity').length,
+            spacing: tokens.filter(t => categorizeToken(t.name) === 'spacing').length,
+            typography: tokens.filter(t => ['font-weight', 'font-family'].includes(categorizeToken(t.name))).length,
+        };
+
+        document.getElementById('total-count').textContent = tokens.length;
+        document.getElementById('color-count').textContent = counts.color;
+        document.getElementById('opacity-count').textContent = counts.opacity;
+        document.getElementById('spacing-count').textContent = counts.spacing;
+        document.getElementById('typography-count').textContent = counts.typography;
+
+        // Filter functionality
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const searchInput = document.getElementById('search');
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                filterTokens();
+            });
+        });
+
+        searchInput.addEventListener('input', filterTokens);
+
+        function filterTokens() {
+            const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
+            const searchTerm = searchInput.value.toLowerCase();
+            const cards = document.querySelectorAll('.token-card');
+
+            cards.forEach(card => {
+                const matchesFilter = activeFilter === 'all' || card.dataset.category === activeFilter;
+                const matchesSearch = card.dataset.name.toLowerCase().includes(searchTerm);
+                card.style.display = matchesFilter && matchesSearch ? 'block' : 'none';
+            });
+        }
+    </script>
+</body>
+</html>
