@@ -1172,17 +1172,26 @@
                         styles.push(`letter-spacing: ${spacing}`);
                     }
                     
+                    // Text decoration (underline, etc.)
+                    if (props.textDecoration) {
+                        styles.push(`text-decoration: ${props.textDecoration}`);
+                    }
+                    
                     const styleStr = styles.join('; ');
                     
-                    // Check if line height is >= 160% to use longer text for wrapping
+                    // Check if line height is >= 160% to use longer text for wrapping (but not for links)
                     const lineHeight = props.lineHeight;
-                    const useWrapText = lineHeight && (
+                    const isLink = token.name.includes('-link');
+                    const useWrapText = !isLink && lineHeight && (
                         (typeof lineHeight === 'string' && parseFloat(lineHeight) >= 160) ||
                         (typeof lineHeight === 'number' && lineHeight >= 1.6)
                     );
                     
                     let displayText;
-                    if (useWrapText) {
+                    if (isLink) {
+                        // Always use "Link text" for links
+                        displayText = 'Link text';
+                    } else if (useWrapText) {
                         // Use longer lorem ipsum for tokens with high line height
                         displayText = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.';
                     } else {
@@ -1196,7 +1205,6 @@
                                      token.name.includes('-button') ? 'Button text' :
                                      token.name.includes('-caption') ? 'Caption text' :
                                      token.name.includes('-label') ? 'Label text' :
-                                     token.name.includes('-link') ? 'Link text' :
                                      'Body text sample';
                     }
                     
