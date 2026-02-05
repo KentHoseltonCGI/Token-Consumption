@@ -1124,15 +1124,6 @@
                 // Check if this is a composite token with type metadata
                 if (token.isComposite && token.type === 'typography' && token.typographyProps) {
                     const props = token.typographyProps;
-                    
-                    // Debug: Check one typography token
-                    if (token.name.includes('-h1')) {
-                        console.log('Rendering H1:', token.name);
-                        console.log('  isComposite:', token.isComposite);
-                        console.log('  type:', token.type);
-                        console.log('  typographyProps:', props);
-                    }
-                    
                     const styles = [];
                     
                     // Font family with fallback
