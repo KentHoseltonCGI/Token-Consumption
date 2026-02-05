@@ -47,28 +47,29 @@
 
         .stats {
             display: flex;
-            gap: 2rem;
-            margin-top: 1.5rem;
+            gap: 1.5rem;
+            margin-top: 1rem;
             flex-wrap: wrap;
         }
 
         .stat {
-            background: var(--nexus-color-background-primary-subtle, #e0ebff);
-            padding: 1rem 1.5rem;
-            border-radius: 8px;
+            background: transparent;
+            padding: 0.5rem 0;
+            border-radius: 0;
         }
 
         .stat-label {
-            font-size: 0.875rem;
+            font-size: 0.75rem;
             color: var(--nexus-color-content-secondary, #575d69);
             text-transform: uppercase;
             letter-spacing: 0.05em;
+            font-weight: var(--nexus-typography-font-weight-regular, 400);
         }
 
         .stat-value {
-            font-size: 1.5rem;
-            font-weight: var(--nexus-typography-font-weight-semibold, 600);
-            color: var(--nexus-color-system-primary-700, #17289c);
+            font-size: 1rem;
+            font-weight: var(--nexus-typography-font-weight-medium, 500);
+            color: var(--nexus-color-content-secondary, #575d69);
         }
 
         .section {
@@ -184,30 +185,135 @@
 
         .filter-bar {
             display: flex;
-            gap: 1rem;
+            flex-direction: column;
+            gap: 0.75rem;
             margin-bottom: 1.5rem;
+        }
+
+        .filter-top-row {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
             flex-wrap: wrap;
         }
 
+        .filter-chips {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-chip {
+            padding: 0.375rem 0.75rem;
+            border: 1px solid transparent;
+            background: var(--nexus-color-background-surface-tertiary, #d1d7e3);
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.8125rem;
+            transition: all 0.15s ease;
+            font-weight: var(--nexus-typography-font-weight-medium, 500);
+            color: var(--nexus-color-content-primary, #17191c);
+            user-select: none;
+        }
+
+        .filter-chip:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .filter-chip:active {
+            transform: translateY(0);
+        }
+
+        .filter-chip.active {
+            border-color: currentColor;
+            font-weight: var(--nexus-typography-font-weight-semibold, 600);
+        }
+
+        .filter-chip[data-category="all"] {
+            background: var(--nexus-color-content-secondary, #575d69);
+            color: var(--nexus-color-system-white, #ffffff);
+        }
+
+        .filter-chip[data-category="all"].active {
+            background: var(--nexus-color-content-primary, #17191c);
+        }
+
+        .filter-chip[data-category="color"] {
+            background: #e0ebff;
+            color: #17289c;
+        }
+
+        .filter-chip[data-category="color"].active {
+            background: #c8dcff;
+            border-color: #17289c;
+        }
+
+        .filter-chip[data-category="opacity"] {
+            background: #e0fff2;
+            color: #13ae5c;
+        }
+
+        .filter-chip[data-category="opacity"].active {
+            background: #c4f5e0;
+            border-color: #13ae5c;
+        }
+
+        .filter-chip[data-category="spacing"] {
+            background: #ffeedb;
+            color: #d78207;
+        }
+
+        .filter-chip[data-category="spacing"].active {
+            background: #ffe2c2;
+            border-color: #d78207;
+        }
+
+        .filter-chip[data-category="sizing"] {
+            background: #ffe9e8;
+            color: #c61735;
+        }
+
+        .filter-chip[data-category="sizing"].active {
+            background: #ffd5d3;
+            border-color: #c61735;
+        }
+
+        .filter-chip[data-category="typography"] {
+            background: #e0eeff;
+            color: #05549e;
+        }
+
+        .filter-chip[data-category="typography"].active {
+            background: #c8deff;
+            border-color: #05549e;
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
         .filter-btn {
-            padding: 0.5rem 1rem;
+            padding: 0.375rem 0.875rem;
             border: 1px solid var(--nexus-color-background-surface-tertiary, #d1d7e3);
             background: var(--nexus-color-system-white, #ffffff);
             border-radius: 6px;
             cursor: pointer;
-            font-size: 0.875rem;
-            transition: all 0.2s;
+            font-size: 0.8125rem;
+            transition: all 0.15s ease;
             font-weight: var(--nexus-typography-font-weight-medium, 500);
+            color: var(--nexus-color-content-secondary, #575d69);
+            white-space: nowrap;
         }
 
         .filter-btn:hover {
             border-color: var(--nexus-color-system-primary-500, #3660d0);
+            color: var(--nexus-color-content-primary, #17191c);
         }
 
-        .filter-btn.active {
-            background: var(--nexus-color-system-primary-600, #172dbd);
-            color: var(--nexus-color-system-white, #ffffff);
-            border-color: var(--nexus-color-system-primary-600, #172dbd);
+        .filter-btn:active {
+            background: var(--nexus-color-background-surface-secondary, #f2f5fa);
         }
 
         .search-input {
@@ -238,190 +344,592 @@
         .badge-spacing { background: #ffeedb; color: #d78207; }
         .badge-sizing { background: #ffe9e8; color: #c61735; }
         .badge-typography { background: #e0eeff; color: #05549e; }
+
+        /* Tree View Styles */
+        .token-tree {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .tree-node {
+            margin: 0;
+            position: relative;
+        }
+
+        .tree-header {
+            display: flex;
+            align-items: center;
+            padding: 0.625rem 0.75rem;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            user-select: none;
+            margin: 2px 0;
+            position: relative;
+        }
+
+        .tree-header:hover {
+            background: var(--nexus-color-background-surface-secondary, #f2f5fa);
+        }
+
+        .tree-header:active {
+            background: var(--nexus-color-background-surface-tertiary, #d1d7e3);
+        }
+
+        .tree-toggle {
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.625rem;
+            color: var(--nexus-color-content-secondary, #575d69);
+            font-size: 0.625rem;
+            transition: transform 0.15s ease;
+            flex-shrink: 0;
+        }
+
+        .tree-toggle.expanded {
+            transform: rotate(90deg);
+        }
+
+        .tree-label {
+            font-weight: var(--nexus-typography-font-weight-medium, 500);
+            color: var(--nexus-color-content-primary, #17191c);
+            font-size: 0.875rem;
+            flex: 1;
+            min-width: 0;
+        }
+
+        /* Emphasis for specific top-level categories */
+        .token-tree > .tree-node[data-key="nexus"] > .tree-header .tree-label,
+        .token-tree > .tree-node[data-key="mui"] > .tree-header .tree-label,
+        .token-tree > .tree-node[data-key="ios"] > .tree-header .tree-label {
+            font-weight: var(--nexus-typography-font-weight-semibold, 600);
+        }
+
+        .tree-count {
+            margin-left: 0.75rem;
+            font-size: 0.6875rem;
+            color: var(--nexus-color-content-secondary, #575d69);
+            background: var(--nexus-color-background-surface-tertiary, #d1d7e3);
+            padding: 0.125rem 0.5rem;
+            border-radius: 12px;
+            font-weight: var(--nexus-typography-font-weight-medium, 500);
+            flex-shrink: 0;
+        }
+
+        .tree-children {
+            display: none;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            padding-left: 1.5rem;
+            border-left: 2px solid var(--nexus-color-background-surface-tertiary, #d1d7e3);
+            margin-left: 0.5rem;
+            margin-top: 0.25rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .tree-children.expanded {
+            display: block;
+        }
+
+        .token-leaf {
+            display: flex;
+            align-items: center;
+            padding: 0.625rem 0.75rem;
+            margin: 2px 0;
+            border: 1px solid var(--nexus-color-background-surface-tertiary, #d1d7e3);
+            border-radius: 6px;
+            background: var(--nexus-color-system-white, #ffffff);
+            transition: all 0.15s ease;
+            cursor: pointer;
+        }
+
+        .token-leaf:hover {
+            border-color: var(--nexus-color-system-primary-500, #3660d0);
+            box-shadow: 0 2px 8px rgba(23, 45, 189, 0.1);
+            transform: translateX(2px);
+        }
+
+        .token-leaf:active {
+            transform: translateX(0);
+            box-shadow: 0 1px 4px rgba(23, 45, 189, 0.15);
+        }
+
+        .token-leaf-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .token-leaf-name {
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.75rem;
+            color: var(--nexus-color-content-secondary, #575d69);
+            margin-bottom: 0.25rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .token-leaf-value {
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.875rem;
+            font-weight: var(--nexus-typography-font-weight-semibold, 600);
+            color: var(--nexus-color-content-primary, #17191c);
+            position: relative;
+        }
+
+        .token-leaf-value[title] {
+            cursor: help;
+            border-bottom: 1px dotted var(--nexus-color-content-secondary, #575d69);
+        }
+
+        /* Tooltip styles */
+        .token-leaf-value[title]:hover::after {
+            content: attr(title);
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            margin-bottom: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            background: var(--nexus-color-content-primary, #17191c);
+            color: var(--nexus-color-system-white, #ffffff);
+            font-size: 0.75rem;
+            border-radius: 6px;
+            white-space: nowrap;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .token-leaf-value[title]:hover::before {
+            content: '';
+            position: absolute;
+            bottom: 100%;
+            left: 0.75rem;
+            margin-bottom: 0.25rem;
+            border: 6px solid transparent;
+            border-top-color: var(--nexus-color-content-primary, #17191c);
+            z-index: 1000;
+        }
+
+        .token-leaf-preview {
+            margin-left: 1rem;
+            flex-shrink: 0;
+        }
+
+        .preview-swatch {
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
+            border: 1px solid var(--nexus-color-background-surface-tertiary, #d1d7e3);
+        }
+
+        .preview-opacity {
+            width: 60px;
+            height: 20px;
+            background: linear-gradient(90deg, 
+                var(--nexus-color-system-primary-600, #172dbd) 0%, 
+                transparent 100%);
+            border-radius: 4px;
+            border: 1px solid var(--nexus-color-background-surface-tertiary, #d1d7e3);
+            position: relative;
+        }
+
+        .preview-opacity-marker {
+            position: absolute;
+            height: 100%;
+            width: 2px;
+            background: var(--nexus-color-system-error-600, #f32245);
+            top: 0;
+        }
+
+        .preview-spacing {
+            background: var(--nexus-color-system-primary-100, #e0ebff);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.625rem;
+            color: var(--nexus-color-system-primary-700, #17289c);
+            font-weight: var(--nexus-typography-font-weight-medium, 500);
+            min-width: 40px;
+            min-height: 20px;
+        }
+
+        .preview-weight {
+            font-size: 1.25rem;
+            min-width: 40px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1>Nexus Design Tokens</h1>
-            <p class="subtitle">myQ Brand · Light Theme · Generated from Tokens Studio</p>
-            <div class="stats" id="stats">
-                <div class="stat">
-                    <div class="stat-label">Total Tokens</div>
-                    <div class="stat-value" id="total-count">-</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-label">Colors</div>
-                    <div class="stat-value" id="color-count">-</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-label">Opacity</div>
-                    <div class="stat-value" id="opacity-count">-</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-label">Spacing</div>
-                    <div class="stat-value" id="spacing-count">-</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-label">Typography</div>
-                    <div class="stat-value" id="typography-count">-</div>
-                </div>
-            </div>
-        </header>
-
         <div class="section">
             <div class="section-header">
-                <h2>Token Explorer</h2>
+                <h2>Nexus Design Tokens</h2>
+                <span class="token-count" id="token-count">0 tokens</span>
             </div>
             <div class="filter-bar">
-                <button class="filter-btn active" data-filter="all">All Tokens</button>
-                <button class="filter-btn" data-filter="color">Colors</button>
-                <button class="filter-btn" data-filter="opacity">Opacity</button>
-                <button class="filter-btn" data-filter="spacing">Spacing</button>
-                <button class="filter-btn" data-filter="sizing">Sizing</button>
-                <button class="filter-btn" data-filter="font-weight">Font Weights</button>
-                <input type="text" class="search-input" id="search" placeholder="Search tokens...">
+                <div class="filter-top-row">
+                    <input type="text" class="search-input" id="search" placeholder="Search tokens...">
+                    <div class="filter-actions">
+                        <button class="filter-btn" id="expand-all">Expand All</button>
+                        <button class="filter-btn" id="collapse-all">Collapse All</button>
+                    </div>
+                </div>
+                <div class="filter-chips" id="filter-chips">
+                    <button class="filter-chip active" data-category="all">All</button>
+                    <button class="filter-chip" data-category="color">Colors</button>
+                    <button class="filter-chip" data-category="opacity">Opacity</button>
+                    <button class="filter-chip" data-category="spacing">Spacing</button>
+                    <button class="filter-chip" data-category="sizing">Sizing</button>
+                    <button class="filter-chip" data-category="typography">Typography</button>
+                </div>
             </div>
-            <div class="token-grid" id="token-grid"></div>
+            <ul class="token-tree" id="token-tree"></ul>
         </div>
     </div>
 
     <script>
-        // Parse CSS custom properties
+        // Parse CSS custom properties and metadata
         let tokens = [];
+        let tokenMetadata = {};
         
-        // Fetch and parse the CSS file to avoid CORS issues
-        fetch('dist/css/tokens.css')
-            .then(response => response.text())
-            .then(css => {
+        // Fetch both CSS and metadata JSON
+        Promise.all([
+            fetch('dist/css/tokens.css').then(r => r.text()),
+            fetch('dist/json/tokens-metadata.json').then(r => r.json())
+        ])
+            .then(([css, metadata]) => {
                 // Parse CSS custom properties with regex
                 const tokenRegex = /--([^:]+):\s*([^;]+);/g;
                 let match;
                 
                 while ((match = tokenRegex.exec(css)) !== null) {
+                    const tokenName = `--${match[1].trim()}`;
+                    const resolvedValue = match[2].trim();
+                    
                     tokens.push({
-                        name: `--${match[1].trim()}`,
-                        value: match[2].trim()
+                        name: tokenName,
+                        value: resolvedValue
                     });
                 }
+                
+                // Build metadata map for quick lookup
+                function buildMetadataMap(obj, map) {
+                    if (obj && typeof obj === 'object') {
+                        if (obj.name && obj.$value !== undefined) {
+                            // Store both original and resolved values
+                            map[`--${obj.name}`] = {
+                                original: obj.original?.$value || obj.$value,
+                                resolved: obj.value
+                            };
+                        }
+                        // Recurse through nested objects
+                        Object.values(obj).forEach(val => buildMetadataMap(val, map));
+                    }
+                }
+                buildMetadataMap(metadata, tokenMetadata);
                 
                 // Initialize the UI after tokens are loaded
                 initializeUI();
             })
             .catch(error => {
                 console.error('Error loading tokens:', error);
-                document.getElementById('token-grid').innerHTML = 
-                    '<p style="grid-column: 1/-1; text-align: center; color: #f32245;">Error loading tokens. Make sure to run <code>npm run build</code> first and serve this page via a local server.</p>';
+                document.getElementById('token-tree').innerHTML = 
+                    '<p style="text-align: center; color: #f32245; padding: 2rem;">Error loading tokens. Make sure to run <code>npm run build</code> first and serve this page via a local server.</p>';
             });
         
         function initializeUI() {
-
-            // Categorize tokens
-            function categorizeToken(name) {
-            if (name.includes('-color-')) return 'color';
-            if (name.includes('-opacity-')) return 'opacity';
-            if (name.includes('-spacing-')) return 'spacing';
-            if (name.includes('-sizing-')) return 'sizing';
-            if (name.includes('-font-weight-')) return 'font-weight';
-            if (name.includes('-font-family-')) return 'font-family';
-            if (name.includes('-border-radius-')) return 'border-radius';
-            if (name.includes('-border-width-')) return 'border-width';
-            return 'other';
-        }
-
-            // Render token card
-            function renderToken(token) {
-            const category = categorizeToken(token.name);
-            const card = document.createElement('div');
-            card.className = 'token-card';
-            card.dataset.category = category;
-            card.dataset.name = token.name;
-
-            let badge = '';
-            let preview = '';
-
-            switch (category) {
-                case 'color':
-                    badge = '<span class="badge badge-color">Color</span>';
-                    preview = `<div class="color-swatch" style="background-color: ${token.value};"></div>`;
-                    break;
-                case 'opacity':
-                    badge = '<span class="badge badge-opacity">Opacity</span>';
-                    const opacityPercent = parseFloat(token.value) * 100;
-                    preview = `
-                        <div class="opacity-bar">
-                            <div class="opacity-marker" style="left: ${opacityPercent}%;"></div>
-                        </div>
-                    `;
-                    break;
-                case 'spacing':
-                case 'sizing':
-                    badge = `<span class="badge badge-${category}">${category}</span>`;
-                    preview = `<div class="spacing-box" style="width: ${token.value}; height: ${token.value};">${token.value}</div>`;
-                    break;
-                case 'font-weight':
-                    badge = '<span class="badge badge-typography">Font Weight</span>';
-                    preview = `<div class="font-weight-sample" style="font-weight: ${token.value};">Ag</div>`;
-                    break;
-                default:
-                    badge = `<span class="badge">${category}</span>`;
-                    preview = '';
+            // Build hierarchical tree structure from flat token list
+            function buildTree(tokens) {
+                const tree = {};
+                
+                tokens.forEach(token => {
+                    // Remove -- prefix and split by hyphen to get path parts
+                    const path = token.name.replace(/^--/, '').split('-');
+                    let current = tree;
+                    
+                    // Navigate/create tree structure
+                    for (let i = 0; i < path.length; i++) {
+                        const part = path[i];
+                        
+                        if (i === path.length - 1) {
+                            // Leaf node - store token data
+                            if (!current._tokens) current._tokens = [];
+                            current._tokens.push({
+                                name: token.name,
+                                value: token.value,
+                                path: path
+                            });
+                        } else {
+                            // Branch node
+                            if (!current[part]) {
+                                current[part] = {};
+                            }
+                            current = current[part];
+                        }
+                    }
+                });
+                
+                return tree;
             }
-
-            card.innerHTML = `
-                ${badge}
-                <div class="token-name">${token.name}</div>
-                <div class="token-value">${token.value}</div>
-                ${preview}
-            `;
-
-            return card;
-        }
-
-            // Render all tokens
-            const grid = document.getElementById('token-grid');
-            tokens.forEach(token => {
-                grid.appendChild(renderToken(token));
+            
+            // Get token category for visual preview
+            function getTokenCategory(name) {
+                if (name.includes('-color-')) return 'color';
+                if (name.includes('-opacity-')) return 'opacity';
+                if (name.includes('-spacing-')) return 'spacing';
+                if (name.includes('-sizing-')) return 'sizing';
+                if (name.includes('-font-weight-')) return 'font-weight';
+                if (name.includes('-border-radius-')) return 'border-radius';
+                if (name.includes('-border-width-')) return 'border-width';
+                return 'other';
+            }
+            
+            // Render preview based on token category
+            function renderPreview(token) {
+                const category = getTokenCategory(token.name);
+                
+                switch (category) {
+                    case 'color':
+                        return `<div class="token-leaf-preview"><div class="preview-swatch" style="background-color: ${token.value};"></div></div>`;
+                    case 'opacity':
+                        const opacityPercent = parseFloat(token.value) * 100;
+                        return `<div class="token-leaf-preview"><div class="preview-opacity"><div class="preview-opacity-marker" style="left: ${opacityPercent}%;"></div></div></div>`;
+                    case 'spacing':
+                    case 'sizing':
+                        return `<div class="token-leaf-preview"><div class="preview-spacing" style="width: ${token.value}; height: ${token.value};"></div></div>`;
+                    case 'font-weight':
+                        return `<div class="token-leaf-preview"><div class="preview-weight" style="font-weight: ${token.value};">Ag</div></div>`;
+                    default:
+                        return '';
+                }
+            }
+            
+            // Render tree node recursively
+            function renderTreeNode(key, node, depth = 0) {
+                const li = document.createElement('li');
+                li.className = 'tree-node';
+                li.setAttribute('data-key', key.toLowerCase());
+                
+                // Check if this node has children or tokens
+                const hasChildren = Object.keys(node).some(k => k !== '_tokens');
+                const hasTokens = node._tokens && node._tokens.length > 0;
+                
+                if (hasChildren || hasTokens) {
+                    const header = document.createElement('div');
+                    header.className = 'tree-header';
+                    
+                    const toggle = document.createElement('span');
+                    toggle.className = 'tree-toggle';
+                    toggle.textContent = '▶';
+                    
+                    const label = document.createElement('span');
+                    label.className = 'tree-label';
+                    label.textContent = key;
+                    
+                    const count = document.createElement('span');
+                    count.className = 'tree-count';
+                    const totalCount = countTokens(node);
+                    count.textContent = `${totalCount}`;
+                    
+                    header.appendChild(toggle);
+                    header.appendChild(label);
+                    header.appendChild(count);
+                    
+                    const childrenUl = document.createElement('ul');
+                    childrenUl.className = 'tree-children';
+                    
+                    // Render child branches
+                    Object.keys(node).sort().forEach(childKey => {
+                        if (childKey !== '_tokens') {
+                            childrenUl.appendChild(renderTreeNode(childKey, node[childKey], depth + 1));
+                        }
+                    });
+                    
+                    // Render leaf tokens
+                    if (hasTokens) {
+                        node._tokens.forEach(token => {
+                            const tokenLi = document.createElement('li');
+                            tokenLi.className = 'tree-node';
+                            
+                            // Check if we have metadata for this token
+                            const metadata = tokenMetadata[token.name];
+                            const displayValue = metadata?.original || token.value;
+                            const resolvedValue = token.value;
+                            
+                            // Only show tooltip if the original is a reference (contains curly braces)
+                            const isReference = displayValue.includes('{') && displayValue.includes('}');
+                            const tooltipAttr = isReference ? `title="Resolves to: ${resolvedValue}"` : '';
+                            
+                            tokenLi.innerHTML = `
+                                <div class="token-leaf">
+                                    <div class="token-leaf-info">
+                                        <div class="token-leaf-name">${token.name}</div>
+                                        <div class="token-leaf-value" ${tooltipAttr}>${displayValue}</div>
+                                    </div>
+                                    ${renderPreview(token)}
+                                </div>
+                            `;
+                            childrenUl.appendChild(tokenLi);
+                        });
+                    }
+                    
+                    // Toggle expand/collapse
+                    header.addEventListener('click', () => {
+                        const isExpanded = childrenUl.classList.contains('expanded');
+                        if (isExpanded) {
+                            childrenUl.classList.remove('expanded');
+                            toggle.classList.remove('expanded');
+                        } else {
+                            childrenUl.classList.add('expanded');
+                            toggle.classList.add('expanded');
+                        }
+                    });
+                    
+                    li.appendChild(header);
+                    li.appendChild(childrenUl);
+                }
+                
+                return li;
+            }
+            
+            // Count total tokens in a branch
+            function countTokens(node) {
+                let count = 0;
+                if (node._tokens) count += node._tokens.length;
+                Object.keys(node).forEach(key => {
+                    if (key !== '_tokens') {
+                        count += countTokens(node[key]);
+                    }
+                });
+                return count;
+            }
+            
+            // Build and render the tree
+            const tree = buildTree(tokens);
+            const treeContainer = document.getElementById('token-tree');
+            
+            // Custom sort order for top-level categories
+            const sortOrder = ['nexus', 'mui', 'ios'];
+            const sortedKeys = Object.keys(tree).sort((a, b) => {
+                const aLower = a.toLowerCase();
+                const bLower = b.toLowerCase();
+                const aIndex = sortOrder.indexOf(aLower);
+                const bIndex = sortOrder.indexOf(bLower);
+                
+                // If both are in the priority list, sort by their position
+                if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
+                // If only a is in the list, it comes first
+                if (aIndex !== -1) return -1;
+                // If only b is in the list, it comes first
+                if (bIndex !== -1) return 1;
+                // Otherwise, alphabetical sort
+                return aLower.localeCompare(bLower);
             });
-
-            // Update stats
-            const counts = {
-                color: tokens.filter(t => categorizeToken(t.name) === 'color').length,
-                opacity: tokens.filter(t => categorizeToken(t.name) === 'opacity').length,
-                spacing: tokens.filter(t => categorizeToken(t.name) === 'spacing').length,
-                typography: tokens.filter(t => ['font-weight', 'font-family'].includes(categorizeToken(t.name))).length,
-            };
-
-            document.getElementById('total-count').textContent = tokens.length;
-            document.getElementById('color-count').textContent = counts.color;
-            document.getElementById('opacity-count').textContent = counts.opacity;
-            document.getElementById('spacing-count').textContent = counts.spacing;
-            document.getElementById('typography-count').textContent = counts.typography;
-
-            // Filter functionality
-            const filterBtns = document.querySelectorAll('.filter-btn');
+            
+            sortedKeys.forEach(key => {
+                treeContainer.appendChild(renderTreeNode(key, tree[key]));
+            });
+            
+            // Update token count
+            document.getElementById('token-count').textContent = `${tokens.length} tokens`;
+            
+            // Expand/Collapse All functionality
+            document.getElementById('expand-all').addEventListener('click', () => {
+                document.querySelectorAll('.tree-children').forEach(el => {
+                    el.classList.add('expanded');
+                });
+                document.querySelectorAll('.tree-toggle').forEach(el => {
+                    el.classList.add('expanded');
+                });
+            });
+            
+            document.getElementById('collapse-all').addEventListener('click', () => {
+                document.querySelectorAll('.tree-children').forEach(el => {
+                    el.classList.remove('expanded');
+                });
+                document.querySelectorAll('.tree-toggle').forEach(el => {
+                    el.classList.remove('expanded');
+                });
+            });
+            
+            // Filter chip functionality
+            let activeCategory = 'all';
+            const filterChips = document.querySelectorAll('.filter-chip');
+            
+            filterChips.forEach(chip => {
+                chip.addEventListener('click', () => {
+                    // Update active state
+                    filterChips.forEach(c => c.classList.remove('active'));
+                    chip.classList.add('active');
+                    
+                    // Get selected category
+                    activeCategory = chip.dataset.category;
+                    
+                    // Apply filter
+                    applyFilters();
+                });
+            });
+            
+            // Search functionality
             const searchInput = document.getElementById('search');
-
-            filterBtns.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    filterBtns.forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    filterTokens();
-                });
+            searchInput.addEventListener('input', () => {
+                applyFilters();
             });
-
-            searchInput.addEventListener('input', filterTokens);
-
-            function filterTokens() {
-                const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
+            
+            // Combined filter function
+            function applyFilters() {
                 const searchTerm = searchInput.value.toLowerCase();
-                const cards = document.querySelectorAll('.token-card');
-
-                cards.forEach(card => {
-                    const matchesFilter = activeFilter === 'all' || card.dataset.category === activeFilter;
-                    const matchesSearch = card.dataset.name.toLowerCase().includes(searchTerm);
-                    card.style.display = matchesFilter && matchesSearch ? 'block' : 'none';
+                const leaves = document.querySelectorAll('.token-leaf');
+                
+                // First pass: Show/hide token leaves based on filters
+                leaves.forEach(leaf => {
+                    const name = leaf.querySelector('.token-leaf-name').textContent.toLowerCase();
+                    const category = getTokenCategory(name);
+                    
+                    const matchesSearch = name.includes(searchTerm) || searchTerm === '';
+                    const matchesCategory = activeCategory === 'all' || category === activeCategory;
+                    
+                    leaf.parentElement.style.display = matchesSearch && matchesCategory ? 'block' : 'none';
                 });
+                
+                // Second pass: Show/hide tree branches based on visible children
+                // Process from bottom up to ensure parent visibility is correct
+                const allTreeNodes = Array.from(document.querySelectorAll('.tree-node')).reverse();
+                
+                allTreeNodes.forEach(node => {
+                    const childrenContainer = node.querySelector(':scope > .tree-children');
+                    
+                    if (childrenContainer) {
+                        // Check if this branch has any visible descendants
+                        const hasVisibleDescendants = Array.from(childrenContainer.querySelectorAll('.token-leaf')).some(
+                            leaf => leaf.parentElement.style.display !== 'none'
+                        ) || Array.from(childrenContainer.querySelectorAll(':scope > .tree-node')).some(
+                            childNode => childNode.style.display !== 'none'
+                        );
+                        
+                        if (hasVisibleDescendants) {
+                            node.style.display = 'block';
+                            // Keep the current expanded/collapsed state - don't force expansion
+                        } else {
+                            node.style.display = 'none';
+                        }
+                    } else {
+                        // Leaf node (contains token-leaf), already handled in first pass
+                    }
+                });
+                
+                // If no filters active, show everything
+                if (!searchTerm && activeCategory === 'all') {
+                    document.querySelectorAll('.tree-node').forEach(node => {
+                        node.style.display = 'block';
+                    });
+                }
             }
         }
     </script>

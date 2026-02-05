@@ -180,6 +180,19 @@ const sd = new StyleDictionary({
           }
         }
       ]
+    },
+    json: {
+      transformGroup: 'tokens-studio',
+      transforms: [
+        'name/kebab'
+      ],
+      buildPath: 'dist/json/',
+      files: [
+        {
+          destination: 'tokens-metadata.json',
+          format: 'json'
+        }
+      ]
     }
   }
 });
