@@ -1,5 +1,7 @@
 import StyleDictionary from 'style-dictionary';
 import { register } from '@tokens-studio/sd-transforms';
+import fs from 'fs';
+import path from 'path';
 
 // Register Tokens Studio transforms
 // This adds support for DTCG format and token references
@@ -80,6 +82,16 @@ const SOURCE_FILES = [
   'Nexus-Source-Tokens/tokens/01 rem ✅/Mode 1.json',
   'Nexus-Source-Tokens/tokens/02 Alias ✅/myQ.json',
   'Nexus-Source-Tokens/tokens/03 Palette ✅/light.json',
+  'Nexus-Source-Tokens/tokens/03 Responsive ✅/Larger Breakpoint.json',
+  'Nexus-Source-Tokens/tokens/03 Mapped ✅/Mode 1.json'
+];
+
+// Dark palette variant - same as SOURCE_FILES but with dark.json instead of light.json
+const SOURCE_FILES_DARK = [
+  'Nexus-Source-Tokens/tokens/01 Primitive ✅/Mode 1.json',
+  'Nexus-Source-Tokens/tokens/01 rem ✅/Mode 1.json',
+  'Nexus-Source-Tokens/tokens/02 Alias ✅/myQ.json',
+  'Nexus-Source-Tokens/tokens/03 Palette ✅/dark.json',
   'Nexus-Source-Tokens/tokens/03 Responsive ✅/Larger Breakpoint.json',
   'Nexus-Source-Tokens/tokens/03 Mapped ✅/Mode 1.json'
 ];
@@ -335,7 +347,7 @@ const sdExpanded = new StyleDictionary({
       buildPath: 'dist/css/',
       files: [
         {
-          destination: 'tokens.css',
+          destination: 'tokens-light.css',
           format: 'css/variables',
           options: {
             outputReferences: false
@@ -359,6 +371,44 @@ const sdExpanded = new StyleDictionary({
   }
 });
 
+// Build configuration for dark palette CSS
+const sdExpandedDark = new StyleDictionary({
+  source: SOURCE_FILES_DARK,
+  preprocessors: ['tokens-studio'],
+  log: {
+    warnings: 'warn',
+    verbosity: 'default'
+  },
+  platforms: {
+    css: {
+      transformGroup: 'tokens-studio',
+      transforms: [
+        'ts/descriptionToComment',
+        'ts/size/px',
+        'ts/opacity',
+        'ts/size/lineheight',
+        'ts/resolveMath',
+        'ts/size/css/letterspacing',
+        'ts/color/css/hexrgba',
+        'ts/color/modifiers',
+        'name/kebab',
+        'nexus/opacity/normalize',
+        'nexus/fontWeight/normalize'
+      ],
+      buildPath: 'dist/css/',
+      files: [
+        {
+          destination: 'tokens-dark.css',
+          format: 'css/variables',
+          options: {
+            outputReferences: false
+          }
+        }
+      ]
+    }
+  }
+});
+
 // Build configuration for preserved composite tokens (NO tokens-studio preprocessor)
 const sdPreserved = new StyleDictionary({
   source: SOURCE_FILES,
@@ -376,17 +426,69 @@ const sdPreserved = new StyleDictionary({
         {
           destination: 'tokens-preserved.json',
           format: 'json/nested-with-types'
+        },
+        {
+          destination: 'tokens-preserved-light.json',
+          format: 'json/nested-with-types'
         }
       ]
     }
   }
 });
 
-// Clean and build both configurations
+// Build configuration for preserved dark composite tokens
+const sdPreservedDark = new StyleDictionary({
+  source: SOURCE_FILES_DARK,
+  log: {
+    warnings: 'warn',
+    verbosity: 'default'
+  },
+  platforms: {
+    'json-preserved': {
+      transforms: [
+        'name/kebab'
+      ],
+      buildPath: 'dist/json/',
+      files: [
+        {
+          destination: 'tokens-preserved-dark.json',
+          format: 'json/nested-with-types'
+        }
+      ]
+    }
+  }
+});
+
+// Combine light and dark CSS into single tokens.css with [data-theme="dark"] overrides
+function combineTokensCss() {
+  const cssDir = path.join(process.cwd(), 'dist', 'css');
+  const lightPath = path.join(cssDir, 'tokens-light.css');
+  const darkPath = path.join(cssDir, 'tokens-dark.css');
+  const outPath = path.join(cssDir, 'tokens.css');
+
+  const lightCss = fs.readFileSync(lightPath, 'utf8');
+  const darkCss = fs.readFileSync(darkPath, 'utf8');
+
+  // Extract variable content from dark :root block (strip :root { and })
+  const darkMatch = darkCss.match(/:root\s*\{([\s\S]*)\}/);
+  const darkVars = darkMatch ? darkMatch[1].trim() : darkCss;
+
+  const combined = `${lightCss.trim()}\n\n[data-theme="dark"] {\n  ${darkVars.split('\n').join('\n  ')}\n}\n`;
+  fs.writeFileSync(outPath, combined);
+}
+
+// Clean and build all configurations
 await sdExpanded.cleanAllPlatforms();
 await sdExpanded.buildAllPlatforms();
 
+console.log('\n📦 Building dark palette CSS...');
+await sdExpandedDark.buildAllPlatforms();
+
 console.log('\n📦 Building preserved composite tokens...');
 await sdPreserved.buildAllPlatforms();
+await sdPreservedDark.buildAllPlatforms();
 
-console.log('\n✅ Build complete! Check dist/css/tokens.css and dist/json/tokens-preserved.json');
+console.log('\n📦 Combining tokens.css (light + dark)...');
+await combineTokensCss();
+
+console.log('\n✅ Build complete! Check dist/css/tokens.css, tokens-light.css, tokens-dark.css and dist/json/tokens-preserved-*.json');
