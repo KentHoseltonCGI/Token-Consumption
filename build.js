@@ -76,26 +76,35 @@ StyleDictionary.registerTransform({
   }
 });
 
-// Load source config - designers can add new token files here without editing build.js
-const sourceConfigPath = path.join(process.cwd(), 'source-config.json');
-const sourceConfig = JSON.parse(fs.readFileSync(sourceConfigPath, 'utf8'));
-const basePath = path.join(process.cwd(), sourceConfig.basePath);
-
-function resolveSourcePaths(fileList) {
-  return fileList.map((f) => path.join(basePath, f));
-}
+// Base source files - designer imports are auto-added from 04 Designer Imports folder
+const TOKENS_BASE = 'Nexus-Source-Tokens/tokens';
+const BASE_LIGHT = [
+  `${TOKENS_BASE}/01 Primitive ✅/Mode 1.json`,
+  `${TOKENS_BASE}/01 rem ✅/Mode 1.json`,
+  `${TOKENS_BASE}/02 Alias ✅/myQ.json`,
+  `${TOKENS_BASE}/03 Palette ✅/light.json`,
+  `${TOKENS_BASE}/03 Responsive ✅/Larger Breakpoint.json`,
+  `${TOKENS_BASE}/03 Mapped ✅/Mode 1.json`
+];
+const BASE_DARK = [
+  `${TOKENS_BASE}/01 Primitive ✅/Mode 1.json`,
+  `${TOKENS_BASE}/01 rem ✅/Mode 1.json`,
+  `${TOKENS_BASE}/02 Alias ✅/myQ.json`,
+  `${TOKENS_BASE}/03 Palette ✅/dark.json`,
+  `${TOKENS_BASE}/03 Responsive ✅/Larger Breakpoint.json`,
+  `${TOKENS_BASE}/03 Mapped ✅/Mode 1.json`
+];
 
 function getDesignerImports() {
-  if (!sourceConfig.designerImportsFolder) return [];
-  const importsDir = path.join(basePath, sourceConfig.designerImportsFolder);
+  const importsDir = path.join(process.cwd(), TOKENS_BASE, '04 Designer Imports');
   if (!fs.existsSync(importsDir)) return [];
   const files = fs.readdirSync(importsDir).filter((f) => f.endsWith('.json') && !f.startsWith('.'));
   return files.map((f) => path.join(importsDir, f));
 }
 
 const designerImports = getDesignerImports();
-const SOURCE_FILES = [...resolveSourcePaths(sourceConfig.light), ...designerImports];
-const SOURCE_FILES_DARK = [...resolveSourcePaths(sourceConfig.dark), ...designerImports];
+const SOURCE_FILES = [...BASE_LIGHT, ...designerImports];
+const SOURCE_FILES_DARK = [...BASE_DARK, ...designerImports];
 
 if (designerImports.length > 0) {
   console.log(`📁 Designer imports included: ${designerImports.length} file(s)`);
