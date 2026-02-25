@@ -21,45 +21,46 @@
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-family: var(--nexus-typography-font-family-inter, Inter), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-size: var(--nexus-text-token-body-md-default-font-size, 0.875rem);
+            font-weight: var(--nexus-typography-font-weight-regular, 400);
+            line-height: var(--nexus-text-token-body-md-default-line-height, 1.6);
             background: var(--nexus-color-background-surface-secondary, #f2f5fa);
             color: var(--nexus-color-content-primary, #17191c);
-            padding: 1rem 1rem 0 1rem;
-            line-height: 1.6;
+            padding: var(--nexus-spacing-4, 1rem) var(--nexus-spacing-4, 1rem) 0 var(--nexus-spacing-4, 1rem);
         }
 
         .container {
             max-width: 1400px;
             margin: 0 auto;
-            height: calc(100% - 2rem);
+            height: calc(100% - var(--nexus-spacing-8, 2rem));
             display: flex;
             flex-direction: column;
         }
 
         header {
-            background: var(--nexus-color-system-white, #ffffff);
-            padding: 2rem;
-            border-radius: 12px;
-            margin-bottom: 2rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            background: var(--nexus-color-background-surface-primary, #ffffff);
+            padding: var(--nexus-spacing-8, 2rem);
+            border-radius: var(--nexus-shape-border-radius-sm, 16px);
+            margin-bottom: var(--nexus-spacing-8, 2rem);
+            box-shadow: var(--nexus-effect-bottom-shadow-sm, 0 1px 4px 0 rgba(0,0,0,0.12));
         }
 
         h1 {
-            font-size: 2.5rem;
-            font-weight: var(--nexus-typography-font-weight-semibold, 600);
-            color: var(--nexus-color-system-primary-600, #172dbd);
-            margin-bottom: 0.5rem;
+            font: var(--nexus-headings-h2, 600 28px/1.2 Inter);
+            color: var(--nexus-color-content-link, #172dbd);
+            margin-bottom: var(--nexus-spacing-2, 0.5rem);
         }
 
         .subtitle {
+            font: var(--nexus-body-lg-subtle, 300 16px/1.6 Inter);
             color: var(--nexus-color-content-secondary, #575d69);
-            font-size: 1.1rem;
         }
 
         .stats {
             display: flex;
-            gap: 1.5rem;
-            margin-top: 1rem;
+            gap: var(--nexus-spacing-6, 1.5rem);
+            margin-top: var(--nexus-spacing-4, 1rem);
             flex-wrap: wrap;
         }
 
@@ -70,24 +71,24 @@
         }
 
         .stat-label {
-            font-size: 0.75rem;
+            font: var(--nexus-label-sm, 500 12px/1 Inter);
             color: var(--nexus-color-content-secondary, #575d69);
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            font-weight: var(--nexus-typography-font-weight-regular, 400);
         }
 
         .stat-value {
-            font-size: 1rem;
+            font-size: var(--nexus-text-token-body-md-default-font-size, 0.875rem);
             font-weight: var(--nexus-typography-font-weight-medium, 500);
+            line-height: var(--nexus-text-token-body-md-default-line-height, 1.6);
             color: var(--nexus-color-content-secondary, #575d69);
         }
 
         .section {
-            background: var(--nexus-color-system-white, #ffffff);
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            background: var(--nexus-color-background-surface-primary, #ffffff);
+            padding: var(--nexus-spacing-8, 2rem);
+            border-radius: var(--nexus-shape-border-radius-sm, 16px);
+            box-shadow: var(--nexus-effect-bottom-shadow-sm, 0 1px 4px 0 rgba(0,0,0,0.12));
             display: flex;
             flex-direction: column;
             min-height: 0;
@@ -99,32 +100,30 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 0.75rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 1px solid var(--nexus-color-background-surface-tertiary, #d1d7e3);
+            margin-bottom: var(--nexus-spacing-3, 0.75rem);
+            padding-bottom: var(--nexus-spacing-2, 0.5rem);
+            border-bottom: var(--nexus-shape-border-width-default, 1px) solid var(--nexus-color-border-muted, #e4e8f2);
             flex-shrink: 0;
         }
 
         h2 {
-            font-size: 1.25rem;
-            font-weight: var(--nexus-typography-font-weight-semibold, 600);
+            font: var(--nexus-headings-h6, 600 16px/1.2 Inter);
             color: var(--nexus-color-content-primary, #17191c);
             margin: 0;
         }
 
         .token-count {
+            font: var(--nexus-label-sm, 500 12px/1 Inter);
             background: var(--nexus-color-background-surface-tertiary, #d1d7e3);
-            padding: 0.25rem 0.625rem;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: var(--nexus-typography-font-weight-medium, 500);
+            padding: var(--nexus-spacing-1, 0.25rem) var(--nexus-sizing-62, 0.625rem);
+            border-radius: var(--nexus-shape-border-radius-round, 320px);
         }
 
         .filter-bar {
             display: flex;
             flex-direction: column;
-            gap: 0.75rem;
-            margin-bottom: 1.5rem;
+            gap: var(--nexus-spacing-3, 0.75rem);
+            margin-bottom: var(--nexus-spacing-6, 1.5rem);
             flex-shrink: 0;
         }
 
@@ -144,112 +143,110 @@
         .token-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1rem;
+            gap: var(--nexus-spacing-4, 1rem);
         }
 
         .token-card {
-            border: 1px solid var(--nexus-color-background-surface-tertiary, #d1d7e3);
-            padding: 1rem;
-            border-radius: 8px;
+            border: var(--nexus-shape-border-width-default, 1px) solid var(--nexus-color-border-muted, #e4e8f2);
+            padding: var(--nexus-spacing-4, 1rem);
+            border-radius: var(--nexus-shape-border-radius-xs, 8px);
             transition: all 0.2s;
         }
 
         .token-card:hover {
-            border-color: var(--nexus-color-system-primary-500, #3660d0);
-            box-shadow: 0 2px 8px rgba(23, 45, 189, 0.1);
+            border-color: var(--nexus-color-border-focused, #3660d0);
+            box-shadow: var(--nexus-effect-bottom-shadow-md, 0 2px 8px 0 rgba(0,0,0,0.12));
         }
 
         .token-name {
             font-family: 'Monaco', 'Courier New', monospace;
-            font-size: 0.75rem;
+            font-size: var(--nexus-text-token-caption-sm-font-size, 0.75rem);
             color: var(--nexus-color-content-secondary, #575d69);
-            margin-bottom: 0.5rem;
+            margin-bottom: var(--nexus-spacing-2, 0.5rem);
             word-break: break-all;
         }
 
         .token-value {
             font-family: 'Monaco', 'Courier New', monospace;
-            font-size: 0.875rem;
+            font-size: var(--nexus-text-token-body-md-default-font-size, 0.875rem);
             font-weight: var(--nexus-typography-font-weight-semibold, 600);
             color: var(--nexus-color-content-primary, #17191c);
-            margin-bottom: 0.75rem;
+            margin-bottom: var(--nexus-spacing-3, 0.75rem);
         }
 
         .color-swatch {
             width: 100%;
             height: 60px;
-            border-radius: 6px;
-            border: 1px solid var(--nexus-color-background-surface-tertiary, #d1d7e3);
-            margin-bottom: 0.5rem;
+            border-radius: var(--nexus-shape-border-radius-xxs, 4px);
+            border: var(--nexus-shape-border-width-default, 1px) solid var(--nexus-color-border-muted, #e4e8f2);
+            margin-bottom: var(--nexus-spacing-2, 0.5rem);
         }
 
         .opacity-bar {
             width: 100%;
             height: 40px;
             background: linear-gradient(90deg, 
-                var(--nexus-color-system-primary-600, #172dbd) 0%, 
+                var(--nexus-color-content-link, #172dbd) 0%, 
                 transparent 100%);
-            border-radius: 6px;
-            border: 1px solid var(--nexus-color-background-surface-tertiary, #d1d7e3);
+            border-radius: var(--nexus-shape-border-radius-xxs, 4px);
+            border: var(--nexus-shape-border-width-default, 1px) solid var(--nexus-color-border-muted, #e4e8f2);
             position: relative;
         }
 
         .opacity-marker {
             position: absolute;
             height: 100%;
-            width: 2px;
+            width: var(--nexus-shape-border-width-emphasized, 2px);
             background: var(--nexus-color-system-error-600, #f32245);
             top: 0;
         }
 
         .spacing-box {
-            background: var(--nexus-color-system-primary-100, #e0ebff);
-            border-radius: 4px;
+            background: var(--nexus-color-background-primary-subtle, #e0ebff);
+            border-radius: var(--nexus-shape-border-radius-xxs, 4px);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.75rem;
-            color: var(--nexus-color-system-primary-700, #17289c);
-            font-weight: var(--nexus-typography-font-weight-medium, 500);
+            font: var(--nexus-label-sm, 500 12px/1 Inter);
+            color: var(--nexus-color-foreground-primary-on-subtle, #17289c);
         }
 
         .font-weight-sample {
-            font-size: 1.5rem;
-            padding: 0.5rem;
+            font-size: var(--nexus-text-token-h5-font-size, 1.5rem);
+            padding: var(--nexus-spacing-2, 0.5rem);
             text-align: center;
-            border: 1px solid var(--nexus-color-background-surface-tertiary, #d1d7e3);
-            border-radius: 6px;
+            border: var(--nexus-shape-border-width-default, 1px) solid var(--nexus-color-border-muted, #e4e8f2);
+            border-radius: var(--nexus-shape-border-radius-xxs, 4px);
         }
 
         .filter-bar {
             display: flex;
             flex-direction: column;
-            gap: 0.75rem;
-            margin-bottom: 1.5rem;
+            gap: var(--nexus-spacing-3, 0.75rem);
+            margin-bottom: var(--nexus-spacing-6, 1.5rem);
         }
 
         .filter-top-row {
             display: flex;
-            gap: 0.75rem;
+            gap: var(--nexus-spacing-3, 0.75rem);
             align-items: center;
             flex-wrap: wrap;
         }
 
         .filter-chips {
             display: flex;
-            gap: 0.5rem;
+            gap: var(--nexus-spacing-2, 0.5rem);
             flex-wrap: wrap;
         }
 
         .filter-chip {
-            padding: 0.375rem 0.75rem;
-            border: 1px solid var(--nexus-color-background-surface-tertiary, #d1d7e3);
+            padding: var(--nexus-spacing-1, 0.25rem) var(--nexus-spacing-3, 0.75rem);
+            border: var(--nexus-shape-border-width-default, 1px) solid var(--nexus-color-border-muted, #e4e8f2);
             background: transparent;
-            border-radius: 20px;
+            border-radius: var(--nexus-shape-border-radius-md, 20px);
             cursor: pointer;
-            font-size: 0.8125rem;
+            font: var(--nexus-label-md, 500 14px/1 Inter);
             transition: all 0.15s ease;
-            font-weight: var(--nexus-typography-font-weight-medium, 500);
             color: var(--nexus-color-content-secondary, #575d69);
             user-select: none;
         }
@@ -273,132 +270,131 @@
         }
 
         .filter-chip[data-category="all"]:hover {
-            background: rgba(87, 93, 105, 0.08);
+            background: var(--nexus-color-background-surface-disabled-bg, rgba(23, 25, 28, 0.12));
         }
 
         .filter-chip[data-category="all"].active {
             background: var(--nexus-color-content-primary, #17191c);
-            color: var(--nexus-color-system-white, #ffffff);
+            color: var(--nexus-color-foreground-primary-on-color, #ffffff);
         }
 
         .filter-chip[data-category="color"] {
-            border-color: #c8dcff;
-            color: #17289c;
+            border-color: var(--nexus-color-deep-blue-200, #c2d5fc);
+            color: var(--nexus-color-deep-blue-700, #17289c);
         }
 
         .filter-chip[data-category="color"]:hover {
-            background: rgba(23, 40, 156, 0.08);
+            background: var(--nexus-color-background-info-subtle, #e0ebff);
         }
 
         .filter-chip[data-category="color"].active {
-            background: #17289c;
-            color: var(--nexus-color-system-white, #ffffff);
+            background: var(--nexus-color-deep-blue-700, #17289c);
+            color: var(--nexus-color-foreground-primary-on-color, #ffffff);
         }
 
         .filter-chip[data-category="opacity"] {
-            border-color: #c4f5e0;
-            color: #13ae5c;
+            border-color: var(--nexus-color-deep-green-200, #cef5d6);
+            color: var(--nexus-color-deep-green-600, #13ae5c);
         }
 
         .filter-chip[data-category="opacity"]:hover {
-            background: rgba(19, 174, 92, 0.08);
+            background: var(--nexus-color-background-success-subtle, #e1fae7);
         }
 
         .filter-chip[data-category="opacity"].active {
-            background: #13ae5c;
-            color: var(--nexus-color-system-white, #ffffff);
+            background: var(--nexus-color-deep-green-600, #13ae5c);
+            color: var(--nexus-color-foreground-success-on-color, #ffffff);
         }
 
         .filter-chip[data-category="spacing"] {
-            border-color: #ffe2c2;
-            color: #d78207;
+            border-color: var(--nexus-color-yellow-200, #ffe0ba);
+            color: var(--nexus-color-yellow-700, #d78207);
         }
 
         .filter-chip[data-category="spacing"]:hover {
-            background: rgba(215, 130, 7, 0.08);
+            background: var(--nexus-color-background-warning-subtle, #ffeedb);
         }
 
         .filter-chip[data-category="spacing"].active {
-            background: #d78207;
-            color: var(--nexus-color-system-white, #ffffff);
+            background: var(--nexus-color-yellow-700, #d78207);
+            color: var(--nexus-color-foreground-warning-on-color, #17191c);
         }
 
         .filter-chip[data-category="sizing"] {
-            border-color: #ffd5d3;
-            color: #c61735;
+            border-color: var(--nexus-color-red-200, #ffcbc9);
+            color: var(--nexus-color-red-700, #c61735);
         }
 
         .filter-chip[data-category="sizing"]:hover {
-            background: rgba(198, 23, 53, 0.08);
+            background: var(--nexus-color-background-error-subtle, #ffe9e8);
         }
 
         .filter-chip[data-category="sizing"].active {
-            background: #c61735;
-            color: var(--nexus-color-system-white, #ffffff);
+            background: var(--nexus-color-red-700, #c61735);
+            color: var(--nexus-color-foreground-error-on-color, #ffffff);
         }
 
         .filter-chip[data-category="typography"] {
-            border-color: #c8deff;
-            color: #05549e;
+            border-color: var(--nexus-color-blue-200, #cae0fc);
+            color: var(--nexus-color-blue-700, #05549e);
         }
 
         .filter-chip[data-category="typography"]:hover {
-            background: rgba(5, 84, 158, 0.08);
+            background: var(--nexus-color-background-secondary-subtle, #e0eeff);
         }
 
         .filter-chip[data-category="typography"].active {
-            background: #05549e;
-            color: var(--nexus-color-system-white, #ffffff);
+            background: var(--nexus-color-blue-700, #05549e);
+            color: var(--nexus-color-foreground-accent-on-color, #ffffff);
         }
 
         .filter-chip[data-category="gradient"] {
-            border-color: #c2e7fc;
-            color: #0a76db;
+            border-color: var(--nexus-color-teal-200, #c2efff);
+            color: var(--nexus-color-teal-600, #029bd1);
         }
 
         .filter-chip[data-category="gradient"]:hover {
-            background: rgba(10, 118, 219, 0.08);
+            background: var(--nexus-color-teal-100, #def7ff);
         }
 
         .filter-chip[data-category="gradient"].active {
-            background: #0a76db;
-            color: var(--nexus-color-system-white, #ffffff);
+            background: var(--nexus-color-teal-600, #029bd1);
+            color: var(--nexus-color-foreground-accent-on-color, #ffffff);
         }
 
         .filter-chip[data-category="effect"] {
-            border-color: #d4c8f0;
-            color: #5c2d91;
+            border-color: var(--nexus-color-deep-blue-300, #a6c0f7);
+            color: var(--nexus-color-deep-blue-800, #15227a);
         }
 
         .filter-chip[data-category="effect"]:hover {
-            background: rgba(92, 45, 145, 0.08);
+            background: var(--nexus-color-background-primary-subtle, #e0ebff);
         }
 
         .filter-chip[data-category="effect"].active {
-            background: #5c2d91;
-            color: var(--nexus-color-system-white, #ffffff);
+            background: var(--nexus-color-deep-blue-800, #15227a);
+            color: var(--nexus-color-foreground-primary-on-color, #ffffff);
         }
 
         .filter-actions {
             display: flex;
-            gap: 0.5rem;
+            gap: var(--nexus-spacing-2, 0.5rem);
         }
 
         .filter-btn {
-            padding: 0.375rem 0.875rem;
-            border: 1px solid var(--nexus-color-background-surface-tertiary, #d1d7e3);
-            background: var(--nexus-color-system-white, #ffffff);
-            border-radius: 6px;
+            padding: var(--nexus-spacing-1, 0.25rem) var(--nexus-sizing-88, 0.875rem);
+            border: var(--nexus-shape-border-width-default, 1px) solid var(--nexus-color-border-muted, #e4e8f2);
+            background: var(--nexus-color-background-surface-primary, #ffffff);
+            border-radius: var(--nexus-shape-border-radius-xxs, 4px);
             cursor: pointer;
-            font-size: 0.8125rem;
+            font: var(--nexus-label-md, 500 14px/1 Inter);
             transition: all 0.15s ease;
-            font-weight: var(--nexus-typography-font-weight-medium, 500);
             color: var(--nexus-color-content-secondary, #575d69);
             white-space: nowrap;
         }
 
         .filter-btn:hover {
-            border-color: var(--nexus-color-system-primary-500, #3660d0);
+            border-color: var(--nexus-color-border-focused, #3660d0);
             color: var(--nexus-color-content-primary, #17191c);
         }
 
@@ -414,29 +410,35 @@
 
         .search-input {
             width: 100%;
-            padding: 0.5rem 2.5rem 0.5rem 1rem;
-            border: 1px solid var(--nexus-color-background-surface-tertiary, #d1d7e3);
-            border-radius: 6px;
-            font-size: 0.875rem;
+            padding: var(--nexus-spacing-2, 0.5rem) 2.5rem var(--nexus-spacing-2, 0.5rem) var(--nexus-spacing-4, 1rem);
+            border: var(--nexus-shape-border-width-default, 1px) solid var(--nexus-color-border-muted, #e4e8f2);
+            border-radius: var(--nexus-shape-border-radius-xxs, 4px);
+            font: var(--nexus-body-md-default, 400 14px/1.6 Inter);
+            color: var(--nexus-color-content-primary, #17191c);
+            background: var(--nexus-color-background-surface-primary, #ffffff);
+        }
+
+        .search-input::placeholder {
+            color: var(--nexus-color-content-tertiary, #8a909e);
         }
 
         .search-input:focus {
             outline: none;
-            border-color: var(--nexus-color-system-primary-500, #3660d0);
+            border-color: var(--nexus-color-border-focused, #3660d0);
         }
 
         .search-clear {
             position: absolute;
-            right: 0.5rem;
+            right: var(--nexus-spacing-2, 0.5rem);
             top: 50%;
             transform: translateY(-50%);
             background: none;
             border: none;
             color: var(--nexus-color-content-tertiary, #8a909e);
             cursor: pointer;
-            padding: 0.25rem;
+            padding: var(--nexus-spacing-1, 0.25rem);
             display: none;
-            font-size: 1.125rem;
+            font-size: var(--nexus-text-token-body-lg-default-font-size, 1rem);
             line-height: 1;
             transition: color 0.15s ease;
         }
@@ -451,20 +453,19 @@
 
         .badge {
             display: inline-block;
-            padding: 0.125rem 0.5rem;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: var(--nexus-typography-font-weight-medium, 500);
-            margin-bottom: 0.5rem;
+            padding: var(--nexus-spacing-1, 0.125rem) var(--nexus-spacing-2, 0.5rem);
+            border-radius: var(--nexus-shape-border-radius-xxs, 4px);
+            font: var(--nexus-label-sm, 500 12px/1 Inter);
+            margin-bottom: var(--nexus-spacing-2, 0.5rem);
         }
 
-        .badge-color { background: #e0ebff; color: #17289c; }
-        .badge-opacity { background: #e0fff2; color: #13ae5c; }
-        .badge-spacing { background: #ffeedb; color: #d78207; }
-        .badge-sizing { background: #ffe9e8; color: #c61735; }
-        .badge-typography { background: #e0eeff; color: #05549e; }
-        .badge-effect { background: #e8e0ff; color: #5c2d91; }
-        .badge-gradient { background: #e0f4ff; color: #0a76db; }
+        .badge-color { background: var(--nexus-color-background-primary-subtle, #e0ebff); color: var(--nexus-color-deep-blue-700, #17289c); }
+        .badge-opacity { background: var(--nexus-color-background-success-subtle, #e1fae7); color: var(--nexus-color-deep-green-600, #13ae5c); }
+        .badge-spacing { background: var(--nexus-color-background-warning-subtle, #ffeedb); color: var(--nexus-color-yellow-700, #d78207); }
+        .badge-sizing { background: var(--nexus-color-background-error-subtle, #ffe9e8); color: var(--nexus-color-red-700, #c61735); }
+        .badge-typography { background: var(--nexus-color-background-secondary-subtle, #e0eeff); color: var(--nexus-color-blue-700, #05549e); }
+        .badge-effect { background: var(--nexus-color-background-primary-subtle, #e0ebff); color: var(--nexus-color-deep-blue-800, #15227a); }
+        .badge-gradient { background: var(--nexus-color-teal-100, #def7ff); color: var(--nexus-color-teal-600, #029bd1); }
 
         /* Tree View Styles */
         .tree-node {
@@ -475,12 +476,12 @@
         .tree-header {
             display: flex;
             align-items: center;
-            padding: 0.625rem 0.75rem;
+            padding: var(--nexus-sizing-62, 0.625rem) var(--nexus-spacing-3, 0.75rem);
             cursor: pointer;
-            border-radius: 6px;
+            border-radius: var(--nexus-shape-border-radius-xxs, 4px);
             transition: all 0.2s ease;
             user-select: none;
-            margin: 2px 0;
+            margin: var(--nexus-shape-border-width-emphasized, 2px) 0;
             position: relative;
         }
 
@@ -493,8 +494,8 @@
         }
 
         .tree-toggle {
-            width: 18px;
-            height: 18px;
+            width: var(--nexus-sizing-112, 1.125rem);
+            height: var(--nexus-sizing-112, 1.125rem);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -510,9 +511,8 @@
         }
 
         .tree-label {
-            font-weight: var(--nexus-typography-font-weight-medium, 500);
+            font: var(--nexus-label-md, 500 14px/1 Inter);
             color: var(--nexus-color-content-primary, #17191c);
-            font-size: 0.875rem;
             flex: 1;
             min-width: 0;
         }
@@ -525,12 +525,12 @@
         }
 
         .tree-count {
-            margin-left: 0.75rem;
-            font-size: 0.6875rem;
+            margin-left: var(--nexus-spacing-3, 0.75rem);
+            font: var(--nexus-caption-sm, 400 12px/1.6 Inter);
             color: var(--nexus-color-content-secondary, #575d69);
             background: var(--nexus-color-background-surface-tertiary, #d1d7e3);
-            padding: 0.125rem 0.5rem;
-            border-radius: 12px;
+            padding: var(--nexus-spacing-1, 0.125rem) var(--nexus-spacing-2, 0.5rem);
+            border-radius: var(--nexus-shape-border-radius-round, 320px);
             font-weight: var(--nexus-typography-font-weight-medium, 500);
             flex-shrink: 0;
         }
@@ -540,18 +540,18 @@
             list-style: none;
             padding: 0;
             margin: 0;
-            padding-left: 1.5rem;
-            border-left: 2px solid var(--nexus-color-background-surface-tertiary, #d1d7e3);
-            margin-left: 0.5rem;
-            margin-top: 0.25rem;
-            margin-bottom: 0.25rem;
+            padding-left: var(--nexus-spacing-6, 1.5rem);
+            border-left: var(--nexus-shape-border-width-emphasized, 2px) solid var(--nexus-color-border-muted, #e4e8f2);
+            margin-left: var(--nexus-spacing-2, 0.5rem);
+            margin-top: var(--nexus-spacing-1, 0.25rem);
+            margin-bottom: var(--nexus-spacing-1, 0.25rem);
             box-sizing: border-box;
         }
 
         .tree-children.expanded {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 0.5rem;
+            gap: var(--nexus-spacing-2, 0.5rem);
         }
 
         /* Responsive grid: 1 -> 2 -> 3 -> 4 columns */
@@ -583,85 +583,96 @@
             flex-direction: column;
             padding: 0;
             margin: 0;
-            border: 1px solid var(--nexus-color-background-surface-tertiary, #d1d7e3);
-            border-radius: 8px;
-            background: var(--nexus-color-system-white, #ffffff);
+            border: var(--nexus-shape-border-width-default, 1px) solid var(--nexus-color-border-muted, #e4e8f2);
+            border-radius: var(--nexus-shape-border-radius-xs, 8px);
+            background: var(--nexus-color-background-surface-primary, #ffffff);
             transition: all 0.2s ease;
             cursor: pointer;
             overflow: hidden;
             min-width: 0;
+            min-height: 0;
         }
 
         .token-leaf:hover {
-            border-color: var(--nexus-color-system-primary-500, #3660d0);
-            box-shadow: 0 4px 12px rgba(23, 45, 189, 0.12);
-            box-shadow: 0 2px 8px rgba(23, 45, 189, 0.1);
-            transform: translateX(2px);
+            border-color: var(--nexus-color-border-focused, #3660d0);
+            box-shadow: var(--nexus-effect-bottom-shadow-md, 0 2px 8px 0 rgba(0,0,0,0.12));
+            transform: translateX(var(--nexus-shape-border-width-emphasized, 2px));
         }
 
         .token-leaf:active {
             transform: translateX(0);
-            box-shadow: 0 1px 4px rgba(23, 45, 189, 0.15);
+            box-shadow: var(--nexus-effect-bottom-shadow-sm, 0 1px 4px 0 rgba(0,0,0,0.12));
         }
 
         .token-leaf-info {
-            padding: 0.875rem;
+            padding: var(--nexus-spacing-4, 1rem);
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
+            gap: var(--nexus-spacing-3, 0.75rem);
             flex: 1;
             min-width: 0;
         }
 
         .token-leaf-name {
             font-family: 'Monaco', 'Courier New', monospace;
-            font-size: 0.8125rem;
+            font-size: var(--nexus-text-token-caption-sm-font-size, 0.75rem);
+            line-height: 1.5;
             color: var(--nexus-color-content-primary, #17191c);
             font-weight: var(--nexus-typography-font-weight-semibold, 600);
             word-break: break-word;
+            overflow-wrap: break-word;
             order: 1;
         }
 
         .token-leaf-reference {
             font-family: 'Monaco', 'Courier New', monospace;
-            font-size: 0.75rem;
-            color: var(--nexus-color-system-primary-700, #17289c);
+            font-size: var(--nexus-text-token-label-sm-font-size, 0.75rem);
+            line-height: 1.5;
             font-weight: var(--nexus-typography-font-weight-medium, 500);
+            color: var(--nexus-color-content-link, #172dbd);
             word-break: break-word;
+            overflow-wrap: break-word;
             order: 2;
         }
 
         .token-leaf-value {
             font-family: 'Monaco', 'Courier New', monospace;
-            font-size: 0.6875rem;
-            color: var(--nexus-color-content-tertiary, #8a909e);
+            font-size: var(--nexus-text-token-caption-sm-font-size, 0.75rem);
+            line-height: 1.5;
             font-weight: var(--nexus-typography-font-weight-regular, 400);
+            color: var(--nexus-color-content-tertiary, #8a909e);
             word-break: break-word;
+            overflow-wrap: break-word;
             order: 3;
         }
 
         .token-leaf-label-text {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            font-size: 0.75rem;
-            font-weight: 500;
-            line-height: 1.4;
+            display: block;
+            font-size: var(--nexus-text-token-label-sm-font-size, 0.75rem);
+            line-height: 1.5;
+            font-weight: var(--nexus-typography-font-weight-medium, 500);
             color: var(--nexus-color-content-secondary, #575d69);
             word-break: break-word;
+            overflow-wrap: break-word;
             order: 1;
         }
 
         .token-leaf-category {
-            font-weight: 600;
+            display: inline;
+            font-weight: var(--nexus-typography-font-weight-semibold, 600);
             color: var(--nexus-color-content-primary, #17191c);
+            margin-left: var(--nexus-spacing-1, 0.25rem);
+            white-space: nowrap;
         }
 
         .token-leaf-label {
             font-size: 0.625rem;
+            line-height: 1.4;
+            font-weight: var(--nexus-typography-font-weight-medium, 500);
             text-transform: uppercase;
             letter-spacing: 0.05em;
             color: var(--nexus-color-content-tertiary, #8a909e);
-            font-weight: var(--nexus-typography-font-weight-medium, 500);
-            margin-bottom: 0.125rem;
+            margin-bottom: var(--nexus-spacing-1, 0.125rem);
         }
 
         .token-leaf-preview {
@@ -671,82 +682,53 @@
             align-items: center;
             justify-content: center;
             background: var(--nexus-color-background-surface-secondary, #f2f5fa);
-            border-bottom: 1px solid var(--nexus-color-background-surface-tertiary, #d1d7e3);
-            padding: 1.5rem;
+            border-bottom: var(--nexus-shape-border-width-default, 1px) solid var(--nexus-color-border-muted, #e4e8f2);
+            padding: var(--nexus-spacing-6, 1.5rem);
             position: relative;
         }
 
         .preview-swatch {
             width: 100%;
             height: 80px;
-            border-radius: 8px;
+            border-radius: var(--nexus-shape-border-radius-xs, 8px);
+            border: var(--nexus-shape-border-width-default, 1px) solid var(--nexus-color-border-muted, #e4e8f2);
             color: var(--nexus-color-content-primary, #17191c);
             position: relative;
         }
 
         .token-leaf-value[title] {
             cursor: help;
-            border-bottom: 1px dotted var(--nexus-color-content-secondary, #575d69);
-        }
-
-        /* Tooltip styles */
-        .token-leaf-label {
-            font-size: 0.625rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--nexus-color-content-tertiary, #8a909e);
-            font-weight: var(--nexus-typography-font-weight-medium, 500);
-            margin-bottom: 0.125rem;
-        }
-
-        .token-leaf-preview {
-            width: 100%;
-            min-height: 120px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--nexus-color-background-surface-secondary, #f2f5fa);
-            border-bottom: 1px solid var(--nexus-color-background-surface-tertiary, #d1d7e3);
-            padding: 1.5rem;
-            position: relative;
-        }
-
-        .preview-swatch {
-            width: 100%;
-            height: 80px;
-            border-radius: 8px;
-            border: 1px solid var(--nexus-color-background-surface-tertiary, #d1d7e3);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border-bottom: var(--nexus-shape-border-width-default, 1px) dotted var(--nexus-color-content-secondary, #575d69);
         }
 
         .preview-opacity {
             width: 100%;
             height: 80px;
-            border-radius: 8px;
-            border: 1px solid var(--nexus-color-background-surface-tertiary, #d1d7e3);
+            border-radius: var(--nexus-shape-border-radius-xs, 8px);
+            border: var(--nexus-shape-border-width-default, 1px) solid var(--nexus-color-border-muted, #e4e8f2);
             position: relative;
             background-image: 
-                linear-gradient(45deg, #ffffff 25%, transparent 25%),
-                linear-gradient(-45deg, #ffffff 25%, transparent 25%),
-                linear-gradient(45deg, transparent 75%, #ffffff 75%),
-                linear-gradient(-45deg, transparent 75%, #ffffff 75%);
-            background-size: 12px 12px;
+                linear-gradient(45deg, var(--nexus-color-system-white, #ffffff) 25%, transparent 25%),
+                linear-gradient(-45deg, var(--nexus-color-system-white, #ffffff) 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, var(--nexus-color-system-white, #ffffff) 75%),
+                linear-gradient(-45deg, transparent 75%, var(--nexus-color-system-white, #ffffff) 75%);
+            background-size: var(--nexus-spacing-4, 1rem) var(--nexus-spacing-4, 1rem);
             background-position: 0 0, 0 6px, 6px -6px, -6px 0px;
-            background-color: #e4e8f2;
+            background-color: var(--nexus-color-background-surface-tertiary, #e4e8f2);
         }
 
         .preview-opacity-overlay {
             position: absolute;
             inset: 0;
-            background: var(--nexus-color-system-primary-600, #172dbd);
-            border-radius: 7px;
+            background: var(--nexus-color-content-link, #172dbd);
+            border-radius: var(--nexus-shape-border-radius-xxs, 4px);
         }
 
         .preview-spacing {
             width: 100%;
             height: 80px;
-            border-radius: 6px;
-            border: 2px dashed var(--nexus-color-system-primary-400, #6c90e5);
+            border-radius: var(--nexus-shape-border-radius-xxs, 4px);
+            border: var(--nexus-shape-border-width-emphasized, 2px) dashed var(--nexus-color-deep-blue-400, #6c90e5);
             background: transparent;
             display: flex;
             align-items: center;
@@ -755,52 +737,54 @@
         }
 
         .preview-spacing-box {
-            background: var(--nexus-color-system-primary-600, #172dbd);
-            border-radius: 2px;
+            background: var(--nexus-color-content-link, #172dbd);
+            border-radius: var(--nexus-shape-border-radius-3xs, 2px);
         }
 
         .preview-radius {
             width: 100%;
             height: 80px;
-            background: var(--nexus-color-system-primary-600, #172dbd);
-            border: 1px solid var(--nexus-color-background-surface-tertiary, #d1d7e3);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            background: var(--nexus-color-content-link, #172dbd);
+            border: var(--nexus-shape-border-width-default, 1px) solid var(--nexus-color-border-muted, #e4e8f2);
+            box-shadow: var(--nexus-effect-center-shadow-md, 0 0 12px 0 rgba(0,0,0,0.12));
         }
 
         .preview-border-width {
             width: 100%;
             height: 80px;
             background: var(--nexus-color-background-surface-primary, #ffffff);
-            border: solid var(--nexus-color-system-primary-600, #172dbd);
-            border-radius: 6px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border: solid var(--nexus-color-content-link, #172dbd);
+            border-radius: var(--nexus-shape-border-radius-xxs, 4px);
+            box-shadow: var(--nexus-effect-center-shadow-md, 0 0 12px 0 rgba(0,0,0,0.12));
         }
 
         .preview-shadow {
             width: 100%;
             height: 80px;
             background: var(--nexus-color-background-surface-primary, #ffffff);
-            border-radius: 8px;
-            border: 1px solid var(--nexus-color-background-surface-tertiary, #d1d7e3);
+            border-radius: var(--nexus-shape-border-radius-xs, 8px);
+            border: var(--nexus-shape-border-width-default, 1px) solid var(--nexus-color-border-muted, #e4e8f2);
         }
 
         .preview-gradient {
             width: 100%;
             height: 80px;
-            border-radius: 8px;
-            border: 1px solid var(--nexus-color-background-surface-tertiary, #d1d7e3);
+            border-radius: var(--nexus-shape-border-radius-xs, 8px);
+            border: var(--nexus-shape-border-width-default, 1px) solid var(--nexus-color-border-muted, #e4e8f2);
             background-size: cover;
         }
 
         .preview-weight {
-            font-size: 2.5rem;
+            font-size: var(--nexus-text-token-h2-font-size, 2.5rem);
+            font-weight: inherit;
             color: var(--nexus-color-content-primary, #17191c);
-            line-height: 1;
+            line-height: var(--nexus-text-token-h2-line-height, 1.2);
         }
 
         .preview-font-size {
+            font-size: inherit;
             color: var(--nexus-color-content-primary, #17191c);
-            line-height: 1.2;
+            line-height: var(--nexus-text-token-h2-line-height, 1.2);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -808,9 +792,10 @@
         }
 
         .preview-font-family {
-            font-size: 2rem;
+            font-size: var(--nexus-text-token-h3-font-size, 2rem);
+            font-family: inherit;
             color: var(--nexus-color-content-primary, #17191c);
-            line-height: 1.2;
+            line-height: var(--nexus-text-token-h3-line-height, 1.2);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -819,16 +804,22 @@
 
         .preview-line-height {
             width: 100%;
+            font-size: inherit;
+            line-height: inherit;
             color: var(--nexus-color-content-primary, #17191c);
-            padding: 0.5rem;
+            padding: var(--nexus-spacing-2, 0.5rem);
             text-align: left;
             white-space: normal;
             word-wrap: break-word;
         }
 
         .preview-typography {
+            font-family: inherit;
+            font-size: inherit;
+            font-weight: inherit;
+            line-height: inherit;
             color: var(--nexus-color-content-primary, #17191c);
-            padding: 1rem;
+            padding: var(--nexus-spacing-4, 1rem);
             display: flex;
             align-items: center;
             min-height: 60px;
@@ -855,13 +846,6 @@
                 </div>
                 <div class="filter-chips" id="filter-chips">
                     <button class="filter-chip active" data-category="all">All</button>
-                    <button class="filter-chip" data-category="color">Colors</button>
-                    <button class="filter-chip" data-category="opacity">Opacity</button>
-                    <button class="filter-chip" data-category="spacing">Spacing</button>
-                    <button class="filter-chip" data-category="sizing">Sizing</button>
-                    <button class="filter-chip" data-category="typography">Typography</button>
-                    <button class="filter-chip" data-category="gradient">Gradients</button>
-                    <button class="filter-chip" data-category="effect">Effects</button>
                 </div>
             </div>
             <div class="token-tree-container">
@@ -1015,111 +999,41 @@
             });
         
         function initializeUI() {
-            // Build hierarchical tree structure from flat token list with architectural layers
+            // Config: extend when swapping token sets (Phase 5)
+            const tokenViewerConfig = {
+                compoundNames: {
+                    'deep-blue': 'deepBlue', 'deep-green': 'deepGreen', 'bright-yellow': 'brightYellow',
+                    'on-color': 'onColor', 'on-subtle': 'onSubtle', 'mid-blue': 'midBlue', 'mid-green': 'midGreen',
+                    'new-sky': 'newSky', 'day-glow': 'dayGlow', 'action-lighter': 'actionLighter',
+                    'action-light': 'actionLight', 'action-dark': 'actionDark', 'action-darker': 'actionDarker'
+                },
+                layerNames: { 'type': 'Text Style Preview', 'texttoken': 'Text Token Properties' },
+                treeSortOrder: ['nexus', 'mui', 'ios'],
+                categoryDisplayNames: {
+                    color: 'Colors', opacity: 'Opacity', spacing: 'Spacing', sizing: 'Sizing',
+                    typography: 'Typography', gradient: 'Gradients', effect: 'Effects',
+                    'font-weight': 'Font Weight', 'font-family': 'Font Family', 'font-size': 'Font Size',
+                    'line-height': 'Line Height', 'border-width': 'Border Width', 'border-radius': 'Border Radius',
+                    other: 'Other'
+                },
+                defaultFilterCategories: ['color', 'opacity', 'spacing', 'sizing', 'typography', 'gradient', 'effect']
+            };
+            
+            // Build hierarchical tree - PASSTHROUGH: mirrors source structure, no hardcoded categorization
             function buildTree(tokens) {
                 const tree = {};
                 
-                // Merge compound names before splitting
                 function normalizeTokenName(tokenName) {
-                    // Remove -- prefix
                     let name = tokenName.replace(/^--/, '');
-                    
-                    // Compound color names that should be treated as single units
-                    const compoundNames = {
-                        'deep-blue': 'deepBlue',
-                        'deep-green': 'deepGreen',
-                        'bright-yellow': 'brightYellow',
-                        'on-color': 'onColor',
-                        'on-subtle': 'onSubtle',
-                        'mid-blue': 'midBlue',
-                        'mid-green': 'midGreen',
-                        'new-sky': 'newSky',
-                        'day-glow': 'dayGlow',
-                        'action-lighter': 'actionLighter',
-                        'action-light': 'actionLight',
-                        'action-dark': 'actionDark',
-                        'action-darker': 'actionDarker'
-                    };
-                    
-                    // Replace compound names with single tokens
-                    for (const [compound, replacement] of Object.entries(compoundNames)) {
+                    for (const [compound, replacement] of Object.entries(tokenViewerConfig.compoundNames || {})) {
                         name = name.replace(compound, replacement);
                     }
-                    
                     return name;
                 }
                 
-                // Layer classification based on actual token architecture
-                function categorizeToken(pathParts, topLevel) {
-                    const category = pathParts[1]; // e.g., 'color', 'sizing', 'spacing', 'opacity'
-                    const subcategory = pathParts[2]; // e.g., 'neutral', 'system', 'content', 'background'
-                    
-                    // Layer 01 - Primitives: Raw color ramps (neutral, slate, red, etc.) and base scales
-                    const primitiveColorRamps = ['neutral', 'slate', 'deepBlue', 'blue', 'teal', 'green', 
-                                                  'lime', 'brightYellow', 'orange', 'red', 'pink', 'purple', 
-                                                  'violet', 'deepGreen', 'amber', 'yellow'];
-                    
-                    if (category === 'color' && primitiveColorRamps.includes(subcategory)) {
-                        // Layer 01: Raw color ramps - flatten the structure
-                        return ['primitives', 'color-ramps', subcategory, ...pathParts.slice(3)];
-                    } else if (category === 'sizing' || category === 'spacing') {
-                        // Layer 01: Base scales (rem-based) - flatten numeric values
-                        return ['primitives', 'scales', category, ...pathParts.slice(2)];
-                    } else if (category === 'opacity') {
-                        // Layer 03: Opacity tokens - flatten completely, no subfolders
-                        return ['component-ui', 'opacity', pathParts.slice(2).join('-')];
-                    } else if (category === 'gradient') {
-                        // Layer 03: Gradient tokens - UI-level tokens
-                        return ['component-ui', 'gradient', ...pathParts.slice(2)];
-                    } else if (category === 'color' && subcategory === 'brand') {
-                        // Layer 02: Brand colors belong in semantic system
-                        return ['semantic-system', 'brand', ...pathParts.slice(3)];
-                    } else if (category === 'color' && subcategory === 'system') {
-                        // Check if it's system.content which is actually Layer 03
-                        const thirdLevel = pathParts[3];
-                        if (thirdLevel === 'content') {
-                            // Layer 03: system.content is UI-level
-                            return ['component-ui', 'color', 'system-content', ...pathParts.slice(4)];
-                        }
-                        // Layer 02: Semantic system colors (system.error, system.success, etc.)
-                        return ['semantic-system', 'color', ...pathParts.slice(3)];
-                    } else if (category === 'color' && (subcategory === 'content' || subcategory === 'background' || subcategory === 'border' || subcategory === 'foreground')) {
-                        // Layer 03: UI/Component tokens - keep structure but flatten where needed
-                        return ['component-ui', 'color', subcategory, ...pathParts.slice(3)];
-                    } else if (category === 'opacity' || category === 'shape') {
-                        // Layer 03: UI properties
-                        return ['component-ui', category, ...pathParts.slice(2)];
-                    } else if (category === 'surface' || category === 'effect') {
-                        // Layer 03: Surface styles and shadow styles unified under Effects
-                        return ['component-ui', 'effects', ...pathParts.slice(2)];
-                    } else if (category === 'text' || category === 'typography') {
-                        // Layer 03: Component-specific tokens
-                        return ['component-ui', category, ...pathParts.slice(2)];
-                    } else {
-                        // Default: keep original structure
-                        return pathParts.slice(1);
-                    }
-                }
-                
                 tokens.forEach(token => {
-                    // Normalize compound names first
                     const normalizedName = normalizeTokenName(token.name);
-                    
-                    // Split by hyphen to get path parts
-                    let path = normalizedName.split('-');
-                    const topLevel = path[0].toLowerCase();
-                    
-                    // Handle mui and ios as separate top-level categories (no layer restructuring)
-                    if (topLevel === 'mui' || topLevel === 'ios') {
-                        // Keep mui/ios as-is
-                    } else if (topLevel === 'nexus') {
-                        // Apply layer categorization to nexus tokens
-                        const layeredPath = categorizeToken(path, topLevel);
-                        path = ['nexus', ...layeredPath];
-                    } else {
-                        // All other tokens go under nexus with layer categorization
-                        path = ['nexus', ...categorizeToken(['nexus', path[0], ...path.slice(1)], 'nexus')];
-                    }
+                    const path = normalizedName.split('-');
                     
                     let current = tree;
                     
@@ -1214,23 +1128,18 @@
                 }
                 if (props.textDecoration) styles.push(`text-decoration: ${props.textDecoration}`);
                 const styleStr = styles.join('; ');
-                const isLink = token.name.includes('-link');
-                const useWrapText = !isLink && props.lineHeight && (
-                    (typeof props.lineHeight === 'string' && parseFloat(props.lineHeight) >= 160) ||
-                    (typeof props.lineHeight === 'number' && props.lineHeight >= 1.6)
-                );
+                const isLink = props.textDecoration === 'underline' || (token.name && token.name.toLowerCase().includes('link'));
+                const fontSizeNum = typeof props.fontSize === 'number' ? props.fontSize : parseFloat(props.fontSize);
+                const lineHeightVal = props.lineHeight;
+                const lineHeightNum = typeof lineHeightVal === 'string' ? parseFloat(lineHeightVal) : lineHeightVal;
+                const useWrapText = !isLink && lineHeightNum >= 1.5;
                 let sampleText;
                 if (isLink) sampleText = 'Link text';
                 else if (useWrapText) sampleText = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.';
-                else sampleText = token.name.includes('-h1') ? 'Heading 1' :
-                    token.name.includes('-h2') ? 'Heading 2' :
-                    token.name.includes('-h3') ? 'Heading 3' :
-                    token.name.includes('-body') ? 'The quick brown fox jumps over the lazy dog.' :
-                    token.name.includes('-subtitle') ? 'Subtitle text' :
-                    token.name.includes('-button') ? 'Button text' :
-                    token.name.includes('-caption') ? 'Caption text' :
-                    token.name.includes('-label') ? 'Label text' :
-                    'The quick brown fox';
+                else if (fontSizeNum >= 24) sampleText = 'Heading';
+                else if (fontSizeNum >= 18) sampleText = 'Subtitle text';
+                else if (fontSizeNum >= 14) sampleText = 'The quick brown fox jumps over the lazy dog.';
+                else sampleText = 'The quick brown fox';
                 return { styleStr, sampleText };
             }
             
@@ -1244,27 +1153,48 @@
                 }).join(', ');
             }
             
-            // Get token category for visual preview
+            // Get token category for visual preview - TYPE-FIRST (DTCG), name fallback for tokens without $type
             function getTokenCategory(name, token) {
-                // Gradient: by path or by value (color type with linear-gradient string)
-                if (name.includes('gradient')) return 'gradient';
-                if (token && token.type === 'color' && typeof token.value === 'string' && token.value.includes('linear-gradient')) {
-                    return 'gradient';
+                const n = (name || '').toLowerCase();
+                const t = token || {};
+                const v = t.value;
+                const type = (t.type || '').toLowerCase();
+                
+                // 1. Value shape (runs before generic color)
+                if (typeof v === 'string' && v.includes('linear-gradient')) return 'gradient';
+                
+                // 2. DTCG type-driven (primary)
+                if (type === 'gradient') return 'gradient';
+                if (type === 'boxshadow' || type === 'shadow') return 'effect';
+                if (type === 'typography') return 'typography';
+                if (type === 'color') return 'color';
+                if (type === 'fontweight' || type === 'font-weight' || (type === 'text' && (n.includes('fontweight') || n.includes('font-weight')))) return 'font-weight';
+                if (type === 'fontfamily' || type === 'font-family' || (type === 'text' && (n.includes('fontfamily') || n.includes('font-family')))) return 'font-family';
+                if (type === 'dimension') {
+                    if (n.includes('lineheight') || n.includes('line-height')) return 'line-height';
+                    if (n.includes('spacing')) return 'spacing';
+                    if (n.includes('sizing') || n.includes('fontsize') || n.includes('font-size')) return n.includes('font') ? 'font-size' : 'sizing';
+                    return n.includes('spacing') ? 'spacing' : 'sizing';
                 }
-                // Effect: surface styles (Nexus-Surface) and shadow styles (Nexus-Effect, MUI-Effect) unified
-                if (name.includes('nexus-surface')) return 'effect';
-                if (name.includes('-effect-')) return 'effect';
-                if (name.includes('-color-')) return 'color';
-                if (name.includes('-opacity-')) return 'opacity';
-                if (name.includes('-spacing-')) return 'spacing';
-                if (name.includes('-sizing-')) return 'sizing';
-                if (name.includes('-font-weight-') || name.includes('-fontweight-')) return 'font-weight';
-                if (name.includes('-font-size-') || name.includes('-fontsize-')) return 'font-size';
-                if (name.includes('-font-family-') || name.includes('-fontfamily-')) return 'font-family';
-                if (name.includes('-line-height-') || name.includes('-lineheight-')) return 'line-height';
-                if (name.includes('-typography-') || name.includes('-text-token-')) return 'typography';
-                if (name.includes('-border-width-') || name.includes('-borderwidth-')) return 'border-width';
-                if (name.includes('-shape-') || name.includes('-radius-') || name.includes('-border-radius-') || name.includes('-borderradius-')) return 'border-radius';
+                if (type === 'number' && (n.includes('opacity') || n.includes('fontweight'))) {
+                    return n.includes('font') ? 'font-weight' : 'opacity';
+                }
+                
+                // 3. Name-based fallback (tokens without $type, e.g. from CSS)
+                if (n.includes('gradient')) return 'gradient';
+                if (n.includes('effect') || n.includes('shadow')) return 'effect';
+                if (n.includes('surface') && n.includes('color')) return 'effect';
+                if (n.includes('color')) return 'color';
+                if (n.includes('opacity')) return 'opacity';
+                if (n.includes('spacing')) return 'spacing';
+                if (n.includes('sizing')) return 'sizing';
+                if (n.includes('font-weight') || n.includes('fontweight')) return 'font-weight';
+                if (n.includes('font-size') || n.includes('fontsize')) return 'font-size';
+                if (n.includes('font-family') || n.includes('fontfamily')) return 'font-family';
+                if (n.includes('line-height') || n.includes('lineheight')) return 'line-height';
+                if (n.includes('typography') || n.includes('text-token')) return 'typography';
+                if (n.includes('border-width') || n.includes('borderwidth')) return 'border-width';
+                if (n.includes('shape') || n.includes('radius') || n.includes('border-radius')) return 'border-radius';
                 return 'other';
             }
             
@@ -1365,13 +1295,13 @@
                         break;
                     
                     case 'effect':
-                        // Surface tokens: semi-transparent colors, use color swatch
-                        if (token.name.includes('nexus-surface')) {
-                            previewContent = `<div class="preview-swatch" style="background-color: ${token.value};"></div>`;
-                        } else {
-                            // Shadow tokens: use CSS string or convert from raw object
+                        // Type-driven: boxShadow/shadow -> shadow preview; color (surface) -> color swatch
+                        const isShadowType = token.type === 'boxShadow' || token.type === 'shadow' || (typeof token.value === 'object' && (Array.isArray(token.value) || (token.value && 'blur' in token.value)));
+                        if (isShadowType || token.boxShadowValue) {
                             const shadowCss = typeof token.value === 'string' ? token.value : (token.boxShadowValue ? boxShadowToCss(token.boxShadowValue) : '');
                             previewContent = `<div class="preview-shadow" style="box-shadow: ${shadowCss};"></div>`;
+                        } else {
+                            previewContent = `<div class="preview-swatch" style="background-color: ${token.value};"></div>`;
                         }
                         break;
                     
@@ -1403,20 +1333,10 @@
                     const label = document.createElement('span');
                     label.className = 'tree-label';
                     
-                    // Friendly names for architectural layers
-                    const layerNames = {
-                        'primitives': 'Primitives',
-                        'color-ramps': 'Color Ramps',
-                        'scales': 'Base Scales',
-                        'semantic-system': 'Alias',
-                        'component-ui': 'Mapped',
-                        'effects': 'Effects',
-                        'gradient': 'Gradients',
-                        'type': 'Text Style Preview',
-                        'texttoken': 'Text Token Properties'
-                    };
-                    
-                    label.textContent = layerNames[key.toLowerCase()] || key;
+                    // Display name: optional overrides, else title-case the key
+                    const layerOverrides = tokenViewerConfig.layerNames || {};
+                    const displayKey = key.toLowerCase().replace(/\s+/g, '-');
+                    label.textContent = layerOverrides[displayKey] || key.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
                     
                     const count = document.createElement('span');
                     count.className = 'tree-count';
@@ -1430,23 +1350,16 @@
                     const childrenUl = document.createElement('ul');
                     childrenUl.className = 'tree-children';
                     
-                    // Custom sort order for architectural layers within nexus
-                    const layerSortOrder = ['primitives', 'semantic-system', 'component-ui', 'effects', 'gradient'];
                     const childKeys = Object.keys(node).filter(k => k !== '_tokens');
-                    
+                    const sortOrder = tokenViewerConfig.treeSortOrder || [];
                     const sortedChildKeys = childKeys.sort((a, b) => {
                         const aLower = a.toLowerCase();
                         const bLower = b.toLowerCase();
-                        const aIndex = layerSortOrder.indexOf(aLower);
-                        const bIndex = layerSortOrder.indexOf(bLower);
-                        
-                        // If both are layers, sort by their position
+                        const aIndex = sortOrder.indexOf(aLower);
+                        const bIndex = sortOrder.indexOf(bLower);
                         if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
-                        // If only a is a layer, it comes first
                         if (aIndex !== -1) return -1;
-                        // If only b is a layer, it comes first
                         if (bIndex !== -1) return 1;
-                        // Otherwise, alphabetical sort
                         return aLower.localeCompare(bLower);
                     });
                     
@@ -1557,7 +1470,7 @@
             const treeContainer = document.getElementById('token-tree');
             
             // Custom sort order for top-level categories
-            const sortOrder = ['nexus', 'mui', 'ios'];
+            const sortOrder = tokenViewerConfig.treeSortOrder || [];
             const sortedKeys = Object.keys(tree).sort((a, b) => {
                 const aLower = a.toLowerCase();
                 const bLower = b.toLowerCase();
@@ -1580,6 +1493,28 @@
             
             // Update token count
             document.getElementById('token-count').textContent = `${tokens.length} tokens`;
+            
+            // Dynamic filter chips - built from actual token categories
+            const filterChipsContainer = document.getElementById('filter-chips');
+            const categories = new Set();
+            tokens.forEach(t => categories.add(getTokenCategory(t.name, t)));
+            const categoryList = tokens.length > 0
+                ? Array.from(categories).filter(c => c !== 'other').sort((a, b) => {
+                    const order = ['color', 'typography', 'gradient', 'effect', 'opacity', 'spacing', 'sizing', 'font-weight', 'font-family', 'font-size', 'line-height', 'border-width', 'border-radius'];
+                    const ai = order.indexOf(a);
+                    const bi = order.indexOf(b);
+                    if (ai !== -1 && bi !== -1) return ai - bi;
+                    if (ai !== -1) return -1;
+                    if (bi !== -1) return 1;
+                    return a.localeCompare(b);
+                })
+                : (tokenViewerConfig.defaultFilterCategories || []);
+            const displayNames = tokenViewerConfig.categoryDisplayNames || {};
+            filterChipsContainer.innerHTML = '<button class="filter-chip active" data-category="all">All</button>' +
+                categoryList.map(cat => {
+                    const label = displayNames[cat] || cat.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                    return `<button class="filter-chip" data-category="${cat}">${label}</button>`;
+                }).join('');
             
             // Expand/Collapse All functionality
             document.getElementById('expand-all').addEventListener('click', () => {

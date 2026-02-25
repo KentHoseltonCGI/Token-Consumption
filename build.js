@@ -74,6 +74,16 @@ StyleDictionary.registerTransform({
   }
 });
 
+// Source token files - update when adding new token sets
+const SOURCE_FILES = [
+  'Nexus-Source-Tokens/tokens/01 Primitive ✅/Mode 1.json',
+  'Nexus-Source-Tokens/tokens/01 rem ✅/Mode 1.json',
+  'Nexus-Source-Tokens/tokens/02 Alias ✅/myQ.json',
+  'Nexus-Source-Tokens/tokens/03 Palette ✅/light.json',
+  'Nexus-Source-Tokens/tokens/03 Responsive ✅/Larger Breakpoint.json',
+  'Nexus-Source-Tokens/tokens/03 Mapped ✅/Mode 1.json'
+];
+
 // Custom format to preserve typography composite tokens with metadata
 StyleDictionary.registerFormat({
   name: 'json/nested-with-types',
@@ -156,12 +166,12 @@ StyleDictionary.registerFormat({
     const processed = processTokens(tokens);
     
     // Reorganize: Move typography-related tokens into organized folders
+    // All blocks are defensive - skip if structure differs from expected
     
-    // 1. Move typography composite tokens under "Type Styles"
-    if (processed.Nexus) {
+    // 1. Move typography composite tokens under "Type Styles" (Nexus-specific)
+    if (processed && processed.Nexus && typeof processed.Nexus === 'object') {
       const typeStyles = {};
       
-      // Collect all type style groups from Nexus
       typeStyleGroups.forEach(groupName => {
         if (processed.Nexus[groupName]) {
           typeStyles[groupName] = processed.Nexus[groupName];
@@ -169,41 +179,36 @@ StyleDictionary.registerFormat({
         }
       });
       
-      // Move textToken under typography as well
       let textToken = null;
       if (processed.Nexus.textToken) {
         textToken = processed.Nexus.textToken;
         delete processed.Nexus.textToken;
       }
       
-      // Ensure typography object exists
-      if (!processed.Nexus.typography) {
-        processed.Nexus.typography = {};
-      }
-      
-      // Add Type Styles folder under typography if we have any
-      if (Object.keys(typeStyles).length > 0) {
-        processed.Nexus.typography['Type Styles'] = typeStyles;
-      }
-      
-      // Add textToken under typography after Type Styles
-      if (textToken) {
-        processed.Nexus.typography['textToken'] = textToken;
+      if (Object.keys(typeStyles).length > 0 || textToken) {
+        if (!processed.Nexus.typography) {
+          processed.Nexus.typography = {};
+        }
+        if (Object.keys(typeStyles).length > 0) {
+          processed.Nexus.typography['Type Styles'] = typeStyles;
+        }
+        if (textToken) {
+          processed.Nexus.typography['textToken'] = textToken;
+        }
       }
     }
     
-    // 2. Move typography primitives (fontSize, lineHeights, etc.) under a primitives folder
+    // 2. Move typography primitives (fontSize, lineHeights, etc.) under primitives - only if they exist at root
     const typographyPrimitives = {};
     const primitiveGroups = ['fontSize', 'lineHeights', 'letterSpacing', 'paragraphSpacing', 'paragraphIndent', 'textCase', 'textDecoration'];
     
     primitiveGroups.forEach(groupName => {
-      if (processed[groupName]) {
+      if (processed && processed[groupName]) {
         typographyPrimitives[groupName] = processed[groupName];
         delete processed[groupName];
       }
     });
     
-    // Create primitives structure if we have any typography primitives
     if (Object.keys(typographyPrimitives).length > 0) {
       if (!processed.primitives) {
         processed.primitives = {};
@@ -211,10 +216,9 @@ StyleDictionary.registerFormat({
       processed.primitives.typography = typographyPrimitives;
     }
     
-    // 3. Move color ramps under primitives['color ramps']
-    if (processed.Nexus && processed.Nexus.color) {
+    // 3. Move color ramps under primitives['color ramps'] - only if Nexus.color structure exists
+    if (processed && processed.Nexus && processed.Nexus.color && typeof processed.Nexus.color === 'object') {
       const colorRamps = {};
-      // Include all primitive color ramps (scales with numeric values like 50, 100, 200, etc.)
       const rampGroups = ['neutral', 'slate', 'deepBlue', 'blue', 'teal', 'green', 'lime', 'brightYellow', 'Red', 'Orange', 'Yellow', 'deepGreen'];
       
       rampGroups.forEach(rampName => {
@@ -224,7 +228,6 @@ StyleDictionary.registerFormat({
         }
       });
       
-      // Add color ramps under primitives if we have any
       if (Object.keys(colorRamps).length > 0) {
         if (!processed.primitives) {
           processed.primitives = {};
@@ -307,14 +310,7 @@ StyleDictionary.registerTransform({
 
 // Build configuration for CSS and decomposed JSON (uses tokens-studio preprocessor)
 const sdExpanded = new StyleDictionary({
-  source: [
-    'Nexus-Source-Tokens/tokens/01 Primitive ✅/Mode 1.json',
-    'Nexus-Source-Tokens/tokens/01 rem ✅/Mode 1.json',
-    'Nexus-Source-Tokens/tokens/02 Alias ✅/myQ.json',
-    'Nexus-Source-Tokens/tokens/03 Palette ✅/light.json',
-    'Nexus-Source-Tokens/tokens/03 Responsive ✅/Larger Breakpoint.json',
-    'Nexus-Source-Tokens/tokens/03 Mapped ✅/Mode 1.json'
-  ],
+  source: SOURCE_FILES,
   preprocessors: ['tokens-studio'],
   log: {
     warnings: 'warn',
@@ -365,14 +361,7 @@ const sdExpanded = new StyleDictionary({
 
 // Build configuration for preserved composite tokens (NO tokens-studio preprocessor)
 const sdPreserved = new StyleDictionary({
-  source: [
-    'Nexus-Source-Tokens/tokens/01 Primitive ✅/Mode 1.json',
-    'Nexus-Source-Tokens/tokens/01 rem ✅/Mode 1.json',
-    'Nexus-Source-Tokens/tokens/02 Alias ✅/myQ.json',
-    'Nexus-Source-Tokens/tokens/03 Palette ✅/light.json',
-    'Nexus-Source-Tokens/tokens/03 Responsive ✅/Larger Breakpoint.json',
-    'Nexus-Source-Tokens/tokens/03 Mapped ✅/Mode 1.json'
-  ],
+  source: SOURCE_FILES,
   log: {
     warnings: 'warn',
     verbosity: 'default'
