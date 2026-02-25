@@ -242,7 +242,7 @@
         .filter-chip {
             padding: var(--nexus-spacing-1, 0.25rem) var(--nexus-spacing-3, 0.75rem);
             border: var(--nexus-shape-border-width-default, 1px) solid var(--nexus-color-border-muted, #e4e8f2);
-            background: transparent;
+            background: var(--nexus-color-background-surface-primary, #ffffff);
             border-radius: var(--nexus-shape-border-radius-md, 20px);
             cursor: pointer;
             font: var(--nexus-label-md, 500 14px/1 Inter);
@@ -252,7 +252,7 @@
         }
 
         .filter-chip:hover {
-            opacity: 0.8;
+            opacity: 0.9;
         }
 
         .filter-chip:active {
@@ -260,8 +260,8 @@
         }
 
         .filter-chip.active {
-            border-color: transparent;
             font-weight: var(--nexus-typography-font-weight-semibold, 600);
+            box-shadow: var(--nexus-effect-center-shadow-sm, 0 0 5px 0 rgba(0, 0, 0, 0.08));
         }
 
         .filter-chip[data-category="all"] {
@@ -270,11 +270,12 @@
         }
 
         .filter-chip[data-category="all"]:hover {
-            background: var(--nexus-color-background-surface-disabled-bg, rgba(23, 25, 28, 0.12));
+            background: var(--nexus-color-background-surface-tertiary, #e4e8f2);
         }
 
         .filter-chip[data-category="all"].active {
-            background: var(--nexus-color-content-primary, #17191c);
+            background: var(--nexus-color-content-link, #172dbd);
+            border-color: var(--nexus-color-content-link, #172dbd);
             color: var(--nexus-color-foreground-primary-on-color, #ffffff);
         }
 
@@ -289,6 +290,7 @@
 
         .filter-chip[data-category="color"].active {
             background: var(--nexus-color-deep-blue-700, #17289c);
+            border-color: var(--nexus-color-deep-blue-700, #17289c);
             color: var(--nexus-color-foreground-primary-on-color, #ffffff);
         }
 
@@ -303,6 +305,7 @@
 
         .filter-chip[data-category="opacity"].active {
             background: var(--nexus-color-deep-green-600, #13ae5c);
+            border-color: var(--nexus-color-deep-green-600, #13ae5c);
             color: var(--nexus-color-foreground-success-on-color, #ffffff);
         }
 
@@ -317,6 +320,7 @@
 
         .filter-chip[data-category="spacing"].active {
             background: var(--nexus-color-yellow-700, #d78207);
+            border-color: var(--nexus-color-yellow-700, #d78207);
             color: var(--nexus-color-foreground-warning-on-color, #17191c);
         }
 
@@ -331,6 +335,7 @@
 
         .filter-chip[data-category="sizing"].active {
             background: var(--nexus-color-red-700, #c61735);
+            border-color: var(--nexus-color-red-700, #c61735);
             color: var(--nexus-color-foreground-error-on-color, #ffffff);
         }
 
@@ -345,6 +350,7 @@
 
         .filter-chip[data-category="typography"].active {
             background: var(--nexus-color-blue-700, #05549e);
+            border-color: var(--nexus-color-blue-700, #05549e);
             color: var(--nexus-color-foreground-accent-on-color, #ffffff);
         }
 
@@ -359,6 +365,7 @@
 
         .filter-chip[data-category="gradient"].active {
             background: var(--nexus-color-teal-600, #029bd1);
+            border-color: var(--nexus-color-teal-600, #029bd1);
             color: var(--nexus-color-foreground-accent-on-color, #ffffff);
         }
 
@@ -373,6 +380,7 @@
 
         .filter-chip[data-category="effect"].active {
             background: var(--nexus-color-deep-blue-800, #15227a);
+            border-color: var(--nexus-color-deep-blue-800, #15227a);
             color: var(--nexus-color-foreground-primary-on-color, #ffffff);
         }
 
@@ -1185,11 +1193,14 @@
                 if (type === 'fontfamily' || type === 'font-family' || (type === 'text' && (n.includes('fontfamily') || n.includes('font-family')))) return 'font-family';
                 if (type === 'dimension') {
                     if (n.includes('lineheight') || n.includes('line-height')) return 'line-height';
+                    if (n.includes('opacity')) return 'opacity';
+                    if (n.includes('radius') || n.includes('borderradius') || n.includes('border-radius') || n.includes('corner')) return 'border-radius';
+                    if (n.includes('borderwidth') || n.includes('border-width') || n.includes('stroke')) return 'border-width';
                     if (n.includes('spacing')) return 'spacing';
                     if (n.includes('sizing') || n.includes('fontsize') || n.includes('font-size')) return n.includes('font') ? 'font-size' : 'sizing';
                     return n.includes('spacing') ? 'spacing' : 'sizing';
                 }
-                if (type === 'number' && (n.includes('opacity') || n.includes('fontweight'))) {
+                if (type === 'opacity' || (type === 'number' && (n.includes('opacity') || n.includes('fontweight')))) {
                     return n.includes('font') ? 'font-weight' : 'opacity';
                 }
                 
@@ -1232,15 +1243,14 @@
                         break;
                     
                     case 'opacity':
-                        // Normalize opacity values: numbers (32, 24) -> 0.32, 0.24; strings ("56px") -> 0.56
+                        // Normalize opacity: 0-100 -> 0-1; "32px" -> 0.32; 0.32 -> 0.32
                         let opacityValue = token.value;
                         if (typeof opacityValue === 'string') {
-                            // Remove "px" and convert to number
-                            opacityValue = parseFloat(opacityValue.replace('px', ''));
+                            opacityValue = parseFloat(opacityValue.replace(/px|%/g, '')) || 0;
                         }
-                        if (typeof opacityValue === 'number' && opacityValue > 1) {
-                            // Convert from 0-100 range to 0-1 range
-                            opacityValue = opacityValue / 100;
+                        if (typeof opacityValue === 'number') {
+                            if (opacityValue > 1) opacityValue = opacityValue / 100;
+                            opacityValue = Math.max(0, Math.min(1, opacityValue));
                         }
                         previewContent = `<div class="preview-opacity"><div class="preview-opacity-overlay" style="opacity: ${opacityValue};"></div></div>`;
                         break;
@@ -1253,13 +1263,15 @@
                         break;
                     
                     case 'border-radius':
-                        // Ensure the value has units (px if it's a number)
-                        const radiusValue = typeof token.value === 'number' ? `${token.value}px` : token.value;
+                        // Support number (add px), string with units (px, rem), or unitless 0
+                        const radiusVal = token.value;
+                        const radiusValue = radiusVal === 0 || radiusVal === '0' ? '0' : (typeof radiusVal === 'number' ? `${radiusVal}px` : String(radiusVal));
                         previewContent = `<div class="preview-radius" style="border-radius: ${radiusValue};"></div>`;
                         break;
                     
                     case 'border-width':
-                        const borderWidthValue = typeof token.value === 'number' ? `${token.value}px` : token.value;
+                        const widthVal = token.value;
+                        const borderWidthValue = widthVal === 0 || widthVal === '0' ? '0' : (typeof widthVal === 'number' ? `${widthVal}px` : String(widthVal));
                         previewContent = `<div class="preview-border-width" style="border-width: ${borderWidthValue};"></div>`;
                         break;
                     
@@ -1622,8 +1634,8 @@
                         
                         if (hasVisibleDescendants) {
                             node.style.display = 'block';
-                            // Auto-expand parent trees that have matching results
-                            if (searchTerm) {
+                            // Auto-expand when filtering by category or search
+                            if (activeCategory !== 'all' || searchTerm) {
                                 childrenContainer.classList.add('expanded');
                             }
                         } else {
@@ -1639,9 +1651,19 @@
                     document.querySelectorAll('.tree-node').forEach(node => {
                         node.style.display = 'block';
                     });
-                    // Collapse all when clearing search
                     document.querySelectorAll('.tree-children').forEach(container => {
                         container.classList.remove('expanded');
+                    });
+                    document.querySelectorAll('.tree-toggle').forEach(el => {
+                        el.classList.remove('expanded');
+                    });
+                } else if (activeCategory !== 'all') {
+                    // When filtering by category, expand all to show results
+                    document.querySelectorAll('.tree-children').forEach(container => {
+                        container.classList.add('expanded');
+                    });
+                    document.querySelectorAll('.tree-toggle').forEach(el => {
+                        el.classList.add('expanded');
                     });
                 }
             }
