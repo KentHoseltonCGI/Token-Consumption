@@ -824,6 +824,12 @@
             align-items: center;
             min-height: 60px;
         }
+
+        .preview-typography-single-line {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
     </style>
 </head>
 <body>
@@ -1094,7 +1100,17 @@
                 return node;
             }
             
+            // Normalize lineHeight to unitless number (handles "120%", "1.2", 1.2)
+            function parseLineHeight(val) {
+                if (val == null) return null;
+                const num = typeof val === 'number' ? val : parseFloat(val);
+                if (isNaN(num)) return null;
+                if (typeof val === 'string' && val.includes('%')) return num / 100;
+                return num;
+            }
+
             // Build typography style string and sample text for composite typography tokens
+            // Scalable: single-line vs paragraph driven by lineHeight (tight < 1.4 = single-line)
             function getTypographyDisplay(token) {
                 if (!token.typographyProps) return null;
                 const props = token.typographyProps;
@@ -1129,18 +1145,15 @@
                 if (props.textDecoration) styles.push(`text-decoration: ${props.textDecoration}`);
                 const styleStr = styles.join('; ');
                 const isLink = props.textDecoration === 'underline' || (token.name && token.name.toLowerCase().includes('link'));
-                const fontSizeNum = typeof props.fontSize === 'number' ? props.fontSize : parseFloat(props.fontSize);
-                const lineHeightVal = props.lineHeight;
-                const lineHeightNum = typeof lineHeightVal === 'string' ? parseFloat(lineHeightVal) : lineHeightVal;
-                const useWrapText = !isLink && lineHeightNum >= 1.5;
+                const lineHeightNum = parseLineHeight(props.lineHeight);
+                // Single-line: tight leading (label, heading, button, subtitle) vs paragraph (body, caption)
+                const isSingleLine = lineHeightNum != null && lineHeightNum < 1.4;
+                const useWrapText = !isLink && (lineHeightNum == null || lineHeightNum >= 1.4);
                 let sampleText;
                 if (isLink) sampleText = 'Link text';
                 else if (useWrapText) sampleText = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.';
-                else if (fontSizeNum >= 24) sampleText = 'Heading';
-                else if (fontSizeNum >= 18) sampleText = 'Subtitle text';
-                else if (fontSizeNum >= 14) sampleText = 'The quick brown fox jumps over the lazy dog.';
-                else sampleText = 'The quick brown fox';
-                return { styleStr, sampleText };
+                else sampleText = 'Sample text';
+                return { styleStr, sampleText, singleLine: isSingleLine };
             }
             
             // Convert DTCG boxShadow object/array to CSS string
@@ -1204,8 +1217,9 @@
                 if (token.isComposite && token.type === 'typography' && token.typographyProps) {
                     const display = getTypographyDisplay(token);
                     if (!display) return `<div class="token-leaf-preview"><div class="preview-typography">No preview</div></div>`;
-                    const { styleStr, sampleText } = display;
-                    const previewContent = `<div class="preview-typography" style="${styleStr}">${sampleText}</div>`;
+                    const { styleStr, sampleText, singleLine } = display;
+                    const singleLineClass = singleLine ? ' preview-typography-single-line' : '';
+                    const previewContent = `<div class="preview-typography${singleLineClass}" style="${styleStr}">${sampleText}</div>`;
                     return `<div class="token-leaf-preview">${previewContent}</div>`;
                 }
                 
