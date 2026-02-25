@@ -76,9 +76,9 @@ StyleDictionary.registerTransform({
   }
 });
 
-// Base source files - designer imports are auto-added from 04 Designer Imports folder
+// Source files — replace Nexus-Source-Tokens/tokens/ entirely when designers provide new token exports
 const TOKENS_BASE = 'Nexus-Source-Tokens/tokens';
-const BASE_LIGHT = [
+const SOURCE_FILES = [
   `${TOKENS_BASE}/01 Primitive ✅/Mode 1.json`,
   `${TOKENS_BASE}/01 rem ✅/Mode 1.json`,
   `${TOKENS_BASE}/02 Alias ✅/myQ.json`,
@@ -86,7 +86,7 @@ const BASE_LIGHT = [
   `${TOKENS_BASE}/03 Responsive ✅/Larger Breakpoint.json`,
   `${TOKENS_BASE}/03 Mapped ✅/Mode 1.json`
 ];
-const BASE_DARK = [
+const SOURCE_FILES_DARK = [
   `${TOKENS_BASE}/01 Primitive ✅/Mode 1.json`,
   `${TOKENS_BASE}/01 rem ✅/Mode 1.json`,
   `${TOKENS_BASE}/02 Alias ✅/myQ.json`,
@@ -94,21 +94,6 @@ const BASE_DARK = [
   `${TOKENS_BASE}/03 Responsive ✅/Larger Breakpoint.json`,
   `${TOKENS_BASE}/03 Mapped ✅/Mode 1.json`
 ];
-
-function getDesignerImports() {
-  const importsDir = path.join(process.cwd(), TOKENS_BASE, '04 Designer Imports');
-  if (!fs.existsSync(importsDir)) return [];
-  const files = fs.readdirSync(importsDir).filter((f) => f.endsWith('.json') && !f.startsWith('.'));
-  return files.map((f) => path.join(importsDir, f));
-}
-
-const designerImports = getDesignerImports();
-const SOURCE_FILES = [...BASE_LIGHT, ...designerImports];
-const SOURCE_FILES_DARK = [...BASE_DARK, ...designerImports];
-
-if (designerImports.length > 0) {
-  console.log(`📁 Designer imports included: ${designerImports.length} file(s)`);
-}
 
 // Custom format to preserve typography composite tokens with metadata
 StyleDictionary.registerFormat({

@@ -1,22 +1,17 @@
-# Designer Guide: Adding Token Source Files
+# Designer Guide: Token Source Files
 
-Drop token JSON files into the Designer Imports folder — no config or build code changes needed.
+Replace the `tokens` folder with your exported token files. The build reads from `Nexus-Source-Tokens/tokens/`.
 
 ---
 
-## Steps
+## Workflow
 
 1. Export your tokens from Tokens Studio (or your design tool) as JSON.
-2. Copy the file into:
-
-   ```
-   Nexus-Source-Tokens/tokens/04 Designer Imports/
-   ```
-
+2. Replace the contents of `Nexus-Source-Tokens/tokens/` with your token files.
 3. Run `npm run build`.
-4. Your tokens will appear in `dist/css/tokens.css` and in the Token Viewer.
+4. Tokens appear in `dist/css/tokens.css` and the Token Viewer.
 
-**All `.json` files in this folder are automatically included** in both light and dark theme builds.
+**Expected structure:** The build expects specific file paths (see `build.js`). Keep the same folder and file names, or update `build.js` to match your structure.
 
 ---
 
