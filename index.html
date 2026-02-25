@@ -351,6 +351,34 @@
             color: var(--nexus-color-system-white, #ffffff);
         }
 
+        .filter-chip[data-category="gradient"] {
+            border-color: #c2e7fc;
+            color: #0a76db;
+        }
+
+        .filter-chip[data-category="gradient"]:hover {
+            background: rgba(10, 118, 219, 0.08);
+        }
+
+        .filter-chip[data-category="gradient"].active {
+            background: #0a76db;
+            color: var(--nexus-color-system-white, #ffffff);
+        }
+
+        .filter-chip[data-category="effect"] {
+            border-color: #d4c8f0;
+            color: #5c2d91;
+        }
+
+        .filter-chip[data-category="effect"]:hover {
+            background: rgba(92, 45, 145, 0.08);
+        }
+
+        .filter-chip[data-category="effect"].active {
+            background: #5c2d91;
+            color: var(--nexus-color-system-white, #ffffff);
+        }
+
         .filter-actions {
             display: flex;
             gap: 0.5rem;
@@ -435,6 +463,8 @@
         .badge-spacing { background: #ffeedb; color: #d78207; }
         .badge-sizing { background: #ffe9e8; color: #c61735; }
         .badge-typography { background: #e0eeff; color: #05549e; }
+        .badge-effect { background: #e8e0ff; color: #5c2d91; }
+        .badge-gradient { background: #e0f4ff; color: #0a76db; }
 
         /* Tree View Styles */
         .tree-node {
@@ -610,6 +640,21 @@
             order: 3;
         }
 
+        .token-leaf-label-text {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 500;
+            line-height: 1.4;
+            color: var(--nexus-color-content-secondary, #575d69);
+            word-break: break-word;
+            order: 1;
+        }
+
+        .token-leaf-category {
+            font-weight: 600;
+            color: var(--nexus-color-content-primary, #17191c);
+        }
+
         .token-leaf-label {
             font-size: 0.625rem;
             text-transform: uppercase;
@@ -739,6 +784,14 @@
             border: 1px solid var(--nexus-color-background-surface-tertiary, #d1d7e3);
         }
 
+        .preview-gradient {
+            width: 100%;
+            height: 80px;
+            border-radius: 8px;
+            border: 1px solid var(--nexus-color-background-surface-tertiary, #d1d7e3);
+            background-size: cover;
+        }
+
         .preview-weight {
             font-size: 2.5rem;
             color: var(--nexus-color-content-primary, #17191c);
@@ -762,6 +815,15 @@
             align-items: center;
             justify-content: center;
             min-height: 60px;
+        }
+
+        .preview-line-height {
+            width: 100%;
+            color: var(--nexus-color-content-primary, #17191c);
+            padding: 0.5rem;
+            text-align: left;
+            white-space: normal;
+            word-wrap: break-word;
         }
 
         .preview-typography {
@@ -798,6 +860,8 @@
                     <button class="filter-chip" data-category="spacing">Spacing</button>
                     <button class="filter-chip" data-category="sizing">Sizing</button>
                     <button class="filter-chip" data-category="typography">Typography</button>
+                    <button class="filter-chip" data-category="gradient">Gradients</button>
+                    <button class="filter-chip" data-category="effect">Effects</button>
                 </div>
             </div>
             <div class="token-tree-container">
@@ -865,14 +929,24 @@
                                 // Replace spaces with hyphens, then convert to lowercase
                                 const tokenName = `--${currentPath.map(p => p.replace(/\s+/g, '-')).join('-').toLowerCase()}`;
                                 
+                                // For boxShadow: prefer resolved value from CSS when available
+                                let displayValue = value.$value;
+                                if (value.$type === 'boxShadow' && cssTokens.has(tokenName)) {
+                                    displayValue = cssTokens.get(tokenName);
+                                }
+                                
                                 tokens.push({
                                     name: tokenName,
-                                    value: value.$value,
+                                    value: displayValue,
                                     type: value.$type,
                                     isComposite: true,
-                                    // For typography, store properties for rendering
+                                    // For typography, store properties for rendering (keep original for composite display)
                                     ...(value.$type === 'typography' && {
                                         typographyProps: value.$value
+                                    }),
+                                    // For boxShadow, keep raw value for client-side conversion fallback
+                                    ...(value.$type === 'boxShadow' && {
+                                        boxShadowValue: value.$value
                                     })
                                 });
                             } else {
@@ -1015,7 +1089,10 @@
                     } else if (category === 'opacity' || category === 'shape') {
                         // Layer 03: UI properties
                         return ['component-ui', category, ...pathParts.slice(2)];
-                    } else if (category === 'text' || category === 'typography' || category === 'surface' || category === 'effect') {
+                    } else if (category === 'surface' || category === 'effect') {
+                        // Layer 03: Surface styles and shadow styles unified under Effects
+                        return ['component-ui', 'effects', ...pathParts.slice(2)];
+                    } else if (category === 'text' || category === 'typography') {
                         // Layer 03: Component-specific tokens
                         return ['component-ui', category, ...pathParts.slice(2)];
                     } else {
@@ -1103,8 +1180,80 @@
                 return node;
             }
             
+            // Build typography style string and sample text for composite typography tokens
+            function getTypographyDisplay(token) {
+                if (!token.typographyProps) return null;
+                const props = token.typographyProps;
+                const styles = [];
+                if (props.fontFamily) {
+                    const fontFamily = props.fontFamily === 'Inter' 
+                        ? "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+                        : props.fontFamily;
+                    styles.push(`font-family: ${fontFamily}`);
+                }
+                if (props.fontSize) {
+                    const fontSize = typeof props.fontSize === 'number' ? `${props.fontSize}px` : props.fontSize;
+                    styles.push(`font-size: ${fontSize}`);
+                }
+                if (props.fontWeight) {
+                    const fontWeightMap = {
+                        'thin': 100, 'hairline': 100, 'extra light': 200, 'extralight': 200,
+                        'light': 300, 'normal': 400, 'regular': 400, 'medium': 500,
+                        'semi bold': 600, 'semibold': 600, 'bold': 700,
+                        'extra bold': 800, 'extrabold': 800, 'black': 900, 'heavy': 900
+                    };
+                    const weight = typeof props.fontWeight === 'string' 
+                        ? (fontWeightMap[props.fontWeight.toLowerCase()] || props.fontWeight)
+                        : props.fontWeight;
+                    styles.push(`font-weight: ${weight}`);
+                }
+                if (props.lineHeight) styles.push(`line-height: ${props.lineHeight}`);
+                if (props.letterSpacing) {
+                    const spacing = props.letterSpacing === '0%' ? '0' : props.letterSpacing;
+                    styles.push(`letter-spacing: ${spacing}`);
+                }
+                if (props.textDecoration) styles.push(`text-decoration: ${props.textDecoration}`);
+                const styleStr = styles.join('; ');
+                const isLink = token.name.includes('-link');
+                const useWrapText = !isLink && props.lineHeight && (
+                    (typeof props.lineHeight === 'string' && parseFloat(props.lineHeight) >= 160) ||
+                    (typeof props.lineHeight === 'number' && props.lineHeight >= 1.6)
+                );
+                let sampleText;
+                if (isLink) sampleText = 'Link text';
+                else if (useWrapText) sampleText = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.';
+                else sampleText = token.name.includes('-h1') ? 'Heading 1' :
+                    token.name.includes('-h2') ? 'Heading 2' :
+                    token.name.includes('-h3') ? 'Heading 3' :
+                    token.name.includes('-body') ? 'The quick brown fox jumps over the lazy dog.' :
+                    token.name.includes('-subtitle') ? 'Subtitle text' :
+                    token.name.includes('-button') ? 'Button text' :
+                    token.name.includes('-caption') ? 'Caption text' :
+                    token.name.includes('-label') ? 'Label text' :
+                    'The quick brown fox';
+                return { styleStr, sampleText };
+            }
+            
+            // Convert DTCG boxShadow object/array to CSS string
+            function boxShadowToCss(value) {
+                const arr = Array.isArray(value) ? value : [value];
+                return arr.map(shadow => {
+                    const { x = 0, y = 0, blur = 0, spread = 0, color = '#000000' } = shadow;
+                    const inset = shadow.type === 'innerShadow' ? 'inset ' : '';
+                    return `${inset}${x}px ${y}px ${blur}px ${spread}px ${color}`;
+                }).join(', ');
+            }
+            
             // Get token category for visual preview
-            function getTokenCategory(name) {
+            function getTokenCategory(name, token) {
+                // Gradient: by path or by value (color type with linear-gradient string)
+                if (name.includes('gradient')) return 'gradient';
+                if (token && token.type === 'color' && typeof token.value === 'string' && token.value.includes('linear-gradient')) {
+                    return 'gradient';
+                }
+                // Effect: surface styles (Nexus-Surface) and shadow styles (Nexus-Effect, MUI-Effect) unified
+                if (name.includes('nexus-surface')) return 'effect';
+                if (name.includes('-effect-')) return 'effect';
                 if (name.includes('-color-')) return 'color';
                 if (name.includes('-opacity-')) return 'opacity';
                 if (name.includes('-spacing-')) return 'spacing';
@@ -1112,10 +1261,10 @@
                 if (name.includes('-font-weight-') || name.includes('-fontweight-')) return 'font-weight';
                 if (name.includes('-font-size-') || name.includes('-fontsize-')) return 'font-size';
                 if (name.includes('-font-family-') || name.includes('-fontfamily-')) return 'font-family';
+                if (name.includes('-line-height-') || name.includes('-lineheight-')) return 'line-height';
                 if (name.includes('-typography-') || name.includes('-text-token-')) return 'typography';
                 if (name.includes('-border-width-') || name.includes('-borderwidth-')) return 'border-width';
                 if (name.includes('-shape-') || name.includes('-radius-') || name.includes('-border-radius-') || name.includes('-borderradius-')) return 'border-radius';
-                if (name.includes('-shadow-') || name.includes('-effect-')) return 'shadow';
                 return 'other';
             }
             
@@ -1123,96 +1272,14 @@
             function renderPreview(token) {
                 // Check if this is a composite token with type metadata
                 if (token.isComposite && token.type === 'typography' && token.typographyProps) {
-                    const props = token.typographyProps;
-                    const styles = [];
-                    
-                    // Font family with fallback
-                    if (props.fontFamily) {
-                        const fontFamily = props.fontFamily === 'Inter' 
-                            ? "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
-                            : props.fontFamily;
-                        styles.push(`font-family: ${fontFamily}`);
-                    }
-                    
-                    // Font size - ensure it has units
-                    if (props.fontSize) {
-                        const fontSize = typeof props.fontSize === 'number' 
-                            ? `${props.fontSize}px` 
-                            : props.fontSize;
-                        styles.push(`font-size: ${fontSize}`);
-                    }
-                    
-                    // Font weight - convert keywords to numbers
-                    if (props.fontWeight) {
-                        const fontWeightMap = {
-                            'thin': 100, 'hairline': 100,
-                            'extra light': 200, 'extralight': 200, 'ultra light': 200, 'ultralight': 200,
-                            'light': 300,
-                            'normal': 400, 'regular': 400,
-                            'medium': 500,
-                            'semi bold': 600, 'semibold': 600, 'demi bold': 600, 'demibold': 600,
-                            'bold': 700,
-                            'extra bold': 800, 'extrabold': 800, 'ultra bold': 800, 'ultrabold': 800,
-                            'black': 900, 'heavy': 900
-                        };
-                        const weight = typeof props.fontWeight === 'string' 
-                            ? (fontWeightMap[props.fontWeight.toLowerCase()] || props.fontWeight)
-                            : props.fontWeight;
-                        styles.push(`font-weight: ${weight}`);
-                    }
-                    
-                    // Line height
-                    if (props.lineHeight) {
-                        styles.push(`line-height: ${props.lineHeight}`);
-                    }
-                    
-                    // Letter spacing - convert 0% to 0
-                    if (props.letterSpacing) {
-                        const spacing = props.letterSpacing === '0%' ? '0' : props.letterSpacing;
-                        styles.push(`letter-spacing: ${spacing}`);
-                    }
-                    
-                    // Text decoration (underline, etc.)
-                    if (props.textDecoration) {
-                        styles.push(`text-decoration: ${props.textDecoration}`);
-                    }
-                    
-                    const styleStr = styles.join('; ');
-                    
-                    // Check if line height is >= 160% to use longer text for wrapping (but not for links)
-                    const lineHeight = props.lineHeight;
-                    const isLink = token.name.includes('-link');
-                    const useWrapText = !isLink && lineHeight && (
-                        (typeof lineHeight === 'string' && parseFloat(lineHeight) >= 160) ||
-                        (typeof lineHeight === 'number' && lineHeight >= 1.6)
-                    );
-                    
-                    let displayText;
-                    if (isLink) {
-                        // Always use "Link text" for links
-                        displayText = 'Link text';
-                    } else if (useWrapText) {
-                        // Use longer lorem ipsum for tokens with high line height
-                        displayText = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.';
-                    } else {
-                        displayText = token.name.includes('-h1') ? 'Heading 1' :
-                                     token.name.includes('-h2') ? 'Heading 2' :
-                                     token.name.includes('-h3') ? 'Heading 3' :
-                                     token.name.includes('-h4') ? 'Heading 4' :
-                                     token.name.includes('-h5') ? 'Heading 5' :
-                                     token.name.includes('-h6') ? 'Heading 6' :
-                                     token.name.includes('-subtitle') ? 'Subtitle text' :
-                                     token.name.includes('-button') ? 'Button text' :
-                                     token.name.includes('-caption') ? 'Caption text' :
-                                     token.name.includes('-label') ? 'Label text' :
-                                     'Body text sample';
-                    }
-                    
-                    const previewContent = `<div class="preview-typography" style="${styleStr}">${displayText}</div>`;
+                    const display = getTypographyDisplay(token);
+                    if (!display) return `<div class="token-leaf-preview"><div class="preview-typography">No preview</div></div>`;
+                    const { styleStr, sampleText } = display;
+                    const previewContent = `<div class="preview-typography" style="${styleStr}">${sampleText}</div>`;
                     return `<div class="token-leaf-preview">${previewContent}</div>`;
                 }
                 
-                const category = getTokenCategory(token.name);
+                const category = getTokenCategory(token.name, token);
                 let previewContent = '';
                 
                 switch (category) {
@@ -1253,7 +1320,13 @@
                         break;
                     
                     case 'font-weight':
-                        previewContent = `<div class="preview-weight" style="font-weight: ${token.value};">Ag</div>`;
+                        const fontWeightValue = (() => {
+                            const v = token.value;
+                            if (typeof v === 'number') return v;
+                            const map = { 'thin': 100, 'light': 300, 'regular': 400, 'medium': 500, 'semibold': 600, 'bold': 700 };
+                            return map[String(v).toLowerCase()] || v;
+                        })();
+                        previewContent = `<div class="preview-weight" style="font-weight: ${fontWeightValue};">Ag</div>`;
                         break;
                     
                     case 'font-size':
@@ -1263,6 +1336,18 @@
                     
                     case 'font-family':
                         previewContent = `<div class="preview-font-family" style="font-family: ${token.value};">Ag</div>`;
+                        break;
+                    
+                    case 'line-height':
+                        // Paragraph-style preview: multiple lines to show line-height spacing
+                        let lineHeightValue = token.value;
+                        if (typeof lineHeightValue === 'string' && lineHeightValue.endsWith('px')) {
+                            const num = parseFloat(lineHeightValue);
+                            if (num >= 0.5 && num <= 3) lineHeightValue = String(num);
+                        }
+                        previewContent = `<div class="preview-line-height" style="line-height: ${lineHeightValue}; font-size: 1rem;">
+                            The quick brown fox jumps over the lazy dog. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                        </div>`;
                         break;
                     
                     case 'typography':
@@ -1275,8 +1360,19 @@
                         }
                         break;
                     
-                    case 'shadow':
-                        previewContent = `<div class="preview-shadow" style="box-shadow: ${token.value};"></div>`;
+                    case 'gradient':
+                        previewContent = `<div class="preview-gradient" style="background: ${token.value};"></div>`;
+                        break;
+                    
+                    case 'effect':
+                        // Surface tokens: semi-transparent colors, use color swatch
+                        if (token.name.includes('nexus-surface')) {
+                            previewContent = `<div class="preview-swatch" style="background-color: ${token.value};"></div>`;
+                        } else {
+                            // Shadow tokens: use CSS string or convert from raw object
+                            const shadowCss = typeof token.value === 'string' ? token.value : (token.boxShadowValue ? boxShadowToCss(token.boxShadowValue) : '');
+                            previewContent = `<div class="preview-shadow" style="box-shadow: ${shadowCss};"></div>`;
+                        }
                         break;
                     
                     default:
@@ -1313,7 +1409,11 @@
                         'color-ramps': 'Color Ramps',
                         'scales': 'Base Scales',
                         'semantic-system': 'Alias',
-                        'component-ui': 'Mapped'
+                        'component-ui': 'Mapped',
+                        'effects': 'Effects',
+                        'gradient': 'Gradients',
+                        'type': 'Text Style Preview',
+                        'texttoken': 'Text Token Properties'
                     };
                     
                     label.textContent = layerNames[key.toLowerCase()] || key;
@@ -1331,7 +1431,7 @@
                     childrenUl.className = 'tree-children';
                     
                     // Custom sort order for architectural layers within nexus
-                    const layerSortOrder = ['primitives', 'semantic-system', 'component-ui'];
+                    const layerSortOrder = ['primitives', 'semantic-system', 'component-ui', 'effects', 'gradient'];
                     const childKeys = Object.keys(node).filter(k => k !== '_tokens');
                     
                     const sortedChildKeys = childKeys.sort((a, b) => {
@@ -1366,41 +1466,26 @@
                             const originalValue = metadata?.original || token.value;
                             let resolvedValue = token.value;
                             
-                            // Special handling for composite typography tokens
-                            let typographyDetails = null;
+                            // Special handling for composite typography tokens - show styled sample instead of raw values
+                            let typographyDisplay = null;
                             if (token.isComposite && token.type === 'typography' && token.typographyProps) {
-                                const props = token.typographyProps;
-                                const parts = [];
-                                if (props.fontFamily) parts.push(`family: ${props.fontFamily}`);
-                                if (props.fontSize) parts.push(`size: ${props.fontSize}px`);
-                                if (props.fontWeight) parts.push(`weight: ${props.fontWeight}`);
-                                if (props.lineHeight) parts.push(`line-height: ${props.lineHeight}`);
-                                if (props.textDecoration && props.textDecoration !== 'none') parts.push(`decoration: ${props.textDecoration}`);
-                                resolvedValue = parts.join(' • ');
-                                
-                                // Build detailed breakdown for typography tokens
-                                const detailParts = [];
-                                if (props.fontFamily) detailParts.push(`Font Family: ${props.fontFamily}`);
-                                if (props.fontSize) detailParts.push(`Font Size: ${props.fontSize}px`);
-                                if (props.fontWeight) detailParts.push(`Font Weight: ${props.fontWeight}`);
-                                if (props.lineHeight) detailParts.push(`Line Height: ${props.lineHeight}`);
-                                if (props.letterSpacing) detailParts.push(`Letter Spacing: ${props.letterSpacing}`);
-                                if (props.textDecoration && props.textDecoration !== 'none') detailParts.push(`Text Decoration: ${props.textDecoration}`);
-                                if (props.textCase && props.textCase !== 'none') detailParts.push(`Text Case: ${props.textCase}`);
-                                typographyDetails = detailParts.join(' | ');
+                                typographyDisplay = getTypographyDisplay(token);
                             }
                             
                             // Check if this token references another token
                             const isReference = String(originalValue).includes('{') && String(originalValue).includes('}');
                             
-                            // Build the card: 1) VISUAL PREVIEW (hero), 2) TOKEN NAME, 3) REFERENCE (if exists), 4) RESOLVED VALUE
+                            // Build the card: 1) VISUAL PREVIEW (hero), 2) TOKEN NAME, 3) REFERENCE (if exists), 4) RESOLVED VALUE or styled sample
                             let infoHTML = '';
                             
-                            if (typographyDetails) {
-                                // For typography tokens, show detailed breakdown
+                            if (typographyDisplay) {
+                                // For typography tokens: preview shows the style; label uses consistent label style (no inheritance)
+                                // Include last segment (e.g. "subtle", "h1") for legibility within each category
+                                const segments = token.name.replace(/^--/, '').split('-');
+                                const lastSegment = segments.length ? segments[segments.length - 1] : '';
+                                const friendlyLabel = lastSegment ? (lastSegment.match(/^h[1-6]$/i) ? lastSegment.toUpperCase() : lastSegment.charAt(0).toUpperCase() + lastSegment.slice(1)) : '';
                                 infoHTML = `
-                                    <div class="token-leaf-name">${token.name}</div>
-                                    <div class="token-leaf-value">${typographyDetails}</div>
+                                    <div class="token-leaf-label-text">${token.name}${friendlyLabel ? ` <span class="token-leaf-category">· ${friendlyLabel}</span>` : ''}</div>
                                 `;
                             } else if (isReference) {
                                 // Show token name, then reference, then resolved value
@@ -1417,8 +1502,9 @@
                                 `;
                             }
                             
+                            const tokenCategory = getTokenCategory(token.name, token);
                             tokenLi.innerHTML = `
-                                <div class="token-leaf">
+                                <div class="token-leaf" data-category="${tokenCategory}">
                                     ${renderPreview(token)}
                                     <div class="token-leaf-info">
                                         ${infoHTML}
@@ -1561,7 +1647,7 @@
                 // First pass: Show/hide token leaves based on filters
                 leaves.forEach(leaf => {
                     const name = leaf.querySelector('.token-leaf-name').textContent.toLowerCase();
-                    const category = getTokenCategory(name);
+                    const category = leaf.dataset?.category || getTokenCategory(name);
                     
                     const matchesSearch = name.includes(searchTerm) || searchTerm === '';
                     const matchesCategory = activeCategory === 'all' || category === activeCategory;
