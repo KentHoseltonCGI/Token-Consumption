@@ -324,6 +324,10 @@
             --chip-bg-active: var(--nexus-color-teal-600, #029bd1);
         }
 
+        .filter-chip[data-category="surface"] {
+            background: var(--nexus-color-background-surface-tertiary, #d1d7e3);
+            color: var(--nexus-color-content-primary, #17191c);
+        }
         .filter-chip[data-category="effect"] {
             --chip-color: var(--nexus-color-deep-blue-800, #15227a);
             --chip-bg-hover: var(--nexus-color-deep-blue-100, #e0ebff);
@@ -737,6 +741,13 @@
             background-size: cover;
         }
 
+        .preview-surface {
+            width: 100%;
+            height: 80px;
+            border-radius: var(--nexus-shape-border-radius-xs, 8px);
+            min-height: 80px;
+        }
+
         .preview-weight {
             font-size: var(--nexus-text-token-h2-font-size, 2.5rem);
             font-weight: inherit;
@@ -923,6 +934,10 @@
                                     // For boxShadow, keep raw value for client-side conversion fallback
                                     ...(value.$type === 'boxShadow' && {
                                         boxShadowValue: value.$value
+                                    }),
+                                    // For surface, store fill + effect for combined preview
+                                    ...(value.$type === 'surface' && {
+                                        surfaceProps: value.$value
                                     })
                                 });
                             } else {
@@ -1008,12 +1023,12 @@
                 treeSortOrder: ['nexus', 'mui', 'ios'],
                 categoryDisplayNames: {
                     color: 'Colors', opacity: 'Opacity', spacing: 'Spacing', sizing: 'Sizing',
-                    typography: 'Typography', gradient: 'Gradients', effect: 'Effects',
+                    typography: 'Typography', gradient: 'Gradients', surface: 'Surface', effect: 'Effects',
                     'font-weight': 'Font Weight', 'font-family': 'Font Family', 'font-size': 'Font Size',
                     'line-height': 'Line Height', 'border-width': 'Border Width', 'border-radius': 'Border Radius',
                     other: 'Other'
                 },
-                defaultFilterCategories: ['color', 'opacity', 'spacing', 'sizing', 'typography', 'gradient', 'effect']
+                defaultFilterCategories: ['color', 'opacity', 'spacing', 'sizing', 'typography', 'gradient', 'surface', 'effect']
             };
             
             // Build hierarchical tree - PASSTHROUGH: mirrors source structure, no hardcoded categorization
@@ -1169,6 +1184,7 @@
                 
                 // 2. DTCG type-driven (primary)
                 if (type === 'gradient') return 'gradient';
+                if (type === 'surface') return 'surface';
                 if (type === 'boxshadow' || type === 'shadow') return 'effect';
                 if (type === 'typography') return 'typography';
                 if (type === 'color') return 'color';
@@ -1189,6 +1205,7 @@
                 
                 // 3. Name-based fallback (tokens without $type, e.g. from CSS)
                 if (n.includes('gradient')) return 'gradient';
+                if (n.includes('nexus-surface') || (n.includes('surface') && n.includes('effect'))) return 'surface';
                 if (n.includes('effect') || n.includes('shadow')) return 'effect';
                 if (n.includes('surface') && n.includes('color')) return 'effect';
                 if (n.includes('color')) return 'color';
@@ -1215,6 +1232,34 @@
                     const singleLineClass = singleLine ? ' preview-typography-single-line' : '';
                     const previewContent = `<div class="preview-typography${singleLineClass}" style="${styleStr}">${sampleText}</div>`;
                     return `<div class="token-leaf-preview">${previewContent}</div>`;
+                }
+                
+                // Surface: MUI elevation.bg + paper-overlay layered (consumption-layer only; source tokens unchanged)
+                if (token.isComposite && token.type === 'surface' && token.surfaceProps) {
+                    const n = (token.name || '').replace(/^--/, '').toLowerCase();
+                    const overlayMap = {
+                        'nexus-surface-sm': 'elevation-1',
+                        'nexus-surface-md': 'elevation-2',
+                        'nexus-surface-lg': 'elevation-4',
+                        'nexus-surface-subtle': 'elevation-0',
+                        'nexus-surface-outline': 'elevation-0'
+                    };
+                    const shadowMap = {
+                        'nexus-surface-sm': 'var(--mui-effect-elevation-1)',
+                        'nexus-surface-md': 'var(--mui-effect-elevation-2)',
+                        'nexus-surface-lg': 'var(--mui-effect-elevation-4)',
+                        'nexus-surface-subtle': 'var(--nexus-effect-bottom-shadow-subtle)',
+                        'nexus-surface-outline': 'var(--mui-effect-elevation-0)'
+                    };
+                    const overlayKey = overlayMap[n];
+                    const overlayVar = overlayKey ? `var(--mui-color-paper-overlay-${overlayKey}, transparent)` : 'transparent';
+                    const shadowVar = shadowMap[n] || 'none';
+                    const isOutline = n.includes('outline');
+                    const borderCss = isOutline ? '1px solid var(--mui-color-elevation-outlined, #e4e8f2)' : 'none';
+                    const bgVar = 'var(--mui-color-elevation-bg, #ffffff)';
+                    const overlayGradient = overlayKey ? `linear-gradient(to bottom, ${overlayVar}, ${overlayVar})` : 'none';
+                    const styleStr = `background-color: ${bgVar}; background-image: ${overlayGradient}; box-shadow: ${shadowVar}; border: ${borderCss};`;
+                    return `<div class="token-leaf-preview"><div class="preview-surface" style="${styleStr}"></div></div>`;
                 }
                 
                 const category = getTokenCategory(token.name, token);
@@ -1397,15 +1442,18 @@
                                 typographyDisplay = getTypographyDisplay(tokenForPreview);
                             }
                             
+                            // Surface tokens: preview shows combined fill+effect; label uses consistent label style
+                            const isSurfaceToken = token.isComposite && token.type === 'surface' && token.surfaceProps;
+                            
                             // Check if this token references another token
-                            const isReference = String(originalValue).includes('{') && String(originalValue).includes('}');
+                            const isReference = !isSurfaceToken && String(originalValue).includes('{') && String(originalValue).includes('}');
                             
                             // Build the card: 1) VISUAL PREVIEW (hero), 2) TOKEN NAME, 3) REFERENCE (if exists), 4) RESOLVED VALUE or styled sample
                             let infoHTML = '';
                             
-                            if (typographyDisplay) {
-                                // For typography tokens: preview shows the style; label uses consistent label style (no inheritance)
-                                // Include last segment (e.g. "subtle", "h1") for legibility within each category
+                            if (typographyDisplay || isSurfaceToken) {
+                                // For typography/surface: preview shows the style; label uses consistent label style (no inheritance)
+                                // Include last segment (e.g. "subtle", "h1", "sm") for legibility within each category
                                 const segments = token.name.replace(/^--/, '').split('-');
                                 const lastSegment = segments.length ? segments[segments.length - 1] : '';
                                 const friendlyLabel = lastSegment ? (lastSegment.match(/^h[1-6]$/i) ? lastSegment.toUpperCase() : lastSegment.charAt(0).toUpperCase() + lastSegment.slice(1)) : '';
@@ -1511,7 +1559,7 @@
             tokens.forEach(t => categories.add(getTokenCategory(t.name, t)));
             const categoryList = tokens.length > 0
                 ? Array.from(categories).filter(c => c !== 'other').sort((a, b) => {
-                    const order = ['color', 'typography', 'gradient', 'effect', 'opacity', 'spacing', 'sizing', 'font-weight', 'font-family', 'font-size', 'line-height', 'border-width', 'border-radius'];
+                    const order = ['color', 'typography', 'gradient', 'surface', 'effect', 'opacity', 'spacing', 'sizing', 'font-weight', 'font-family', 'font-size', 'line-height', 'border-width', 'border-radius'];
                     const ai = order.indexOf(a);
                     const bi = order.indexOf(b);
                     if (ai !== -1 && bi !== -1) return ai - bi;
