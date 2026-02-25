@@ -83,8 +83,100 @@ StyleDictionary.registerTransform({
 
 // Source files — auto-discover from tokens folder; use $metadata.json tokenSetOrder when present
 const TOKENS_BASE = path.join(process.cwd(), 'Nexus-Source-Tokens/tokens');
+const TOKEN_SOURCES_DIR = path.join(process.cwd(), 'dist', '.token-sources');
+
+const PALETTE_LIGHT = '03 Palette ✅/light';
+const PALETTE_DARK = '03 Palette ✅/dark';
+const ALIAS_PREFIX = '02 Alias ✅/';
+
+/** Ensure dist/.token-sources exists for build-time temp files */
+function ensureTokenSourcesDir() {
+  if (!fs.existsSync(TOKEN_SOURCES_DIR)) {
+    fs.mkdirSync(TOKEN_SOURCES_DIR, { recursive: true });
+  }
+}
+
+/** Expand tokens.json into separate files per set; return paths for light or dark (excludes opposite palette) */
+function getSourceFilesFromTokensJson() {
+  const tokensPath = path.join(TOKENS_BASE, 'tokens.json');
+  if (!fs.existsSync(tokensPath)) return null;
+
+  const raw = JSON.parse(fs.readFileSync(tokensPath, 'utf8'));
+  const tokenSetOrder = raw.$metadata?.tokenSetOrder || [];
+  ensureTokenSourcesDir();
+
+  const lightSets = tokenSetOrder.filter((k) => k !== PALETTE_DARK);
+  const darkSets = tokenSetOrder.filter((k) => k !== PALETTE_LIGHT);
+
+  const lightPaths = [];
+  const darkPaths = [];
+
+  for (const setKey of tokenSetOrder) {
+    if (setKey.startsWith('$')) continue;
+    const tokenSet = raw[setKey];
+    if (!tokenSet) continue;
+
+    const filePath = path.join(TOKEN_SOURCES_DIR, `${setKey}.json`);
+    fs.mkdirSync(path.dirname(filePath), { recursive: true });
+    fs.writeFileSync(filePath, JSON.stringify(tokenSet, null, 2));
+
+    if (lightSets.includes(setKey)) lightPaths.push(filePath);
+    if (darkSets.includes(setKey)) darkPaths.push(filePath);
+  }
+
+  return { light: lightPaths, dark: darkPaths };
+}
+
+/** Expand tokens.json into separate files for a specific alias; return path list for light or dark.
+ *  IMPORTANT: 02 Alias ✅/Mode must come BEFORE the selected brand alias so the brand's
+ *  system.primary (e.g. deepBlue for myQ) overrides Mode's default (teal). */
+function getSourceFilesFromTokensJsonForAlias(alias, theme) {
+  const tokensPath = path.join(TOKENS_BASE, 'tokens.json');
+  if (!fs.existsSync(tokensPath)) return null;
+
+  const raw = JSON.parse(fs.readFileSync(tokensPath, 'utf8'));
+  const tokenSetOrder = raw.$metadata?.tokenSetOrder || [];
+  ensureTokenSourcesDir();
+
+  const paletteToExclude = theme === 'light' ? PALETTE_DARK : PALETTE_LIGHT;
+  const aliasSetKey = `${ALIAS_PREFIX}${alias}`;
+  const modeSetKey = `${ALIAS_PREFIX}Mode`;
+
+  // Collect sets to include, then reorder: Mode must come before the selected alias
+  const setsToInclude = [];
+  for (const setKey of tokenSetOrder) {
+    if (setKey.startsWith('$')) continue;
+    if (setKey === paletteToExclude) continue;
+    if (setKey.startsWith(ALIAS_PREFIX) && setKey !== aliasSetKey && setKey !== modeSetKey) continue;
+    setsToInclude.push(setKey);
+  }
+
+  // Reorder: put Mode before the selected brand alias so brand overrides Mode's defaults
+  const modeIdx = setsToInclude.indexOf(modeSetKey);
+  const aliasIdx = setsToInclude.indexOf(aliasSetKey);
+  if (modeIdx !== -1 && aliasIdx !== -1 && modeIdx > aliasIdx) {
+    setsToInclude.splice(modeIdx, 1);
+    setsToInclude.splice(aliasIdx, 0, modeSetKey);
+  }
+
+  const paths = [];
+  for (const setKey of setsToInclude) {
+    const tokenSet = raw[setKey];
+    if (!tokenSet) continue;
+
+    const filePath = path.join(TOKEN_SOURCES_DIR, `${setKey}.json`);
+    fs.mkdirSync(path.dirname(filePath), { recursive: true });
+    fs.writeFileSync(filePath, JSON.stringify(tokenSet, null, 2));
+    paths.push(filePath);
+  }
+
+  return paths;
+}
 
 function getSourceFiles() {
+  const fromTokens = getSourceFilesFromTokensJson();
+  if (fromTokens) return fromTokens;
+
   const metadataPath = path.join(TOKENS_BASE, '$metadata.json');
   let orderedKeys = [];
 
@@ -100,12 +192,12 @@ function getSourceFiles() {
   }
 
   if (orderedKeys.length === 0) {
-    // Fallback: glob all JSON, exclude $metadata, sort by path
     const allFiles = [];
     function walk(dir) {
       const entries = fs.readdirSync(dir, { withFileTypes: true });
       for (const e of entries) {
         const full = path.join(dir, e.name);
+        if (full.includes('.build-temp')) continue;
         if (e.isDirectory()) walk(full);
         else if (e.name.endsWith('.json') && e.name !== '$metadata.json') {
           allFiles.push(path.relative(TOKENS_BASE, full));
@@ -156,6 +248,15 @@ const ALIAS_NAMES = ['myQ', 'Community', 'LiftMaster Pro', 'Enterprise'];
 
 /** Get source files filtered to a single alias (excludes other aliases so that alias wins) */
 function getSourceFilesForAlias(alias) {
+  const tokensPath = path.join(TOKENS_BASE, 'tokens.json');
+  if (fs.existsSync(tokensPath)) {
+    const lightPaths = getSourceFilesFromTokensJsonForAlias(alias, 'light');
+    const darkPaths = getSourceFilesFromTokensJsonForAlias(alias, 'dark');
+    if (lightPaths?.length && darkPaths?.length) {
+      return { light: lightPaths, dark: darkPaths };
+    }
+  }
+
   const metadataPath = path.join(TOKENS_BASE, '$metadata.json');
   let orderedKeys = [];
 
@@ -176,6 +277,7 @@ function getSourceFilesForAlias(alias) {
       const entries = fs.readdirSync(dir, { withFileTypes: true });
       for (const e of entries) {
         const full = path.join(dir, e.name);
+        if (full.includes('.build-temp')) continue;
         if (e.isDirectory()) walk(full);
         else if (e.name.endsWith('.json') && e.name !== '$metadata.json') {
           allFiles.push(path.relative(TOKENS_BASE, full));
@@ -188,7 +290,6 @@ function getSourceFilesForAlias(alias) {
 
   const lightSources = [];
   const darkSources = [];
-  const aliasPrefix = '02 Alias ✅/';
 
   for (const key of orderedKeys) {
     const filePath = path.join(TOKENS_BASE, `${key}.json`);
@@ -198,10 +299,9 @@ function getSourceFilesForAlias(alias) {
     if (key === '$metadata' || key.endsWith('/$metadata')) continue;
     if (!fs.existsSync(filePath)) continue;
 
-    // If this is an alias file (e.g. "02 Alias ✅/X" or ".build-temp/02 Alias ✅/X"), include only the selected alias (and Mode, which is shared)
-    const aliasIdx = key.indexOf(aliasPrefix);
+    const aliasIdx = key.indexOf(ALIAS_PREFIX);
     if (aliasIdx !== -1) {
-      const afterPrefix = key.slice(aliasIdx + aliasPrefix.length);
+      const afterPrefix = key.slice(aliasIdx + ALIAS_PREFIX.length);
       const aliasKey = afterPrefix.split('/')[0]; // e.g. "Community" or "myQ"
       if (aliasKey !== alias && aliasKey !== 'Mode') continue;
     }

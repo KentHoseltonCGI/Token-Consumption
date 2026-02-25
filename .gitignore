@@ -5,6 +5,7 @@ package-lock.json
 # Generated files
 dist/css/
 dist/json/
+dist/.token-sources/
 dist/ios/
 dist/android/
 
