@@ -25,9 +25,13 @@
             font-size: var(--nexus-text-token-body-md-default-font-size, 0.875rem);
             font-weight: var(--nexus-typography-font-weight-regular, 400);
             line-height: var(--nexus-text-token-body-md-default-line-height, 1.6);
-            background: var(--nexus-color-background-surface-secondary, #f2f5fa);
+            /* gradient-bg-light/dark don't switch with theme — apply manually via data-theme */
+            background: var(--gradient-bg-light, linear-gradient(180deg, #e0eeff 0%, #f2f5fa 100%));
             color: var(--nexus-color-content-primary, #17191c);
             padding: var(--nexus-spacing-4, 1rem) var(--nexus-spacing-4, 1rem) 0 var(--nexus-spacing-4, 1rem);
+        }
+        [data-theme="dark"] body {
+            background: var(--gradient-bg-dark, linear-gradient(180deg, #222429 0%, #0f0f0f 100%));
         }
 
         .container {
@@ -240,119 +244,48 @@
             flex-wrap: wrap;
         }
 
+        /* Filter chips: semantic palette only — works in light and dark modes */
         .filter-chip {
-            --chip-color: var(--nexus-color-content-secondary, #575d69);
-            --chip-bg-hover: var(--nexus-color-background-surface-subtle, #d1d7e3);
-            --chip-bg-active: var(--nexus-color-content-secondary, #575d69);
             padding: var(--nexus-spacing-2, 0.5rem) var(--nexus-spacing-4, 1rem);
-            border: none;
-            border-radius: var(--nexus-shape-border-radius-round, 9999px);
-            background: var(--nexus-color-background-surface-tertiary, #e4e8f2);
+            border: var(--nexus-shape-border-width-default, 1px) solid var(--nexus-color-border-muted, #e4e8f2);
+            border-radius: var(--nexus-shape-border-radius-round, 320px);
+            background: var(--nexus-color-background-surface-primary, #ffffff);
+            color: var(--nexus-color-content-secondary, #575d69);
             cursor: pointer;
             font: var(--nexus-label-md, 500 14px/1 Inter);
-            color: var(--chip-color);
-            transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+            transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
             user-select: none;
         }
 
         .filter-chip:hover {
-            transform: translateY(-1px);
+            background: var(--nexus-color-background-surface-subtle, #e4e8f2);
+            color: var(--nexus-color-content-primary, #17191c);
+            border-color: var(--nexus-color-border-default, #babfcc);
         }
 
         .filter-chip:active {
-            transform: translateY(0) scale(0.98);
+            background: var(--nexus-color-background-surface-tertiary, #e4e8f2);
         }
 
         .filter-chip:focus-visible {
-            outline: 2px solid var(--nexus-color-border-focused, #3660d0);
+            outline: var(--nexus-shape-border-width-emphasized, 2px) solid var(--nexus-color-border-focused, #3660d0);
             outline-offset: 2px;
         }
 
         .filter-chip.active {
-            background: var(--chip-bg-active);
+            background: var(--nexus-color-background-surface-inverse, #32363d);
             color: var(--nexus-color-content-on-color, #f2f5fa);
+            border-color: var(--nexus-color-border-contrast, #222429);
             font-weight: var(--nexus-typography-font-weight-semibold, 600);
-            box-shadow: var(--nexus-effect-bottom-shadow-sm, 0 1px 4px 0 rgba(0,0,0,0.12));
-        }
-        /* Colored chips: bg is always dark (e.g. deep-blue-700) — use system-white for reliable contrast in both themes */
-        .filter-chip[data-category="all"].active,
-        .filter-chip[data-category="color"].active,
-        .filter-chip[data-category="opacity"].active,
-        .filter-chip[data-category="spacing"].active,
-        .filter-chip[data-category="sizing"].active,
-        .filter-chip[data-category="typography"].active,
-        .filter-chip[data-category="gradient"].active,
-        .filter-chip[data-category="effect"].active {
-            color: var(--nexus-color-system-white, #ffffff);
         }
 
         .filter-chip.active:hover {
-            filter: brightness(1.08);
-            transform: translateY(-1px);
-        }
-
-        .filter-chip.active:active {
-            transform: translateY(0) scale(0.98);
-        }
-
-        .filter-chip[data-category="all"] {
-            --chip-color: var(--nexus-color-content-primary, #17191c);
-            --chip-bg-active: var(--nexus-color-content-link, #172dbd);
-        }
-
-        .filter-chip[data-category="color"] {
-            --chip-color: var(--nexus-color-deep-blue-700, #17289c);
-            --chip-bg-hover: var(--nexus-color-deep-blue-100, #e0ebff);
-            --chip-bg-active: var(--nexus-color-deep-blue-700, #17289c);
-        }
-
-        .filter-chip[data-category="opacity"] {
-            --chip-color: var(--nexus-color-deep-green-600, #13ae5c);
-            --chip-bg-hover: var(--nexus-color-deep-green-100, #e0fff2);
-            --chip-bg-active: var(--nexus-color-deep-green-600, #13ae5c);
-        }
-
-        .filter-chip[data-category="spacing"] {
-            --chip-color: var(--nexus-color-yellow-700, #d78207);
-            --chip-bg-hover: var(--nexus-color-yellow-100, #ffeedb);
-            --chip-bg-active: var(--nexus-color-yellow-700, #d78207);
-        }
-
-        .filter-chip[data-category="sizing"] {
-            --chip-color: var(--nexus-color-red-700, #c61735);
-            --chip-bg-hover: var(--nexus-color-red-100, #ffe9e8);
-            --chip-bg-active: var(--nexus-color-red-700, #c61735);
-        }
-
-        .filter-chip[data-category="typography"] {
-            --chip-color: var(--nexus-color-blue-700, #05549e);
-            --chip-bg-hover: var(--nexus-color-blue-100, #e0eeff);
-            --chip-bg-active: var(--nexus-color-blue-700, #05549e);
-        }
-
-        .filter-chip[data-category="gradient"] {
-            --chip-color: var(--nexus-color-teal-600, #029bd1);
-            --chip-bg-hover: var(--nexus-color-teal-100, #def7ff);
-            --chip-bg-active: var(--nexus-color-teal-600, #029bd1);
-        }
-
-        .filter-chip[data-category="surface"] {
-            --chip-color: var(--nexus-color-content-primary, #17191c);
-            --chip-bg-hover: var(--nexus-color-background-surface-secondary, #f2f5fa);
-            --chip-bg-active: var(--nexus-color-background-surface-inverse, #434343);
-        }
-        .filter-chip[data-category="surface"].active {
+            background: var(--nexus-color-background-surface-inverse-dark, #222429);
             color: var(--nexus-color-content-on-color, #f2f5fa);
         }
-        .filter-chip[data-category="effect"] {
-            --chip-color: var(--nexus-color-deep-blue-800, #15227a);
-            --chip-bg-hover: var(--nexus-color-deep-blue-100, #e0ebff);
-            --chip-bg-active: var(--nexus-color-deep-blue-800, #15227a);
-        }
 
-        .filter-chip:not(.active):hover {
-            background: var(--chip-bg-hover);
-            color: var(--chip-color);
+        .filter-chip.active:focus-visible {
+            outline-color: var(--nexus-color-border-focused, #3660d0);
         }
 
         .filter-actions {
@@ -679,7 +612,7 @@
 
         .token-leaf-value[title] {
             cursor: help;
-            border-bottom: var(--nexus-shape-border-width-default, 1px) dotted var(--nexus-color-content-secondary, #575d69);
+            border-bottom: var(--nexus-shape-border-width-default, 1px) dotted var(--nexus-color-border-default, #babfcc);
         }
 
         .preview-opacity {
@@ -710,7 +643,7 @@
             min-height: 80px;
             max-height: 320px;
             border-radius: var(--nexus-shape-border-radius-xxs, 4px);
-            border: var(--nexus-shape-border-width-emphasized, 2px) dashed var(--nexus-color-deep-blue-400, #6c90e5);
+            border: var(--nexus-shape-border-width-emphasized, 2px) dashed var(--nexus-color-border-focused, #3660d0);
             background: transparent;
             display: flex;
             align-items: center;
@@ -737,7 +670,7 @@
             width: 100%;
             height: 80px;
             background: var(--nexus-color-background-surface-primary, #ffffff);
-            border: solid var(--nexus-color-content-link, #172dbd);
+            border: solid var(--nexus-color-border-active, #172dbd);
             border-radius: var(--nexus-shape-border-radius-xxs, 4px);
             box-shadow: var(--nexus-effect-center-shadow-md, 0 0 12px 0 rgba(0,0,0,0.12));
         }
@@ -821,14 +754,98 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
+
+        /* App tabs: Token Viewer | Component Showcase */
+        .app-tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: var(--nexus-spacing-4, 1rem);
+            border-bottom: var(--nexus-shape-border-width-default, 1px) solid var(--nexus-color-border-muted, #e4e8f2);
+        }
+        .app-tab {
+            padding: var(--nexus-spacing-2, 0.5rem) var(--nexus-spacing-4, 1rem);
+            font: var(--nexus-label-md, 500 14px/1 Inter);
+            color: var(--nexus-color-content-secondary, #575d69);
+            background: none;
+            border: none;
+            border-bottom: var(--nexus-shape-border-width-emphasized, 2px) solid transparent;
+            cursor: pointer;
+            transition: color 0.15s ease, border-color 0.15s ease;
+            margin-bottom: -1px;
+        }
+        .app-tab:hover {
+            color: var(--nexus-color-content-primary, #17191c);
+        }
+        .app-tab.active {
+            color: var(--nexus-color-content-link, #172dbd);
+            border-bottom-color: var(--nexus-color-border-active, #172dbd);
+            font-weight: var(--nexus-typography-font-weight-semibold, 600);
+        }
+        .app-panel {
+            display: none;
+            flex-direction: column;
+            flex: 1;
+            min-height: 0;
+            overflow: hidden;
+        }
+        .app-panel.active {
+            display: flex;
+        }
+
+        /* Alias theme dropdown */
+        .alias-select-wrapper {
+            display: flex;
+            align-items: center;
+            gap: var(--nexus-spacing-2, 0.5rem);
+        }
+        .alias-select-wrapper label {
+            font: var(--nexus-label-sm, 500 12px/1 Inter);
+            color: var(--nexus-color-content-secondary, #575d69);
+            white-space: nowrap;
+        }
+        .alias-select {
+            padding: var(--nexus-spacing-1, 0.25rem) var(--nexus-spacing-2, 0.5rem);
+            padding-right: 2rem;
+            border: var(--nexus-shape-border-width-default, 1px) solid var(--nexus-color-border-muted, #e4e8f2);
+            border-radius: var(--nexus-shape-border-radius-xxs, 4px);
+            font: var(--nexus-label-md, 500 14px/1 Inter);
+            color: var(--nexus-color-content-primary, #17191c);
+            background: var(--nexus-color-background-surface-primary, #ffffff);
+            cursor: pointer;
+            min-width: 120px;
+        }
+        .alias-select:hover {
+            border-color: var(--nexus-color-border-focused, #3660d0);
+        }
+        .alias-select:focus {
+            outline: none;
+            border-color: var(--nexus-color-border-focused, #3660d0);
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        <nav class="app-tabs" role="tablist" aria-label="App sections">
+            <button class="app-tab active" role="tab" aria-selected="true" data-panel="token-viewer">Token Viewer</button>
+            <button class="app-tab" role="tab" aria-selected="false" data-panel="component-showcase">Component Showcase</button>
+        </nav>
+        <div class="app-panel active" id="panel-token-viewer" role="tabpanel">
         <div class="section">
             <div class="section-header">
                 <h2>Nexus Design Tokens</h2>
-                <span class="token-count" id="token-count">0 tokens</span>
+                <div style="display: flex; align-items: center; gap: var(--nexus-spacing-4, 1rem);">
+                    <div class="alias-select-wrapper">
+                        <label for="alias-select">Theme</label>
+                        <select class="alias-select" id="alias-select" aria-label="Select alias theme">
+                            <option value="myQ">myQ</option>
+                            <option value="Community" disabled>Community (coming soon)</option>
+                            <option value="LiftMaster Pro" disabled>LiftMaster Pro (coming soon)</option>
+                            <option value="Enterprise" disabled>Enterprise (coming soon)</option>
+                        </select>
+                    </div>
+                    <button class="filter-btn theme-toggle" id="theme-toggle" title="Toggle light/dark mode" aria-label="Toggle theme">☀️</button>
+                    <span class="token-count" id="token-count">0 tokens</span>
+                </div>
             </div>
             <div class="filter-bar">
                 <div class="filter-top-row">
@@ -837,7 +854,6 @@
                         <button class="search-clear" id="search-clear" title="Clear search">×</button>
                     </div>
                     <div class="filter-actions">
-                        <button class="filter-btn theme-toggle" id="theme-toggle" title="Toggle light/dark mode" aria-label="Toggle theme">☀️</button>
                         <button class="filter-btn" id="expand-all">Expand All</button>
                         <button class="filter-btn" id="collapse-all">Collapse All</button>
                     </div>
@@ -848,6 +864,15 @@
             </div>
             <div class="token-tree-container">
                 <ul class="token-tree" id="token-tree"></ul>
+            </div>
+        </div>
+        </div>
+        <div class="app-panel section" id="panel-component-showcase" role="tabpanel">
+            <div class="section-header">
+                <h2>Component Showcase</h2>
+            </div>
+            <div class="component-showcase-content" style="flex: 1; display: flex; align-items: center; justify-content: center; color: var(--nexus-color-content-tertiary, #8a909e); font: var(--nexus-body-md-subtle, 400 14px/1.6 Inter);">
+                Component showcase coming soon.
             </div>
         </div>
     </div>
@@ -1272,7 +1297,7 @@
                     const overlayVar = overlayKey ? `var(--mui-color-paper-overlay-${overlayKey}, transparent)` : 'transparent';
                     const shadowVar = shadowMap[n] || 'none';
                     const isOutline = n.includes('outline');
-                    const borderCss = isOutline ? '1px solid var(--mui-color-elevation-outlined, #e4e8f2)' : 'none';
+                    const borderCss = isOutline ? '1px solid var(--nexus-color-border-muted, #e4e8f2)' : 'none';
                     const bgVar = 'var(--mui-color-elevation-bg, #ffffff)';
                     const overlayGradient = overlayKey ? `linear-gradient(to bottom, ${overlayVar}, ${overlayVar})` : 'none';
                     const styleStr = `background-color: ${bgVar}; background-image: ${overlayGradient}; box-shadow: ${shadowVar}; border: ${borderCss};`;
@@ -1384,10 +1409,12 @@
             }
             
             // Render tree node recursively
-            function renderTreeNode(key, node, depth = 0) {
+            function renderTreeNode(key, node, depth = 0, path = []) {
                 const li = document.createElement('li');
                 li.className = 'tree-node';
                 li.setAttribute('data-key', key.toLowerCase());
+                const nodePath = [...path, key];
+                const pathStr = nodePath.join('.');
                 
                 // Check if this node has children or tokens
                 const hasChildren = Object.keys(node).some(k => k !== '_tokens');
@@ -1420,6 +1447,7 @@
                     
                     const childrenUl = document.createElement('ul');
                     childrenUl.className = 'tree-children';
+                    li.setAttribute('data-path', pathStr);
                     
                     const childKeys = Object.keys(node).filter(k => k !== '_tokens');
                     const sortOrder = tokenViewerConfig.treeSortOrder || [];
@@ -1436,7 +1464,7 @@
                     
                     // Render child branches
                     sortedChildKeys.forEach(childKey => {
-                        childrenUl.appendChild(renderTreeNode(childKey, node[childKey], depth + 1));
+                        childrenUl.appendChild(renderTreeNode(childKey, node[childKey], depth + 1, nodePath));
                     });
                     
                     // Render leaf tokens
@@ -1625,6 +1653,42 @@
                 updateThemeToggleIcon();
                 if (reRenderTokenTree) reRenderTokenTree();
             });
+
+            // App tab switching
+            let activeAlias = localStorage.getItem('tokenViewerAlias') || 'myQ';
+            const appTabs = document.querySelectorAll('.app-tab');
+            const appPanels = document.querySelectorAll('.app-panel');
+            appTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const panelId = tab.dataset.panel;
+                    appTabs.forEach(t => {
+                        t.classList.remove('active');
+                        t.setAttribute('aria-selected', 'false');
+                    });
+                    appPanels.forEach(p => {
+                        p.classList.remove('active');
+                    });
+                    tab.classList.add('active');
+                    tab.setAttribute('aria-selected', 'true');
+                    document.getElementById(`panel-${panelId}`).classList.add('active');
+                });
+            });
+
+            // Alias theme dropdown (future-proofed: only myQ supported for now)
+            const aliasSelect = document.getElementById('alias-select');
+            aliasSelect.value = activeAlias;
+            aliasSelect.addEventListener('change', () => {
+                const value = aliasSelect.value;
+                if (value === 'myQ') {
+                    activeAlias = value;
+                    localStorage.setItem('tokenViewerAlias', value);
+                    // Future: reload tokens when other aliases are built; re-render will preserve tree state
+                    if (reRenderTokenTree) reRenderTokenTree();
+                } else {
+                    console.warn(`Alias "${value}" not yet built. Using myQ.`);
+                    aliasSelect.value = 'myQ';
+                }
+            });
             
             // Filter chip functionality
             let activeCategory = 'all';
@@ -1733,13 +1797,37 @@
                 }
             }
             
+            // Capture expanded tree paths before re-render (for theme/alias toggle)
+            function getExpandedPaths() {
+                const paths = new Set();
+                document.querySelectorAll('.tree-children.expanded').forEach(childrenEl => {
+                    const node = childrenEl.closest('.tree-node');
+                    if (node && node.dataset.path) paths.add(node.dataset.path);
+                });
+                return paths;
+            }
+            function restoreExpandedPaths(paths) {
+                if (!paths || paths.size === 0) return;
+                paths.forEach(pathStr => {
+                    const node = document.querySelector(`.tree-node[data-path="${pathStr}"]`);
+                    if (node) {
+                        const children = node.querySelector(':scope > .tree-children');
+                        const toggle = node.querySelector(':scope > .tree-header .tree-toggle');
+                        if (children) children.classList.add('expanded');
+                        if (toggle) toggle.classList.add('expanded');
+                    }
+                });
+            }
+
             // Expose re-render for theme toggle (rebuilds tree with theme-specific previews)
             reRenderTokenTree = function() {
+                const expandedPaths = getExpandedPaths();
                 treeContainer.innerHTML = '';
                 sortedKeys.forEach(key => {
                     treeContainer.appendChild(renderTreeNode(key, tree[key]));
                 });
                 applyFilters();
+                restoreExpandedPaths(expandedPaths);
             };
         }
     </script>
