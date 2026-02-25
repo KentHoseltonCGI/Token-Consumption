@@ -114,7 +114,8 @@
 
         .token-count {
             font: var(--nexus-label-sm, 500 12px/1 Inter);
-            background: var(--nexus-color-background-surface-tertiary, #d1d7e3);
+            color: var(--nexus-color-content-primary, #17191c);
+            background: var(--nexus-color-background-surface-tertiary, #e4e8f2);
             padding: var(--nexus-spacing-1, 0.25rem) var(--nexus-sizing-62, 0.625rem);
             border-radius: var(--nexus-shape-border-radius-round, 320px);
         }
@@ -269,9 +270,20 @@
 
         .filter-chip.active {
             background: var(--chip-bg-active);
-            color: var(--nexus-color-system-white, #ffffff);
+            color: var(--nexus-color-content-on-color, #f2f5fa);
             font-weight: var(--nexus-typography-font-weight-semibold, 600);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+            box-shadow: var(--nexus-effect-bottom-shadow-sm, 0 1px 4px 0 rgba(0,0,0,0.12));
+        }
+        /* Colored chips: bg is always dark (e.g. deep-blue-700) — use system-white for reliable contrast in both themes */
+        .filter-chip[data-category="all"].active,
+        .filter-chip[data-category="color"].active,
+        .filter-chip[data-category="opacity"].active,
+        .filter-chip[data-category="spacing"].active,
+        .filter-chip[data-category="sizing"].active,
+        .filter-chip[data-category="typography"].active,
+        .filter-chip[data-category="gradient"].active,
+        .filter-chip[data-category="effect"].active {
+            color: var(--nexus-color-system-white, #ffffff);
         }
 
         .filter-chip.active:hover {
@@ -325,8 +337,12 @@
         }
 
         .filter-chip[data-category="surface"] {
-            background: var(--nexus-color-background-surface-tertiary, #d1d7e3);
-            color: var(--nexus-color-content-primary, #17191c);
+            --chip-color: var(--nexus-color-content-primary, #17191c);
+            --chip-bg-hover: var(--nexus-color-background-surface-secondary, #f2f5fa);
+            --chip-bg-active: var(--nexus-color-background-surface-inverse, #434343);
+        }
+        .filter-chip[data-category="surface"].active {
+            color: var(--nexus-color-content-on-color, #f2f5fa);
         }
         .filter-chip[data-category="effect"] {
             --chip-color: var(--nexus-color-deep-blue-800, #15227a);
@@ -428,6 +444,7 @@
         .badge-sizing { background: var(--nexus-color-background-error-subtle, #ffe9e8); color: var(--nexus-color-red-700, #c61735); }
         .badge-typography { background: var(--nexus-color-background-secondary-subtle, #e0eeff); color: var(--nexus-color-blue-700, #05549e); }
         .badge-effect { background: var(--nexus-color-background-primary-subtle, #e0ebff); color: var(--nexus-color-deep-blue-800, #15227a); }
+        .badge-surface { background: var(--nexus-color-background-surface-tertiary, #e4e8f2); color: var(--nexus-color-content-primary, #17191c); }
         .badge-gradient { background: var(--nexus-color-teal-100, #def7ff); color: var(--nexus-color-teal-600, #029bd1); }
 
         /* Tree View Styles */
@@ -491,7 +508,7 @@
             margin-left: var(--nexus-spacing-3, 0.75rem);
             font: var(--nexus-caption-sm, 400 12px/1.6 Inter);
             color: var(--nexus-color-content-secondary, #575d69);
-            background: var(--nexus-color-background-surface-tertiary, #d1d7e3);
+            background: var(--nexus-color-background-surface-tertiary, #e4e8f2);
             padding: var(--nexus-spacing-1, 0.125rem) var(--nexus-spacing-2, 0.5rem);
             border-radius: var(--nexus-shape-border-radius-round, 320px);
             font-weight: var(--nexus-typography-font-weight-medium, 500);
