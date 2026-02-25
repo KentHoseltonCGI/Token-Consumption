@@ -76,25 +76,30 @@ StyleDictionary.registerTransform({
   }
 });
 
-// Source token files - update when adding new token sets
-const SOURCE_FILES = [
-  'Nexus-Source-Tokens/tokens/01 Primitive ✅/Mode 1.json',
-  'Nexus-Source-Tokens/tokens/01 rem ✅/Mode 1.json',
-  'Nexus-Source-Tokens/tokens/02 Alias ✅/myQ.json',
-  'Nexus-Source-Tokens/tokens/03 Palette ✅/light.json',
-  'Nexus-Source-Tokens/tokens/03 Responsive ✅/Larger Breakpoint.json',
-  'Nexus-Source-Tokens/tokens/03 Mapped ✅/Mode 1.json'
-];
+// Load source config - designers can add new token files here without editing build.js
+const sourceConfigPath = path.join(process.cwd(), 'source-config.json');
+const sourceConfig = JSON.parse(fs.readFileSync(sourceConfigPath, 'utf8'));
+const basePath = path.join(process.cwd(), sourceConfig.basePath);
 
-// Dark palette variant - same as SOURCE_FILES but with dark.json instead of light.json
-const SOURCE_FILES_DARK = [
-  'Nexus-Source-Tokens/tokens/01 Primitive ✅/Mode 1.json',
-  'Nexus-Source-Tokens/tokens/01 rem ✅/Mode 1.json',
-  'Nexus-Source-Tokens/tokens/02 Alias ✅/myQ.json',
-  'Nexus-Source-Tokens/tokens/03 Palette ✅/dark.json',
-  'Nexus-Source-Tokens/tokens/03 Responsive ✅/Larger Breakpoint.json',
-  'Nexus-Source-Tokens/tokens/03 Mapped ✅/Mode 1.json'
-];
+function resolveSourcePaths(fileList) {
+  return fileList.map((f) => path.join(basePath, f));
+}
+
+function getDesignerImports() {
+  if (!sourceConfig.designerImportsFolder) return [];
+  const importsDir = path.join(basePath, sourceConfig.designerImportsFolder);
+  if (!fs.existsSync(importsDir)) return [];
+  const files = fs.readdirSync(importsDir).filter((f) => f.endsWith('.json') && !f.startsWith('.'));
+  return files.map((f) => path.join(importsDir, f));
+}
+
+const designerImports = getDesignerImports();
+const SOURCE_FILES = [...resolveSourcePaths(sourceConfig.light), ...designerImports];
+const SOURCE_FILES_DARK = [...resolveSourcePaths(sourceConfig.dark), ...designerImports];
+
+if (designerImports.length > 0) {
+  console.log(`📁 Designer imports included: ${designerImports.length} file(s)`);
+}
 
 // Custom format to preserve typography composite tokens with metadata
 StyleDictionary.registerFormat({
