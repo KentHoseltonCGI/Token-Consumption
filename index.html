@@ -809,6 +809,7 @@
                         <button class="search-clear" id="search-clear" title="Clear search">×</button>
                     </div>
                     <div class="filter-actions">
+                        <button class="filter-btn theme-toggle" id="theme-toggle" title="Toggle light/dark mode" aria-label="Toggle theme">☀️</button>
                         <button class="filter-btn" id="expand-all">Expand All</button>
                         <button class="filter-btn" id="collapse-all">Collapse All</button>
                     </div>
@@ -838,37 +839,59 @@
         
         // Parse CSS custom properties and metadata
         let tokens = [];
+        let tokensLight = [];
+        let tokensDark = [];
         let tokenMetadata = {};
+        let theme = localStorage.getItem('tokenViewerTheme') || 'light';
+        function applyTheme() { document.documentElement.dataset.theme = theme; }
+        function getTokenByName(arr, name) { return arr.find(t => t.name === name); }
+        let reRenderTokenTree = null;
         
-        // Fetch both CSS and metadata JSON
+        // Fetch combined CSS and both preserved JSON files
         Promise.all([
             fetch('dist/css/tokens.css').then(r => {
                 if (!r.ok) throw new Error('Failed to load CSS');
                 return r.text();
             }),
-            fetch('dist/json/tokens-preserved.json').then(r => {
-                if (!r.ok) throw new Error('Failed to load preserved tokens');
+            fetch('dist/json/tokens-preserved-light.json').then(r => {
+                if (!r.ok) throw new Error('Failed to load preserved light tokens');
+                return r.json();
+            }),
+            fetch('dist/json/tokens-preserved-dark.json').then(r => {
+                if (!r.ok) throw new Error('Failed to load preserved dark tokens');
                 return r.json();
             })
         ])
-            .then(([css, preservedTokens]) => {
-                console.log('Loaded CSS and preserved tokens successfully');
+            .then(([css, preservedLight, preservedDark]) => {
+                console.log('Loaded CSS and preserved tokens (light + dark) successfully');
                 
-                // Parse CSS custom properties for reference
+                // Parse CSS: extract :root (light) and [data-theme="dark"] (dark) blocks
                 const tokenRegex = /--([^:]+):\s*([^;]+);/g;
-                const cssTokens = new Map();
-                let match;
+                const cssTokensLight = new Map();
+                const cssTokensDark = new Map();
                 
-                while ((match = tokenRegex.exec(css)) !== null) {
-                    const tokenName = `--${match[1].trim()}`;
-                    const resolvedValue = match[2].trim();
-                    cssTokens.set(tokenName, resolvedValue);
+                const rootMatch = css.match(/:root\s*\{([\s\S]*?)\}(?=\s*\[|\s*$)/);
+                const darkMatch = css.match(/\[data-theme="dark"\]\s*\{([\s\S]*)\}/);
+                
+                if (rootMatch) {
+                    let m;
+                    tokenRegex.lastIndex = 0;
+                    while ((m = tokenRegex.exec(rootMatch[1])) !== null) {
+                        cssTokensLight.set(`--${m[1].trim()}`, m[2].trim());
+                    }
+                }
+                if (darkMatch) {
+                    tokenRegex.lastIndex = 0;
+                    let m;
+                    while ((m = tokenRegex.exec(darkMatch[1])) !== null) {
+                        cssTokensDark.set(`--${m[1].trim()}`, m[2].trim());
+                    }
                 }
                 
-                console.log(`Parsed ${cssTokens.size} tokens from CSS`);
+                console.log(`Parsed ${cssTokensLight.size} light tokens, ${cssTokensDark.size} dark tokens from CSS`);
                 
-                // Process preserved tokens recursively
-                function processPreservedTokens(obj, path = []) {
+                // Process preserved tokens recursively into target array
+                function processPreservedTokens(obj, cssTokens, targetArr, path = []) {
                     for (const key in obj) {
                         if (key.startsWith('$')) continue; // Skip metadata at this level
                         
@@ -888,7 +911,7 @@
                                     displayValue = cssTokens.get(tokenName);
                                 }
                                 
-                                tokens.push({
+                                targetArr.push({
                                     name: tokenName,
                                     value: displayValue,
                                     type: value.$type,
@@ -904,7 +927,7 @@
                                 });
                             } else {
                                 // Not a token, recurse into nested group
-                                processPreservedTokens(value, currentPath);
+                                processPreservedTokens(value, cssTokens, targetArr, currentPath);
                             }
                         } else if (value !== undefined && value !== null) {
                             // Regular token (no $type wrapper)
@@ -914,7 +937,7 @@
                             // Get resolved value from CSS if available
                             const resolvedValue = cssTokens.get(tokenName) || value;
                             
-                            tokens.push({
+                            targetArr.push({
                                 name: tokenName,
                                 value: resolvedValue,
                                 original: value
@@ -923,9 +946,11 @@
                     }
                 }
                 
-                processPreservedTokens(preservedTokens);
+                processPreservedTokens(preservedLight, cssTokensLight, tokensLight);
+                processPreservedTokens(preservedDark, cssTokensDark, tokensDark);
+                tokens = tokensLight; // Tree structure from light; tokensDark used for dark preview
                 
-                console.log(`Processed ${tokens.length} tokens from preserved JSON`);
+                console.log(`Processed ${tokensLight.length} light, ${tokensDark.length} dark tokens from preserved JSON`);
                 
                 // Build metadata map for reference tooltips
                 function buildMetadataMap(obj, map, path = []) {
@@ -954,9 +979,12 @@
                         console.error('Error building metadata map:', e);
                     }
                 }
-                buildMetadataMap(preservedTokens, tokenMetadata);
+                buildMetadataMap(preservedLight, tokenMetadata);
                 
                 console.log(`Built metadata for ${Object.keys(tokenMetadata).length} tokens`);
+                
+                // Apply theme before first paint
+                applyTheme();
                 
                 // Initialize the UI after tokens are loaded
                 initializeUI();
@@ -1355,15 +1383,18 @@
                             const tokenLi = document.createElement('li');
                             tokenLi.className = 'tree-node';
                             
+                            // Use theme-specific token for both preview and displayed value (so hex/values update with theme)
+                            const tokenForPreview = getTokenByName(theme === 'dark' ? tokensDark : tokensLight, token.name) || token;
+                            
                             // Check if we have metadata for this token
                             const metadata = tokenMetadata[token.name];
                             const originalValue = metadata?.original || token.value;
-                            let resolvedValue = token.value;
+                            let resolvedValue = tokenForPreview.value;
                             
                             // Special handling for composite typography tokens - show styled sample instead of raw values
                             let typographyDisplay = null;
                             if (token.isComposite && token.type === 'typography' && token.typographyProps) {
-                                typographyDisplay = getTypographyDisplay(token);
+                                typographyDisplay = getTypographyDisplay(tokenForPreview);
                             }
                             
                             // Check if this token references another token
@@ -1395,11 +1426,10 @@
                                     <div class="token-leaf-value">${resolvedValue}</div>
                                 `;
                             }
-                            
                             const tokenCategory = getTokenCategory(token.name, token);
                             tokenLi.innerHTML = `
                                 <div class="token-leaf" data-category="${tokenCategory}">
-                                    ${renderPreview(token)}
+                                    ${renderPreview(tokenForPreview)}
                                     <div class="token-leaf-info">
                                         ${infoHTML}
                                     </div>
@@ -1516,6 +1546,21 @@
                 });
             });
             
+            // Theme toggle
+            const themeToggleBtn = document.getElementById('theme-toggle');
+            function updateThemeToggleIcon() {
+                themeToggleBtn.textContent = theme === 'dark' ? '☀️' : '🌙';
+                themeToggleBtn.setAttribute('aria-label', theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+            }
+            updateThemeToggleIcon();
+            themeToggleBtn.addEventListener('click', () => {
+                theme = theme === 'light' ? 'dark' : 'light';
+                localStorage.setItem('tokenViewerTheme', theme);
+                applyTheme();
+                updateThemeToggleIcon();
+                if (reRenderTokenTree) reRenderTokenTree();
+            });
+            
             // Filter chip functionality
             let activeCategory = 'all';
             const filterChips = document.querySelectorAll('.filter-chip');
@@ -1622,6 +1667,15 @@
                     });
                 }
             }
+            
+            // Expose re-render for theme toggle (rebuilds tree with theme-specific previews)
+            reRenderTokenTree = function() {
+                treeContainer.innerHTML = '';
+                sortedKeys.forEach(key => {
+                    treeContainer.appendChild(renderTreeNode(key, tree[key]));
+                });
+                applyFilters();
+            };
         }
     </script>
 </body>
