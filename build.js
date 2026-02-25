@@ -146,6 +146,85 @@ function getSourceFiles() {
   return { light: lightSources, dark: darkSources };
 }
 
+// Alias names from tokenSetOrder (02 Alias ✅/X) — used for per-alias builds
+const ALIAS_NAMES = ['myQ', 'Community', 'LiftMaster Pro', 'Enterprise'];
+
+/** Get source files filtered to a single alias (excludes other aliases so that alias wins) */
+function getSourceFilesForAlias(alias) {
+  const metadataPath = path.join(TOKENS_BASE, '$metadata.json');
+  let orderedKeys = [];
+
+  if (fs.existsSync(metadataPath)) {
+    try {
+      const metadata = JSON.parse(fs.readFileSync(metadataPath, 'utf8'));
+      if (metadata.tokenSetOrder && Array.isArray(metadata.tokenSetOrder)) {
+        orderedKeys = metadata.tokenSetOrder;
+      }
+    } catch (e) {
+      console.warn('[build] Could not parse $metadata.json:', e.message);
+    }
+  }
+
+  if (orderedKeys.length === 0) {
+    const allFiles = [];
+    function walk(dir) {
+      const entries = fs.readdirSync(dir, { withFileTypes: true });
+      for (const e of entries) {
+        const full = path.join(dir, e.name);
+        if (e.isDirectory()) walk(full);
+        else if (e.name.endsWith('.json') && e.name !== '$metadata.json') {
+          allFiles.push(path.relative(TOKENS_BASE, full));
+        }
+      }
+    }
+    walk(TOKENS_BASE);
+    orderedKeys = allFiles.map((f) => f.replace(/\.json$/, '')).sort();
+  }
+
+  const lightSources = [];
+  const darkSources = [];
+  const aliasPrefix = '02 Alias ✅/';
+
+  for (const key of orderedKeys) {
+    const filePath = path.join(TOKENS_BASE, `${key}.json`);
+    const relPath = `${key}.json`;
+    const lower = relPath.toLowerCase();
+
+    if (key === '$metadata' || key.endsWith('/$metadata')) continue;
+    if (!fs.existsSync(filePath)) continue;
+
+    // If this is an alias file (e.g. "02 Alias ✅/X" or ".build-temp/02 Alias ✅/X"), include only the selected alias (and Mode, which is shared)
+    const aliasIdx = key.indexOf(aliasPrefix);
+    if (aliasIdx !== -1) {
+      const afterPrefix = key.slice(aliasIdx + aliasPrefix.length);
+      const aliasKey = afterPrefix.split('/')[0]; // e.g. "Community" or "myQ"
+      if (aliasKey !== alias && aliasKey !== 'Mode') continue;
+    }
+
+    if (lower.includes('palette') && lower.includes('light')) {
+      lightSources.push(filePath);
+      continue;
+    }
+    if (lower.includes('palette') && lower.includes('dark')) {
+      darkSources.push(filePath);
+      continue;
+    }
+
+    lightSources.push(filePath);
+    darkSources.push(filePath);
+  }
+
+  if (!lightSources.length) {
+    throw new Error(`No token files found for alias "${alias}".`);
+  }
+  const hasDarkPalette = darkSources.some((p) => p.toLowerCase().includes('palette') && p.toLowerCase().includes('dark'));
+  if (!hasDarkPalette) {
+    throw new Error('No dark palette found.');
+  }
+
+  return { light: lightSources, dark: darkSources };
+}
+
 const { light: SOURCE_FILES, dark: SOURCE_FILES_DARK } = getSourceFiles();
 
 // Custom format to preserve typography composite tokens with metadata
@@ -511,25 +590,31 @@ const sdPreservedDark = new StyleDictionary({
   }
 });
 
-// Combine light and dark CSS into single tokens.css with [data-theme="dark"] overrides
-function combineTokensCss() {
-  const cssDir = path.join(process.cwd(), 'dist', 'css');
-  const lightPath = path.join(cssDir, 'tokens-light.css');
-  const darkPath = path.join(cssDir, 'tokens-dark.css');
-  const outPath = path.join(cssDir, 'tokens.css');
-
-  const lightCss = fs.readFileSync(lightPath, 'utf8');
-  const darkCss = fs.readFileSync(darkPath, 'utf8');
-
-  // Extract variable content from dark :root block (strip :root { and })
-  const darkMatch = darkCss.match(/:root\s*\{([\s\S]*)\}/);
-  const darkVars = darkMatch ? darkMatch[1].trim() : darkCss;
-
-  const combined = `${lightCss.trim()}\n\n[data-theme="dark"] {\n  ${darkVars.split('\n').join('\n  ')}\n}\n`;
-  fs.writeFileSync(outPath, combined);
+/** Slug for alias (used in filenames and data-alias) */
+function aliasToSlug(alias) {
+  return alias.toLowerCase().replace(/\s+/g, '-');
 }
 
-// Clean and build all configurations
+// Combine per-alias CSS into single tokens.css with [data-alias="X"] and [data-theme="dark"][data-alias="X"] blocks
+function combineTokensCssPerAlias(aliasCssMap) {
+  const cssDir = path.join(process.cwd(), 'dist', 'css');
+  const outPath = path.join(cssDir, 'tokens.css');
+  const parts = [];
+
+  for (const [alias, { light, dark }] of Object.entries(aliasCssMap)) {
+    const lightMatch = light.match(/:root\s*\{([\s\S]*)\}/);
+    const darkMatch = dark.match(/:root\s*\{([\s\S]*)\}/);
+    const lightVars = lightMatch ? lightMatch[1].trim() : light;
+    const darkVars = darkMatch ? darkMatch[1].trim() : dark;
+    const slug = aliasToSlug(alias);
+    parts.push(`[data-alias="${slug}"] {\n  ${lightVars.split('\n').join('\n  ')}\n}`);
+    parts.push(`[data-theme="dark"][data-alias="${slug}"] {\n  ${darkVars.split('\n').join('\n  ')}\n}`);
+  }
+
+  fs.writeFileSync(outPath, parts.join('\n\n'));
+}
+
+// Clean and build default (myQ) for backward compatibility
 await sdExpanded.cleanAllPlatforms();
 await sdExpanded.buildAllPlatforms();
 
@@ -540,7 +625,88 @@ console.log('\n📦 Building preserved composite tokens...');
 await sdPreserved.buildAllPlatforms();
 await sdPreservedDark.buildAllPlatforms();
 
-console.log('\n📦 Combining tokens.css (light + dark)...');
-await combineTokensCss();
+// Per-alias builds: CSS and preserved JSON for each theme
+const aliasCssMap = {};
+const jsonDir = path.join(process.cwd(), 'dist', 'json');
+const cssDir = path.join(process.cwd(), 'dist', 'css');
 
-console.log('\n✅ Build complete! Check dist/css/tokens.css, tokens-light.css, tokens-dark.css and dist/json/tokens-preserved-*.json');
+for (const alias of ALIAS_NAMES) {
+  console.log(`\n📦 Building alias: ${alias}...`);
+  const { light: srcLight, dark: srcDark } = getSourceFilesForAlias(alias);
+  const slug = aliasToSlug(alias);
+
+  const sdAliasLight = new StyleDictionary({
+    source: srcLight,
+    preprocessors: ['tokens-studio'],
+    log: { warnings: 'warn', verbosity: 'default' },
+    platforms: {
+      css: {
+        transformGroup: 'tokens-studio',
+        transforms: [
+          'ts/descriptionToComment', 'ts/size/px', 'ts/opacity', 'ts/size/lineheight',
+          'ts/resolveMath', 'ts/size/css/letterspacing', 'ts/color/css/hexrgba', 'ts/color/modifiers',
+          'name/kebab', 'nexus/opacity/normalize', 'nexus/fontWeight/normalize'
+        ],
+        buildPath: cssDir + '/',
+        files: [{ destination: `tokens-${slug}-light.css`, format: 'css/variables', options: { outputReferences: false } }]
+      }
+    }
+  });
+
+  const sdAliasDark = new StyleDictionary({
+    source: srcDark,
+    preprocessors: ['tokens-studio'],
+    log: { warnings: 'warn', verbosity: 'default' },
+    platforms: {
+      css: {
+        transformGroup: 'tokens-studio',
+        transforms: [
+          'ts/descriptionToComment', 'ts/size/px', 'ts/opacity', 'ts/size/lineheight',
+          'ts/resolveMath', 'ts/size/css/letterspacing', 'ts/color/css/hexrgba', 'ts/color/modifiers',
+          'name/kebab', 'nexus/opacity/normalize', 'nexus/fontWeight/normalize'
+        ],
+        buildPath: cssDir + '/',
+        files: [{ destination: `tokens-${slug}-dark.css`, format: 'css/variables', options: { outputReferences: false } }]
+      }
+    }
+  });
+
+  const sdPreservedAliasLight = new StyleDictionary({
+    source: srcLight,
+    log: { warnings: 'warn', verbosity: 'default' },
+    platforms: {
+      'json-preserved': {
+        transforms: ['name/kebab'],
+        buildPath: jsonDir + '/',
+        files: [{ destination: `tokens-preserved-${slug}-light.json`, format: 'json/nested-with-types' }]
+      }
+    }
+  });
+
+  const sdPreservedAliasDark = new StyleDictionary({
+    source: srcDark,
+    log: { warnings: 'warn', verbosity: 'default' },
+    platforms: {
+      'json-preserved': {
+        transforms: ['name/kebab'],
+        buildPath: jsonDir + '/',
+        files: [{ destination: `tokens-preserved-${slug}-dark.json`, format: 'json/nested-with-types' }]
+      }
+    }
+  });
+
+  await sdAliasLight.buildAllPlatforms();
+  await sdAliasDark.buildAllPlatforms();
+  await sdPreservedAliasLight.buildAllPlatforms();
+  await sdPreservedAliasDark.buildAllPlatforms();
+
+  aliasCssMap[alias] = {
+    light: fs.readFileSync(path.join(cssDir, `tokens-${slug}-light.css`), 'utf8'),
+    dark: fs.readFileSync(path.join(cssDir, `tokens-${slug}-dark.css`), 'utf8')
+  };
+}
+
+console.log('\n📦 Combining tokens.css (all aliases)...');
+combineTokensCssPerAlias(aliasCssMap);
+
+console.log('\n✅ Build complete! dist/css/tokens.css, dist/json/tokens-preserved-{alias}-light.json, tokens-preserved-{alias}-dark.json');

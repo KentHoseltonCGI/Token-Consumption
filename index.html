@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-alias="myq" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -838,9 +838,9 @@
                         <label for="alias-select">Theme</label>
                         <select class="alias-select" id="alias-select" aria-label="Select alias theme">
                             <option value="myQ">myQ</option>
-                            <option value="Community" disabled>Community (coming soon)</option>
-                            <option value="LiftMaster Pro" disabled>LiftMaster Pro (coming soon)</option>
-                            <option value="Enterprise" disabled>Enterprise (coming soon)</option>
+                            <option value="Community">Community</option>
+                            <option value="LiftMaster Pro">LiftMaster Pro</option>
+                            <option value="Enterprise">Enterprise</option>
                         </select>
                     </div>
                     <button class="filter-btn theme-toggle" id="theme-toggle" title="Toggle light/dark mode" aria-label="Toggle theme">☀️</button>
@@ -896,54 +896,73 @@
         let tokensDark = [];
         let tokenMetadata = {};
         let theme = localStorage.getItem('tokenViewerTheme') || 'light';
-        function applyTheme() { document.documentElement.dataset.theme = theme; }
+        function applyTheme() { document.documentElement.setAttribute('data-theme', theme); }
         function getTokenByName(arr, name) { return arr.find(t => t.name === name); }
         let reRenderTokenTree = null;
+        const ALIASES = ['myQ', 'Community', 'LiftMaster Pro', 'Enterprise'];
+        function aliasToSlug(a) { return a.toLowerCase().replace(/\s+/g, '-'); }
+        let tokensByAlias = {}; // { slug: { light: [], dark: [], metadata: {} } }
         
-        // Fetch combined CSS and both preserved JSON files
-        Promise.all([
-            fetch('dist/css/tokens.css').then(r => {
-                if (!r.ok) throw new Error('Failed to load CSS');
-                return r.text();
-            }),
-            fetch('dist/json/tokens-preserved-light.json').then(r => {
-                if (!r.ok) throw new Error('Failed to load preserved light tokens');
-                return r.json();
-            }),
-            fetch('dist/json/tokens-preserved-dark.json').then(r => {
-                if (!r.ok) throw new Error('Failed to load preserved dark tokens');
-                return r.json();
-            })
-        ])
-            .then(([css, preservedLight, preservedDark]) => {
-                console.log('Loaded CSS and preserved tokens (light + dark) successfully');
+        // Fetch combined CSS and all per-alias preserved JSON files
+        const cssPromise = fetch('dist/css/tokens.css').then(r => {
+            if (!r.ok) throw new Error('Failed to load CSS');
+            return r.text();
+        });
+        const jsonPromises = ALIASES.flatMap(alias => {
+            const slug = aliasToSlug(alias);
+            return [
+                fetch(`dist/json/tokens-preserved-${slug}-light.json`).then(r => r.ok ? r.json() : null),
+                fetch(`dist/json/tokens-preserved-${slug}-dark.json`).then(r => r.ok ? r.json() : null)
+            ];
+        });
+        
+        Promise.all([cssPromise, ...jsonPromises])
+            .then(([css, ...jsonResults]) => {
+                console.log('Loaded CSS and preserved tokens for all aliases');
                 
-                // Parse CSS: extract :root (light) and [data-theme="dark"] (dark) blocks
+                // Parse CSS: extract [data-alias="X"] (light) and [data-theme="dark"][data-alias="X"] (dark) blocks per alias
                 const tokenRegex = /--([^:]+):\s*([^;]+);/g;
-                const cssTokensLight = new Map();
-                const cssTokensDark = new Map();
-                
-                const rootMatch = css.match(/:root\s*\{([\s\S]*?)\}(?=\s*\[|\s*$)/);
-                const darkMatch = css.match(/\[data-theme="dark"\]\s*\{([\s\S]*)\}/);
-                
-                if (rootMatch) {
-                    let m;
+                function parseCssBlock(content) {
+                    const m = new Map();
+                    let match;
                     tokenRegex.lastIndex = 0;
-                    while ((m = tokenRegex.exec(rootMatch[1])) !== null) {
-                        cssTokensLight.set(`--${m[1].trim()}`, m[2].trim());
+                    while ((match = tokenRegex.exec(content)) !== null) {
+                        m.set(`--${match[1].trim()}`, match[2].trim());
                     }
-                }
-                if (darkMatch) {
-                    tokenRegex.lastIndex = 0;
-                    let m;
-                    while ((m = tokenRegex.exec(darkMatch[1])) !== null) {
-                        cssTokensDark.set(`--${m[1].trim()}`, m[2].trim());
-                    }
+                    return m;
                 }
                 
-                console.log(`Parsed ${cssTokensLight.size} light tokens, ${cssTokensDark.size} dark tokens from CSS`);
+                const cssTokensByAlias = {};
+                // Light blocks: [data-alias="X"] { } — NOT [data-theme="dark"][data-alias="X"]
+                const lightBlockRe = /(?<!\[data-theme="dark"\])\[data-alias="([^"]+)"\]\s*\{([\s\S]*?)\}(?=\s*\[data-theme="dark"\]\[data-alias=|\s*\[data-alias=|\s*$)/g;
+                const darkBlockRe = /\[data-theme="dark"\]\[data-alias="([^"]+)"\]\s*\{([\s\S]*?)\}(?=\s*\[data-alias=|\s*$)/g;
+                let lm;
+                while ((lm = lightBlockRe.exec(css)) !== null) {
+                    cssTokensByAlias[lm[1]] = cssTokensByAlias[lm[1]] || {};
+                    cssTokensByAlias[lm[1]].light = parseCssBlock(lm[2]);
+                }
+                while ((lm = darkBlockRe.exec(css)) !== null) {
+                    cssTokensByAlias[lm[1]] = cssTokensByAlias[lm[1]] || {};
+                    cssTokensByAlias[lm[1]].dark = parseCssBlock(lm[2]);
+                }
                 
                 // Process preserved tokens recursively into target array
+                for (let i = 0; i < ALIASES.length; i++) {
+                    const alias = ALIASES[i];
+                    const slug = aliasToSlug(alias);
+                    const preservedLight = jsonResults[i * 2];
+                    const preservedDark = jsonResults[i * 2 + 1];
+                    const cssLight = (cssTokensByAlias[slug] || {}).light || new Map();
+                    const cssDark = (cssTokensByAlias[slug] || {}).dark || new Map();
+                    if (!preservedLight || !preservedDark) continue;
+                    const arrLight = [], arrDark = [];
+                    processPreservedTokens(preservedLight, cssLight, arrLight);
+                    processPreservedTokens(preservedDark, cssDark, arrDark);
+                    const meta = {};
+                    buildMetadataMap(preservedLight, meta);
+                    tokensByAlias[slug] = { light: arrLight, dark: arrDark, metadata: meta };
+                }
+                
                 function processPreservedTokens(obj, cssTokens, targetArr, path = []) {
                     for (const key in obj) {
                         if (key.startsWith('$')) continue; // Skip metadata at this level
@@ -958,11 +977,8 @@
                                 // Replace spaces with hyphens, then convert to lowercase
                                 const tokenName = `--${currentPath.map(p => p.replace(/\s+/g, '-')).join('-').toLowerCase()}`;
                                 
-                                // For boxShadow: prefer resolved value from CSS when available
-                                let displayValue = value.$value;
-                                if (value.$type === 'boxShadow' && cssTokens.has(tokenName)) {
-                                    displayValue = cssTokens.get(tokenName);
-                                }
+                                // Prefer resolved value from CSS when available (colors, boxShadow, etc.)
+                                let displayValue = cssTokens.has(tokenName) ? cssTokens.get(tokenName) : value.$value;
                                 
                                 targetArr.push({
                                     name: tokenName,
@@ -1003,29 +1019,17 @@
                     }
                 }
                 
-                processPreservedTokens(preservedLight, cssTokensLight, tokensLight);
-                processPreservedTokens(preservedDark, cssTokensDark, tokensDark);
-                tokens = tokensLight; // Tree structure from light; tokensDark used for dark preview
-                
-                console.log(`Processed ${tokensLight.length} light, ${tokensDark.length} dark tokens from preserved JSON`);
-                
-                // Build metadata map for reference tooltips
                 function buildMetadataMap(obj, map, path = []) {
                     try {
                         if (obj && typeof obj === 'object') {
                             for (const key in obj) {
                                 if (key.startsWith('$')) continue;
-                                
                                 const value = obj[key];
                                 const currentPath = [...path, key];
-                                
                                 if (value && typeof value === 'object') {
                                     if (value.$value !== undefined) {
-                                        const tokenName = `--${currentPath.join('-').toLowerCase()}`;
-                                        map[tokenName] = {
-                                            original: value.$value,
-                                            type: value.$type
-                                        };
+                                        const tokenName = `--${currentPath.map(p => p.replace(/\s+/g, '-')).join('-').toLowerCase()}`;
+                                        map[tokenName] = { original: value.$value, type: value.$type };
                                     } else {
                                         buildMetadataMap(value, map, currentPath);
                                     }
@@ -1036,11 +1040,24 @@
                         console.error('Error building metadata map:', e);
                     }
                 }
-                buildMetadataMap(preservedLight, tokenMetadata);
                 
-                console.log(`Built metadata for ${Object.keys(tokenMetadata).length} tokens`);
+                const activeAliasSlug = aliasToSlug(localStorage.getItem('tokenViewerAlias') || 'myQ');
+                const aliasData = tokensByAlias[activeAliasSlug] || tokensByAlias['myq'] || Object.values(tokensByAlias)[0];
+                if (aliasData) {
+                    tokensLight.length = 0;
+                    tokensLight.push(...aliasData.light);
+                    tokensDark.length = 0;
+                    tokensDark.push(...aliasData.dark);
+                    tokens = tokensLight;
+                    Object.assign(tokenMetadata, aliasData.metadata);
+                }
+                console.log(`Processed ${tokensLight.length} light, ${tokensDark.length} dark tokens for alias "${activeAliasSlug}"`);
                 
-                // Apply theme before first paint
+                function applyAlias() {
+                    const slug = aliasToSlug(localStorage.getItem('tokenViewerAlias') || 'myQ');
+                    document.documentElement.setAttribute('data-alias', slug);
+                }
+                applyAlias();
                 applyTheme();
                 
                 // Initialize the UI after tokens are loaded
@@ -1059,10 +1076,21 @@
                     'deep-blue': 'deepBlue', 'deep-green': 'deepGreen', 'bright-yellow': 'brightYellow',
                     'on-color': 'onColor', 'on-subtle': 'onSubtle', 'mid-blue': 'midBlue', 'mid-green': 'midGreen',
                     'new-sky': 'newSky', 'day-glow': 'dayGlow', 'action-lighter': 'actionLighter',
-                    'action-light': 'actionLight', 'action-dark': 'actionDark', 'action-darker': 'actionDarker'
+                    'action-light': 'actionLight', 'action-dark': 'actionDark', 'action-darker': 'actionDarker',
+                    'font-size': 'fontSize', 'font-weight': 'fontWeight', 'line-height': 'lineHeight',
+                    'font-family': 'fontFamily', 'letter-spacing': 'letterSpacing', 'text-decoration': 'textDecoration',
+                    'body-lg': 'bodyLg', 'body-md': 'bodyMd', 'body-sm': 'bodySm', 'caption-sm': 'captionSm', 'caption-lg': 'captionLg',
+                    'label-sm': 'labelSm', 'label-md': 'labelMd', 'label-lg': 'labelLg', 'link-sm': 'linkSm', 'link-md': 'linkMd'
                 },
-                layerNames: { 'type': 'Text Style Preview', 'texttoken': 'Text Token Properties' },
+                layerNames: {
+                    'type': 'Text Style Preview', 'texttoken': 'Text Token Properties',
+                    'typestyles': 'Type Styles', 'styles': 'Type Styles',
+                    'headings': 'Headings', 'subtitle': 'Subtitle', 'body': 'Body',
+                    'label': 'Label', 'caption': 'Caption', 'link': 'Link', 'button': 'Button'
+                },
                 treeSortOrder: ['nexus', 'mui', 'ios'],
+                // Type Styles children: ensure Label and Caption appear as separate folders in correct order
+                typeStylesSortOrder: ['headings', 'subtitle', 'body', 'label', 'caption', 'link', 'button'],
                 categoryDisplayNames: {
                     color: 'Colors', opacity: 'Opacity', spacing: 'Spacing', sizing: 'Sizing',
                     typography: 'Typography', gradient: 'Gradients', surface: 'Surface', effect: 'Effects',
@@ -1072,6 +1100,12 @@
                 },
                 defaultFilterCategories: ['color', 'opacity', 'spacing', 'sizing', 'typography', 'gradient', 'surface', 'effect']
             };
+            // Hide 01/02/03 source layers - tokens are already displayed in reorganized folders (Nexus, MUI, etc.)
+            function isHiddenTreeKey(key) {
+                if (!key) return false;
+                const k = String(key).trim();
+                return k === '01' || k === '02' || k === '03' || /^0[123]\s/.test(k);
+            }
             
             // Build hierarchical tree - PASSTHROUGH: mirrors source structure, no hardcoded categorization
             function buildTree(tokens) {
@@ -1116,14 +1150,17 @@
                 return tree;
             }
             
+            // Folders to preserve (never collapse) - e.g. Label, Caption under Type Styles
+            const PRESERVE_FOLDERS = ['label', 'caption', 'headings', 'subtitle', 'body', 'link', 'button'];
             // Collapse folders that only contain a single child folder (no tokens)
             function collapseSingleChildFolders(node) {
                 // Get all keys except _tokens
                 const keys = Object.keys(node).filter(k => k !== '_tokens');
                 
                 // If this node has exactly one child and no tokens of its own
-                if (keys.length === 1 && (!node._tokens || node._tokens.length === 0)) {
-                    const childKey = keys[0];
+                const childKey = keys[0];
+                const shouldPreserveChild = childKey && PRESERVE_FOLDERS.includes(childKey.toLowerCase());
+                if (keys.length === 1 && (!node._tokens || node._tokens.length === 0) && !shouldPreserveChild) {
                     const child = node[childKey];
                     
                     // Recursively collapse the child first
@@ -1155,6 +1192,78 @@
                 if (isNaN(num)) return null;
                 if (typeof val === 'string' && val.includes('%')) return num / 100;
                 return num;
+            }
+
+            // Typography: synthesize typographyProps from sibling tokens (decomposed source)
+            const TYPOGRAPHY_PROP_MAP = { 'font-size': 'fontSize', 'fontsize': 'fontSize', 'font-weight': 'fontWeight', 'fontweight': 'fontWeight', 'line-height': 'lineHeight', 'lineheight': 'lineHeight', 'font-family': 'fontFamily', 'fontfamily': 'fontFamily', 'letter-spacing': 'letterSpacing', 'letterspacing': 'letterSpacing', 'text-decoration': 'textDecoration', 'textdecoration': 'textDecoration' };
+            const TYPOGRAPHY_PROP_SUFFIXES = ['font-size', 'fontsize', 'font-weight', 'fontweight', 'line-height', 'lineheight', 'font-family', 'fontfamily', 'letter-spacing', 'letterspacing', 'text-decoration', 'textdecoration'];
+            function getTypographyPropsFromSiblings(token, tokensArr) {
+                const name = (token.name || '').replace(/^--/, '').toLowerCase();
+                let parentBase = null;
+                for (const suf of TYPOGRAPHY_PROP_SUFFIXES) {
+                    if (name.endsWith('-' + suf)) {
+                        parentBase = name.slice(0, name.length - suf.length - 1);
+                        break;
+                    }
+                }
+                if (!parentBase) return null;
+                const parentPrefix = parentBase + '-';
+                const props = {};
+                for (const t of tokensArr) {
+                    const tn = (t.name || '').replace(/^--/, '').toLowerCase();
+                    if (!tn.startsWith(parentPrefix) || tn === parentBase) continue;
+                    const rest = tn.slice(parentPrefix.length);
+                    const camelKey = TYPOGRAPHY_PROP_MAP[rest];
+                    if (camelKey) props[camelKey] = t.value;
+                }
+                if (!props.fontSize && !props.fontFamily) return null;
+                return Object.keys(props).length > 0 ? props : null;
+            }
+            function isTypographyGroup(tokens) {
+                if (!tokens || tokens.length === 0) return false;
+                const typoProps = TYPOGRAPHY_PROP_SUFFIXES;
+                const allTypo = tokens.every(t => {
+                    const n = (t.name || '').toLowerCase();
+                    return typoProps.some(p => n.endsWith('-' + p));
+                });
+                if (!allTypo) return false;
+                const first = (tokens[0].name || '').replace(/^--/, '').toLowerCase();
+                const parentLen = first.lastIndexOf('-');
+                if (parentLen < 0) return false;
+                const parentPrefix = first.slice(0, parentLen);
+                return tokens.every(t => {
+                    const n = (t.name || '').replace(/^--/, '').toLowerCase();
+                    return n.startsWith(parentPrefix + '-') && typoProps.some(p => n.endsWith('-' + p));
+                });
+            }
+            function synthesizeTypographyToken(tokens, tokensArr) {
+                const firstName = (tokens[0].name || '').replace(/^--/, '').toLowerCase();
+                let parentBase = null;
+                for (const suf of Object.keys(TYPOGRAPHY_PROP_MAP)) {
+                    if (firstName.endsWith('-' + suf)) {
+                        parentBase = firstName.slice(0, firstName.length - suf.length - 1);
+                        break;
+                    }
+                }
+                if (!parentBase) return tokens[0];
+                const parentPrefix = parentBase + '-';
+                const props = {};
+                for (const t of tokens) {
+                    const n = (t.name || '').replace(/^--/, '').toLowerCase();
+                    if (!n.startsWith(parentPrefix)) continue;
+                    const rest = n.slice(parentPrefix.length);
+                    const camelKey = TYPOGRAPHY_PROP_MAP[rest];
+                    if (camelKey) {
+                        const themeToken = getTokenByName(tokensArr, t.name);
+                        props[camelKey] = themeToken ? themeToken.value : t.value;
+                    }
+                }
+                return { name: '--' + parentBase, typographyProps: props, type: 'typography', isComposite: true, value: '' };
+            }
+            /** True when we're in Text Style Preview (type > styles path) - collapse typography props into one card */
+            function isInTextStylePreviewPath(nodePath) {
+                const pathStr = (Array.isArray(nodePath) ? nodePath : []).join('.').toLowerCase();
+                return pathStr.includes('type') && pathStr.includes('styles');
             }
 
             // Build typography style string and sample text for composite typography tokens
@@ -1266,6 +1375,17 @@
             
             // Render preview based on token category
             function renderPreview(token) {
+                // Typography: use typographyProps or synthesize from siblings (decomposed source)
+                const tokensArr = theme === 'dark' ? tokensDark : tokensLight;
+                const typographyProps = token.typographyProps || getTypographyPropsFromSiblings(token, tokensArr);
+                if (typographyProps && (token.type === 'typography' || (token.name || '').toLowerCase().includes('typography'))) {
+                    const display = getTypographyDisplay({ ...token, typographyProps });
+                    if (!display) return `<div class="token-leaf-preview"><div class="preview-typography">No preview</div></div>`;
+                    const { styleStr, sampleText, singleLine } = display;
+                    const singleLineClass = singleLine ? ' preview-typography-single-line' : '';
+                    const previewContent = `<div class="preview-typography${singleLineClass}" style="${styleStr}">${sampleText}</div>`;
+                    return `<div class="token-leaf-preview">${previewContent}</div>`;
+                }
                 // Check if this is a composite token with type metadata
                 if (token.isComposite && token.type === 'typography' && token.typographyProps) {
                     const display = getTypographyDisplay(token);
@@ -1449,13 +1569,16 @@
                     childrenUl.className = 'tree-children';
                     li.setAttribute('data-path', pathStr);
                     
-                    const childKeys = Object.keys(node).filter(k => k !== '_tokens');
+                    const childKeys = Object.keys(node).filter(k => k !== '_tokens' && !isHiddenTreeKey(k));
                     const sortOrder = tokenViewerConfig.treeSortOrder || [];
+                    const typeStylesOrder = tokenViewerConfig.typeStylesSortOrder || [];
+                    const useTypeStylesOrder = isInTextStylePreviewPath(nodePath) || pathStr.toLowerCase().includes('styles');
+                    const activeOrder = useTypeStylesOrder && typeStylesOrder.length > 0 ? typeStylesOrder : sortOrder;
                     const sortedChildKeys = childKeys.sort((a, b) => {
                         const aLower = a.toLowerCase();
                         const bLower = b.toLowerCase();
-                        const aIndex = sortOrder.indexOf(aLower);
-                        const bIndex = sortOrder.indexOf(bLower);
+                        const aIndex = activeOrder.indexOf(aLower);
+                        const bIndex = activeOrder.indexOf(bLower);
                         if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
                         if (aIndex !== -1) return -1;
                         if (bIndex !== -1) return 1;
@@ -1469,12 +1592,18 @@
                     
                     // Render leaf tokens
                     if (hasTokens) {
-                        node._tokens.forEach(token => {
+                        let tokensToRender = node._tokens;
+                        const tokensArr = theme === 'dark' ? tokensDark : tokensLight;
+                        // Text Style Preview: collapse typography properties (fontFamily, fontSize, etc.) into single composite card
+                        if (isInTextStylePreviewPath(nodePath) && isTypographyGroup(tokensToRender)) {
+                            tokensToRender = [synthesizeTypographyToken(tokensToRender, tokensArr)];
+                        }
+                        tokensToRender.forEach(token => {
                             const tokenLi = document.createElement('li');
                             tokenLi.className = 'tree-node';
                             
                             // Use theme-specific token for both preview and displayed value (so hex/values update with theme)
-                            const tokenForPreview = getTokenByName(theme === 'dark' ? tokensDark : tokensLight, token.name) || token;
+                            const tokenForPreview = getTokenByName(tokensArr, token.name) || token;
                             
                             // Check if we have metadata for this token
                             const metadata = tokenMetadata[token.name];
@@ -1483,8 +1612,9 @@
                             
                             // Special handling for composite typography tokens - show styled sample instead of raw values
                             let typographyDisplay = null;
-                            if (token.isComposite && token.type === 'typography' && token.typographyProps) {
-                                typographyDisplay = getTypographyDisplay(tokenForPreview);
+                            const typographyProps = tokenForPreview.typographyProps || getTypographyPropsFromSiblings(tokenForPreview, tokensArr);
+                            if (typographyProps) {
+                                typographyDisplay = getTypographyDisplay({ ...tokenForPreview, typographyProps });
                             }
                             
                             // Surface tokens: preview shows combined fill+effect; label uses consistent label style
@@ -1563,40 +1693,33 @@
                 return count;
             }
             
-            // Build and render the tree
-            const tree = buildTree(tokens);
-            
-            // Collapse any folders that only contain a single child folder
-            Object.keys(tree).forEach(key => {
-                collapseSingleChildFolders(tree[key]);
-            });
-            
             const treeContainer = document.getElementById('token-tree');
             
-            // Custom sort order for top-level categories
-            const sortOrder = tokenViewerConfig.treeSortOrder || [];
-            const sortedKeys = Object.keys(tree).sort((a, b) => {
-                const aLower = a.toLowerCase();
-                const bLower = b.toLowerCase();
-                const aIndex = sortOrder.indexOf(aLower);
-                const bIndex = sortOrder.indexOf(bLower);
-                
-                // If both are in the priority list, sort by their position
-                if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
-                // If only a is in the list, it comes first
-                if (aIndex !== -1) return -1;
-                // If only b is in the list, it comes first
-                if (bIndex !== -1) return 1;
-                // Otherwise, alphabetical sort
-                return aLower.localeCompare(bLower);
-            });
+            // Build and render the tree from current tokens (called on init and when alias/theme changes)
+            function buildAndRenderTree() {
+                const tree = buildTree(tokens);
+                Object.keys(tree).forEach(key => {
+                    collapseSingleChildFolders(tree[key]);
+                });
+                const sortOrder = tokenViewerConfig.treeSortOrder || [];
+                const sortedKeys = Object.keys(tree).sort((a, b) => {
+                    const aLower = a.toLowerCase();
+                    const bLower = b.toLowerCase();
+                    const aIndex = sortOrder.indexOf(aLower);
+                    const bIndex = sortOrder.indexOf(bLower);
+                    if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
+                    if (aIndex !== -1) return -1;
+                    if (bIndex !== -1) return 1;
+                    return aLower.localeCompare(bLower);
+                });
+                treeContainer.innerHTML = '';
+                sortedKeys.filter(key => !isHiddenTreeKey(key)).forEach(key => {
+                    treeContainer.appendChild(renderTreeNode(key, tree[key]));
+                });
+                document.getElementById('token-count').textContent = `${tokens.length} tokens`;
+            }
             
-            sortedKeys.forEach(key => {
-                treeContainer.appendChild(renderTreeNode(key, tree[key]));
-            });
-            
-            // Update token count
-            document.getElementById('token-count').textContent = `${tokens.length} tokens`;
+            buildAndRenderTree();
             
             // Dynamic filter chips - built from actual token categories
             const filterChipsContainer = document.getElementById('filter-chips');
@@ -1674,19 +1797,27 @@
                 });
             });
 
-            // Alias theme dropdown (future-proofed: only myQ supported for now)
+            // Alias theme dropdown — switch tokens per theme
             const aliasSelect = document.getElementById('alias-select');
             aliasSelect.value = activeAlias;
             aliasSelect.addEventListener('change', () => {
                 const value = aliasSelect.value;
-                if (value === 'myQ') {
-                    activeAlias = value;
-                    localStorage.setItem('tokenViewerAlias', value);
-                    // Future: reload tokens when other aliases are built; re-render will preserve tree state
+                activeAlias = value;
+                localStorage.setItem('tokenViewerAlias', value);
+                const slug = aliasToSlug(value);
+                const aliasData = tokensByAlias[slug];
+                if (aliasData) {
+                    tokensLight.length = 0;
+                    tokensLight.push(...aliasData.light);
+                    tokensDark.length = 0;
+                    tokensDark.push(...aliasData.dark);
+                    tokens = tokensLight;
+                    Object.keys(tokenMetadata).forEach(k => delete tokenMetadata[k]);
+                    Object.assign(tokenMetadata, aliasData.metadata);
+                    document.documentElement.setAttribute('data-alias', slug);
                     if (reRenderTokenTree) reRenderTokenTree();
                 } else {
-                    console.warn(`Alias "${value}" not yet built. Using myQ.`);
-                    aliasSelect.value = 'myQ';
+                    console.warn(`Alias "${value}" not loaded.`);
                 }
             });
             
@@ -1819,13 +1950,10 @@
                 });
             }
 
-            // Expose re-render for theme toggle (rebuilds tree with theme-specific previews)
+            // Expose re-render for theme/alias toggle (rebuilds tree from current tokens)
             reRenderTokenTree = function() {
                 const expandedPaths = getExpandedPaths();
-                treeContainer.innerHTML = '';
-                sortedKeys.forEach(key => {
-                    treeContainer.appendChild(renderTreeNode(key, tree[key]));
-                });
+                buildAndRenderTree();
                 applyFilters();
                 restoreExpandedPaths(expandedPaths);
             };
