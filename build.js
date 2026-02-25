@@ -76,24 +76,77 @@ StyleDictionary.registerTransform({
   }
 });
 
-// Source files — replace Nexus-Source-Tokens/tokens/ entirely when designers provide new token exports
-const TOKENS_BASE = 'Nexus-Source-Tokens/tokens';
-const SOURCE_FILES = [
-  `${TOKENS_BASE}/01 Primitive ✅/Mode 1.json`,
-  `${TOKENS_BASE}/01 rem ✅/Mode 1.json`,
-  `${TOKENS_BASE}/02 Alias ✅/myQ.json`,
-  `${TOKENS_BASE}/03 Palette ✅/light.json`,
-  `${TOKENS_BASE}/03 Responsive ✅/Larger Breakpoint.json`,
-  `${TOKENS_BASE}/03 Mapped ✅/Mode 1.json`
-];
-const SOURCE_FILES_DARK = [
-  `${TOKENS_BASE}/01 Primitive ✅/Mode 1.json`,
-  `${TOKENS_BASE}/01 rem ✅/Mode 1.json`,
-  `${TOKENS_BASE}/02 Alias ✅/myQ.json`,
-  `${TOKENS_BASE}/03 Palette ✅/dark.json`,
-  `${TOKENS_BASE}/03 Responsive ✅/Larger Breakpoint.json`,
-  `${TOKENS_BASE}/03 Mapped ✅/Mode 1.json`
-];
+// Source files — auto-discover from tokens folder; use $metadata.json tokenSetOrder when present
+const TOKENS_BASE = path.join(process.cwd(), 'Nexus-Source-Tokens/tokens');
+
+function getSourceFiles() {
+  const metadataPath = path.join(TOKENS_BASE, '$metadata.json');
+  let orderedKeys = [];
+
+  if (fs.existsSync(metadataPath)) {
+    try {
+      const metadata = JSON.parse(fs.readFileSync(metadataPath, 'utf8'));
+      if (metadata.tokenSetOrder && Array.isArray(metadata.tokenSetOrder)) {
+        orderedKeys = metadata.tokenSetOrder;
+      }
+    } catch (e) {
+      console.warn('[build] Could not parse $metadata.json, using glob fallback:', e.message);
+    }
+  }
+
+  if (orderedKeys.length === 0) {
+    // Fallback: glob all JSON, exclude $metadata, sort by path
+    const allFiles = [];
+    function walk(dir) {
+      const entries = fs.readdirSync(dir, { withFileTypes: true });
+      for (const e of entries) {
+        const full = path.join(dir, e.name);
+        if (e.isDirectory()) walk(full);
+        else if (e.name.endsWith('.json') && e.name !== '$metadata.json') {
+          allFiles.push(path.relative(TOKENS_BASE, full));
+        }
+      }
+    }
+    walk(TOKENS_BASE);
+    orderedKeys = allFiles.map((f) => f.replace(/\.json$/, '')).sort();
+  }
+
+  const lightSources = [];
+  const darkSources = [];
+
+  for (const key of orderedKeys) {
+    const filePath = path.join(TOKENS_BASE, `${key}.json`);
+    const relPath = `${key}.json`;
+    const lower = relPath.toLowerCase();
+
+    if (key === '$metadata' || key.endsWith('/$metadata')) continue;
+    if (!fs.existsSync(filePath)) continue;
+
+    if (lower.includes('palette') && lower.includes('light')) {
+      lightSources.push(filePath);
+      continue;
+    }
+    if (lower.includes('palette') && lower.includes('dark')) {
+      darkSources.push(filePath);
+      continue;
+    }
+
+    lightSources.push(filePath);
+    darkSources.push(filePath);
+  }
+
+  if (!lightSources.length) {
+    throw new Error('No token files found. Add JSON files to Nexus-Source-Tokens/tokens/ or ensure 03 Palette ✅/light.json exists.');
+  }
+  const hasDarkPalette = darkSources.some((p) => p.toLowerCase().includes('palette') && p.toLowerCase().includes('dark'));
+  if (!hasDarkPalette) {
+    throw new Error('No dark palette found. Ensure 03 Palette ✅/dark.json exists for dark theme build.');
+  }
+
+  return { light: lightSources, dark: darkSources };
+}
+
+const { light: SOURCE_FILES, dark: SOURCE_FILES_DARK } = getSourceFiles();
 
 // Custom format to preserve typography composite tokens with metadata
 StyleDictionary.registerFormat({

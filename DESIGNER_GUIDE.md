@@ -1,6 +1,6 @@
 # Designer Guide: Token Source Files
 
-Replace the `tokens` folder with your exported token files. The build reads from `Nexus-Source-Tokens/tokens/`.
+Replace the `tokens` folder with your exported token files. The build **auto-discovers** all JSON files in `Nexus-Source-Tokens/tokens/` — no need to edit `build.js` when adding new files.
 
 ---
 
@@ -11,7 +11,14 @@ Replace the `tokens` folder with your exported token files. The build reads from
 3. Run `npm run build`.
 4. Tokens appear in `dist/css/tokens.css` and the Token Viewer.
 
-**Expected structure:** The build expects specific file paths (see `build.js`). Keep the same folder and file names, or update `build.js` to match your structure.
+**New files are auto-included:** Add any `.json` file to the tokens folder and it will be picked up by the next build.
+
+---
+
+## Merge order
+
+- **With `$metadata.json`:** Tokens Studio exports include this file with a `tokenSetOrder` array. The build uses this order to merge token files (later files override earlier ones).
+- **Without metadata:** Files are included in path-sorted order. Add `$metadata.json` with `tokenSetOrder` if you need to control merge order.
 
 ---
 
