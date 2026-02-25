@@ -1646,7 +1646,8 @@
                 
                 // First pass: Show/hide token leaves based on filters
                 leaves.forEach(leaf => {
-                    const name = leaf.querySelector('.token-leaf-name').textContent.toLowerCase();
+                    const nameEl = leaf.querySelector('.token-leaf-name') || leaf.querySelector('.token-leaf-label-text');
+                    const name = nameEl ? nameEl.textContent.toLowerCase() : '';
                     const category = leaf.dataset?.category || getTokenCategory(name);
                     
                     const matchesSearch = name.includes(searchTerm) || searchTerm === '';
