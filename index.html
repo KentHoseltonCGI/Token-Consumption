@@ -1150,8 +1150,8 @@
                 return tree;
             }
             
-            // Folders to preserve (never collapse) - e.g. Label, Caption under Type Styles
-            const PRESERVE_FOLDERS = ['label', 'caption', 'headings', 'subtitle', 'body', 'link', 'button'];
+            // Folders to preserve (never collapse) - e.g. Label, Caption under Type Styles; Surface under Effect
+            const PRESERVE_FOLDERS = ['label', 'caption', 'headings', 'subtitle', 'body', 'link', 'button', 'surface'];
             // Collapse folders that only contain a single child folder (no tokens)
             function collapseSingleChildFolders(node) {
                 // Get all keys except _tokens
@@ -1323,6 +1323,39 @@
                 }).join(', ');
             }
             
+            // Build layered surface style from surfaceProps (fill + overlay + effect) - mirrors typography compound pattern
+            // Prefers var() for theme switching when token name maps to Nexus vars
+            function getSurfaceDisplay(token) {
+                if (!token.surfaceProps) return null;
+                const { fill, overlay, effect } = token.surfaceProps;
+                const n = (token.name || '').replace(/^--/, '').toLowerCase();
+                const surfaceVarMap = {
+                    'nexus-effect-surface-sm': { overlay: 'nexus-color-overlay-elevation-1', effect: 'nexus-effect-bottom-shadow-sm' },
+                    'nexus-effect-surface-md': { overlay: 'nexus-color-overlay-elevation-2', effect: 'nexus-effect-bottom-shadow-md' },
+                    'nexus-effect-surface-lg': { overlay: 'nexus-color-overlay-elevation-4', effect: 'nexus-effect-bottom-shadow-lg' },
+                    'nexus-effect-surface-subtle': { overlay: 'nexus-color-overlay-elevation-0', effect: 'nexus-effect-bottom-shadow-subtle' }
+                };
+                const vars = surfaceVarMap[n];
+                const fillCss = vars ? 'var(--nexus-color-background-surface-primary, #ffffff)' : ((typeof fill === 'string') ? fill : 'var(--nexus-color-background-surface-primary, #ffffff)');
+                const overlayResolved = (typeof overlay === 'string') ? overlay : 'transparent';
+                const overlayCss = vars ? `var(--${vars.overlay}, ${overlayResolved})` : overlayResolved;
+                let effectCss = 'none';
+                if (effect != null) {
+                    if (typeof effect === 'string') {
+                        effectCss = effect;
+                    } else if (typeof effect === 'object') {
+                        effectCss = boxShadowToCss(effect);
+                    }
+                }
+                if (vars) effectCss = `var(--${vars.effect}, ${effectCss})`;
+                const isTransparent = !overlayCss || overlayCss === 'transparent' || overlayCss === 'rgba(255,255,255,0)' || overlayCss === '#ffffff00';
+                const overlayGradient = !isTransparent 
+                    ? `linear-gradient(to bottom, ${overlayCss}, ${overlayCss})` 
+                    : 'none';
+                const styleStr = `background-color: ${fillCss}; background-image: ${overlayGradient}; box-shadow: ${effectCss}; border: none;`;
+                return { styleStr };
+            }
+            
             // Get token category for visual preview - TYPE-FIRST (DTCG), name fallback for tokens without $type
             function getTokenCategory(name, token) {
                 const n = (name || '').toLowerCase();
@@ -1396,8 +1429,13 @@
                     return `<div class="token-leaf-preview">${previewContent}</div>`;
                 }
                 
-                // Surface: MUI elevation.bg + paper-overlay layered (consumption-layer only; source tokens unchanged)
-                if (token.isComposite && token.type === 'surface' && token.surfaceProps) {
+                // Surface: layered fill + overlay + effect (from surfaceProps or legacy hardcoded mapping)
+                if (token.isComposite && token.type === 'surface') {
+                    const display = getSurfaceDisplay(token);
+                    if (display) {
+                        return `<div class="token-leaf-preview"><div class="preview-surface" style="${display.styleStr}"></div></div>`;
+                    }
+                    // Legacy fallback when surfaceProps missing (nexus-surface-sm/md/lg/subtle)
                     const n = (token.name || '').replace(/^--/, '').toLowerCase();
                     const overlayMap = {
                         'nexus-surface-sm': 'elevation-1',

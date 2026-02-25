@@ -921,44 +921,6 @@
       "$value": "linear-gradient(188deg, #f2f5fa 0%, #e0ebff 100%)"
     }
   },
-  "Nexus-Surface": {
-    "sm": {
-      "$type": "surface",
-      "$value": {
-        "fill": "{Nexus.color.background.surface.primary}",
-        "effect": "{Nexus-Effect.Bottom-Shadow.Sm}"
-      }
-    },
-    "md": {
-      "$type": "surface",
-      "$value": {
-        "fill": "{Nexus.color.background.surface.primary}",
-        "effect": "{Nexus-Effect.Bottom-Shadow.Md}"
-      }
-    },
-    "lg": {
-      "$type": "surface",
-      "$value": {
-        "fill": "{Nexus.color.background.surface.primary}",
-        "effect": "{Nexus-Effect.Bottom-Shadow.Lg}"
-      }
-    },
-    "subtle": {
-      "$type": "surface",
-      "$value": {
-        "fill": "{Nexus.color.background.surface.primary}",
-        "effect": "{Nexus-Effect.Bottom-Shadow.Subtle}"
-      }
-    },
-    "outline": {
-      "$type": "surface",
-      "$value": {
-        "fill": "{Nexus.color.background.surface.primary}",
-        "effect": "{Nexus-Effect.Flat}",
-        "border": "{Nexus.color.border.muted}"
-      }
-    }
-  },
   "Nexus-Effect": {
     "Flat": {
       "$type": "boxShadow",
@@ -1014,6 +976,40 @@
           "y": 12,
           "blur": 24,
           "spread": 0
+        }
+      }
+    },
+    "Surface": {
+      "sm": {
+        "$type": "surface",
+        "$value": {
+          "fill": "{Nexus.color.background.surface.primary}",
+          "overlay": "{Nexus.color.overlay.elevation-1}",
+          "effect": "{Nexus-Effect.Bottom-Shadow.Sm}"
+        }
+      },
+      "md": {
+        "$type": "surface",
+        "$value": {
+          "fill": "{Nexus.color.background.surface.primary}",
+          "overlay": "{Nexus.color.overlay.elevation-2}",
+          "effect": "{Nexus-Effect.Bottom-Shadow.Md}"
+        }
+      },
+      "lg": {
+        "$type": "surface",
+        "$value": {
+          "fill": "{Nexus.color.background.surface.primary}",
+          "overlay": "{Nexus.color.overlay.elevation-4}",
+          "effect": "{Nexus-Effect.Bottom-Shadow.Lg}"
+        }
+      },
+      "subtle": {
+        "$type": "surface",
+        "$value": {
+          "fill": "{Nexus.color.background.surface.primary}",
+          "overlay": "{Nexus.color.overlay.elevation-0}",
+          "effect": "{Nexus-Effect.Bottom-Shadow.Subtle}"
         }
       }
     },

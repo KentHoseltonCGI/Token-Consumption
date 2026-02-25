@@ -24,6 +24,11 @@ StyleDictionary.registerPreprocessor({
         obj._isComposite = true;
         obj._compositeType = 'typography';
       }
+      // Check if this is a surface composite token (fill + overlay + effect)
+      if (obj.$type === 'surface' && obj.$value && typeof obj.$value === 'object' && ('fill' in obj.$value || 'overlay' in obj.$value || 'effect' in obj.$value)) {
+        obj._isComposite = true;
+        obj._compositeType = 'surface';
+      }
       
       // Recurse through the token tree
       for (const key in obj) {
