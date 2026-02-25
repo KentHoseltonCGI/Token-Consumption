@@ -1,0 +1,25 @@
+---
+description: Dark mode implementation for Token Viewer - palette switch in previews and page theme
+globs: index.html,build.js,Token-Consumption-Context-Files/**
+alwaysApply: false
+---
+
+# Dark Mode - Token Viewer
+
+When implementing dark mode for this project:
+
+## Primary Goal
+Switch palette modes (light ↔ dark) in the **token preview area**. Color swatches, opacity overlays, typography samples, and other previews must resolve and display values from the active theme's palette.
+
+## Secondary Goal
+Apply dark mode to the **page chrome** (backgrounds, text, borders, filter chips, tree) so the entire viewer supports light and dark themes.
+
+## Key Context
+- **Source palettes:** `Nexus-Source-Tokens/tokens/03 Palette ✅/light.json` and `dark.json`
+- **Build:** Currently uses `light.json` only. Add dark palette to build or create dual outputs.
+- **Implementation plan:** See `Token-Consumption-Context-Files/DARK_MODE_PLAN.md`
+
+## Constraints
+- Previews must show correct resolved values per theme (not just invert colors)
+- Use token variables for page styling so theme switch propagates automatically
+- Preserve theme preference (localStorage) and optionally respect `prefers-color-scheme`
