@@ -240,148 +240,99 @@
         }
 
         .filter-chip {
-            padding: var(--nexus-spacing-1, 0.25rem) var(--nexus-spacing-3, 0.75rem);
-            border: var(--nexus-shape-border-width-default, 1px) solid var(--nexus-color-border-muted, #e4e8f2);
-            background: var(--nexus-color-background-surface-primary, #ffffff);
-            border-radius: var(--nexus-shape-border-radius-md, 20px);
+            --chip-color: var(--nexus-color-content-secondary, #575d69);
+            --chip-bg-hover: var(--nexus-color-background-surface-subtle, #d1d7e3);
+            --chip-bg-active: var(--nexus-color-content-secondary, #575d69);
+            padding: var(--nexus-spacing-2, 0.5rem) var(--nexus-spacing-4, 1rem);
+            border: none;
+            border-radius: var(--nexus-shape-border-radius-round, 9999px);
+            background: var(--nexus-color-background-surface-tertiary, #e4e8f2);
             cursor: pointer;
             font: var(--nexus-label-md, 500 14px/1 Inter);
-            transition: all 0.15s ease;
-            color: var(--nexus-color-content-secondary, #575d69);
+            color: var(--chip-color);
+            transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
             user-select: none;
         }
 
         .filter-chip:hover {
-            opacity: 0.9;
+            transform: translateY(-1px);
         }
 
         .filter-chip:active {
-            transform: translateY(0);
+            transform: translateY(0) scale(0.98);
+        }
+
+        .filter-chip:focus-visible {
+            outline: 2px solid var(--nexus-color-border-focused, #3660d0);
+            outline-offset: 2px;
         }
 
         .filter-chip.active {
+            background: var(--chip-bg-active);
+            color: var(--nexus-color-system-white, #ffffff);
             font-weight: var(--nexus-typography-font-weight-semibold, 600);
-            box-shadow: var(--nexus-effect-center-shadow-sm, 0 0 5px 0 rgba(0, 0, 0, 0.08));
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+        }
+
+        .filter-chip.active:hover {
+            filter: brightness(1.08);
+            transform: translateY(-1px);
+        }
+
+        .filter-chip.active:active {
+            transform: translateY(0) scale(0.98);
         }
 
         .filter-chip[data-category="all"] {
-            border-color: var(--nexus-color-content-secondary, #575d69);
-            color: var(--nexus-color-content-secondary, #575d69);
-        }
-
-        .filter-chip[data-category="all"]:hover {
-            background: var(--nexus-color-background-surface-tertiary, #e4e8f2);
-        }
-
-        .filter-chip[data-category="all"].active {
-            background: var(--nexus-color-content-link, #172dbd);
-            border-color: var(--nexus-color-content-link, #172dbd);
-            color: var(--nexus-color-foreground-primary-on-color, #ffffff);
+            --chip-color: var(--nexus-color-content-primary, #17191c);
+            --chip-bg-active: var(--nexus-color-content-link, #172dbd);
         }
 
         .filter-chip[data-category="color"] {
-            border-color: var(--nexus-color-deep-blue-200, #c2d5fc);
-            color: var(--nexus-color-deep-blue-700, #17289c);
-        }
-
-        .filter-chip[data-category="color"]:hover {
-            background: var(--nexus-color-background-info-subtle, #e0ebff);
-        }
-
-        .filter-chip[data-category="color"].active {
-            background: var(--nexus-color-deep-blue-700, #17289c);
-            border-color: var(--nexus-color-deep-blue-700, #17289c);
-            color: var(--nexus-color-foreground-primary-on-color, #ffffff);
+            --chip-color: var(--nexus-color-deep-blue-700, #17289c);
+            --chip-bg-hover: var(--nexus-color-deep-blue-100, #e0ebff);
+            --chip-bg-active: var(--nexus-color-deep-blue-700, #17289c);
         }
 
         .filter-chip[data-category="opacity"] {
-            border-color: var(--nexus-color-deep-green-200, #cef5d6);
-            color: var(--nexus-color-deep-green-600, #13ae5c);
-        }
-
-        .filter-chip[data-category="opacity"]:hover {
-            background: var(--nexus-color-background-success-subtle, #e1fae7);
-        }
-
-        .filter-chip[data-category="opacity"].active {
-            background: var(--nexus-color-deep-green-600, #13ae5c);
-            border-color: var(--nexus-color-deep-green-600, #13ae5c);
-            color: var(--nexus-color-foreground-success-on-color, #ffffff);
+            --chip-color: var(--nexus-color-deep-green-600, #13ae5c);
+            --chip-bg-hover: var(--nexus-color-deep-green-100, #e0fff2);
+            --chip-bg-active: var(--nexus-color-deep-green-600, #13ae5c);
         }
 
         .filter-chip[data-category="spacing"] {
-            border-color: var(--nexus-color-yellow-200, #ffe0ba);
-            color: var(--nexus-color-yellow-700, #d78207);
-        }
-
-        .filter-chip[data-category="spacing"]:hover {
-            background: var(--nexus-color-background-warning-subtle, #ffeedb);
-        }
-
-        .filter-chip[data-category="spacing"].active {
-            background: var(--nexus-color-yellow-700, #d78207);
-            border-color: var(--nexus-color-yellow-700, #d78207);
-            color: var(--nexus-color-foreground-warning-on-color, #17191c);
+            --chip-color: var(--nexus-color-yellow-700, #d78207);
+            --chip-bg-hover: var(--nexus-color-yellow-100, #ffeedb);
+            --chip-bg-active: var(--nexus-color-yellow-700, #d78207);
         }
 
         .filter-chip[data-category="sizing"] {
-            border-color: var(--nexus-color-red-200, #ffcbc9);
-            color: var(--nexus-color-red-700, #c61735);
-        }
-
-        .filter-chip[data-category="sizing"]:hover {
-            background: var(--nexus-color-background-error-subtle, #ffe9e8);
-        }
-
-        .filter-chip[data-category="sizing"].active {
-            background: var(--nexus-color-red-700, #c61735);
-            border-color: var(--nexus-color-red-700, #c61735);
-            color: var(--nexus-color-foreground-error-on-color, #ffffff);
+            --chip-color: var(--nexus-color-red-700, #c61735);
+            --chip-bg-hover: var(--nexus-color-red-100, #ffe9e8);
+            --chip-bg-active: var(--nexus-color-red-700, #c61735);
         }
 
         .filter-chip[data-category="typography"] {
-            border-color: var(--nexus-color-blue-200, #cae0fc);
-            color: var(--nexus-color-blue-700, #05549e);
-        }
-
-        .filter-chip[data-category="typography"]:hover {
-            background: var(--nexus-color-background-secondary-subtle, #e0eeff);
-        }
-
-        .filter-chip[data-category="typography"].active {
-            background: var(--nexus-color-blue-700, #05549e);
-            border-color: var(--nexus-color-blue-700, #05549e);
-            color: var(--nexus-color-foreground-accent-on-color, #ffffff);
+            --chip-color: var(--nexus-color-blue-700, #05549e);
+            --chip-bg-hover: var(--nexus-color-blue-100, #e0eeff);
+            --chip-bg-active: var(--nexus-color-blue-700, #05549e);
         }
 
         .filter-chip[data-category="gradient"] {
-            border-color: var(--nexus-color-teal-200, #c2efff);
-            color: var(--nexus-color-teal-600, #029bd1);
-        }
-
-        .filter-chip[data-category="gradient"]:hover {
-            background: var(--nexus-color-teal-100, #def7ff);
-        }
-
-        .filter-chip[data-category="gradient"].active {
-            background: var(--nexus-color-teal-600, #029bd1);
-            border-color: var(--nexus-color-teal-600, #029bd1);
-            color: var(--nexus-color-foreground-accent-on-color, #ffffff);
+            --chip-color: var(--nexus-color-teal-600, #029bd1);
+            --chip-bg-hover: var(--nexus-color-teal-100, #def7ff);
+            --chip-bg-active: var(--nexus-color-teal-600, #029bd1);
         }
 
         .filter-chip[data-category="effect"] {
-            border-color: var(--nexus-color-deep-blue-300, #a6c0f7);
-            color: var(--nexus-color-deep-blue-800, #15227a);
+            --chip-color: var(--nexus-color-deep-blue-800, #15227a);
+            --chip-bg-hover: var(--nexus-color-deep-blue-100, #e0ebff);
+            --chip-bg-active: var(--nexus-color-deep-blue-800, #15227a);
         }
 
-        .filter-chip[data-category="effect"]:hover {
-            background: var(--nexus-color-background-primary-subtle, #e0ebff);
-        }
-
-        .filter-chip[data-category="effect"].active {
-            background: var(--nexus-color-deep-blue-800, #15227a);
-            border-color: var(--nexus-color-deep-blue-800, #15227a);
-            color: var(--nexus-color-foreground-primary-on-color, #ffffff);
+        .filter-chip:not(.active):hover {
+            background: var(--chip-bg-hover);
+            color: var(--chip-color);
         }
 
         .filter-actions {
@@ -693,6 +644,7 @@
             border-bottom: var(--nexus-shape-border-width-default, 1px) solid var(--nexus-color-border-muted, #e4e8f2);
             padding: var(--nexus-spacing-6, 1.5rem);
             position: relative;
+            overflow: visible;
         }
 
         .preview-swatch {
@@ -734,7 +686,8 @@
 
         .preview-spacing {
             width: 100%;
-            height: 80px;
+            min-height: 80px;
+            max-height: 320px;
             border-radius: var(--nexus-shape-border-radius-xxs, 4px);
             border: var(--nexus-shape-border-width-emphasized, 2px) dashed var(--nexus-color-deep-blue-400, #6c90e5);
             background: transparent;
@@ -742,9 +695,11 @@
             align-items: center;
             justify-content: center;
             position: relative;
+            overflow: auto;
         }
 
         .preview-spacing-box {
+            flex-shrink: 0;
             background: var(--nexus-color-content-link, #172dbd);
             border-radius: var(--nexus-shape-border-radius-3xs, 2px);
         }
